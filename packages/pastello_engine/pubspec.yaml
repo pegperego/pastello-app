@@ -2,7 +2,7 @@ name: pastello_engine
 description: "The Pastello drawing engine: document model, commands and rendering."
 version: 0.1.0
 publish_to: none
-repository: https://github.com/pegperego/pastello
+repository: https://github.com/pegperego/pastello-app
 
 environment:
   sdk: ^3.12.0

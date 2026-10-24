@@ -3,7 +3,7 @@
 - **Stato:** ✅ approvata — tutte le decisioni AD-01…AD-17 e D-01…D-10 chiuse il 2026-10-24
 - **Ultimo aggiornamento:** 2026-10-24
 - **Nome dell'app:** *Pastello* — package Android `io.github.pegperego.pastello`
-- **Repository:** `github.com/pegperego/pastello`
+- **Repository:** `github.com/pegperego/pastello-app`
 
 > Ogni decisione è identificata da un codice `AD-xx`. Quando una decisione viene
 > approvata, la riportiamo in inglese come ADR in `docs/adr/`.
@@ -683,7 +683,7 @@ Esito atteso: conferma o correzione di AD-04, AD-05, AD-07.
 | ID | Domanda | Proposta |
 |---|---|---|
 | D-01 | Nome definitivo dell'app e del package Android (`applicationId`) | ✅ **Deciso:** *Pastello*, `io.github.pegperego.pastello` |
-| D-02 | Organizzazione/utente GitHub che ospita il repo | ✅ **Deciso:** account personale `pegperego` → `github.com/pegperego/pastello` |
+| D-02 | Organizzazione/utente GitHub che ospita il repo | ✅ **Deciso:** account personale `pegperego` → `github.com/pegperego/pastello-app` (nome del repository cambiato da `pastello` a `pastello-app` il 2026-10-24) |
 | D-03 | Modello del tablet di casa (RAM, Android, penna sì/no) | ✅ **Deciso:** Xiaomi Redmi Pad 2 11" (display 2.5K a 90 Hz, fascia media-bassa), senza penna → dispositivo di riferimento per prestazioni e test; v1 solo dito |
 | D-04 | Versione Android minima | ✅ **Deciso:** Android 10 (API 29) — `minSdkVersion 29`. Salvataggio in galleria senza permessi di storage, meno casi da testare |
 | D-05 | Foglio di dimensione fissa o "infinito"? | ✅ **Deciso:** fisso, con le proporzioni dello schermo nell'orientamento in cui il foglio viene creato (orizzontale o verticale), mantenute per sempre. Formato A4 eventualmente in futuro come tipo di foglio |
