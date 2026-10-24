@@ -38,7 +38,7 @@ jobs:
         run: git ls-files '*.dart' | xargs dart format --output=none --set-exit-if-changed
 
       - name: Analyze
-        run: flutter analyze app packages prototype
+        run: flutter analyze app packages
 
       - name: Test the engine
         working-directory: packages/pastello_engine

@@ -1,8 +1,9 @@
 # Prototipo tecnico — risultati
 
 - **Ramo:** `prototype`
-- **Codice:** motore in `packages/pastello_engine` (si tiene), app di prova in
-  `prototype/` (si butta)
+- **Codice:** motore in `packages/pastello_engine` (si tiene); l'app di prova
+  `prototype/` è stata rimossa quando l'app vera ha iniziato a disegnare (issue
+  #8), resta consultabile nella cronologia git
 - **Ultimo aggiornamento:** 2026-10-24
 
 ## Cosa c'è nel prototipo

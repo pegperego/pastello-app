@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/settings/settings_providers.dart';
 import '../features/gallery/presentation/gallery_page.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'theme.dart';
 
 /// The root widget. The app opens on the gallery (F-01).
-class PastelloApp extends StatelessWidget {
+class PastelloApp extends ConsumerWidget {
   const PastelloApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // The rotation lock applies to the whole app and survives restarts
+    // (ADR 0002).
+    ref.listen(
+      settingsProvider.select((settings) => settings.value?.rotationLock),
+      (_, lock) => ref.read(orientationSetterProvider)(orientationsFor(lock)),
+    );
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
