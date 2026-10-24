@@ -62,14 +62,26 @@ class _PrototypePageState extends State<PrototypePage>
     super.dispose();
   }
 
-  /// The sheet takes the shape of the available space when it is created
-  /// and keeps it afterwards (D-05).
+  /// The sheet takes the shape of the available space and keeps it once
+  /// something is drawn (D-05). While it is still empty, and there is
+  /// nothing to undo, it follows the screen: on Android the app may be laid
+  /// out in portrait for a moment before the device rotates to landscape.
   CommandStack _stackFor(Size available) {
-    return _stack ??= () {
-      final stack = CommandStack(Drawing(sheetSize: available));
-      _renderer.show(stack.drawing);
-      return stack;
-    }();
+    final current = _stack;
+    if (current != null &&
+        (!current.drawing.isEmpty ||
+            current.canUndo ||
+            current.canRedo ||
+            current.drawing.sheetSize == available)) {
+      return current;
+    }
+    final stack = CommandStack(Drawing(sheetSize: available));
+    _stack = stack;
+    // Shown after the frame: the renderer notifies its listeners.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _renderer.show(stack.drawing),
+    );
+    return stack;
   }
 
   void _execute(DrawingCommand command) {

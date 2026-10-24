@@ -231,6 +231,11 @@ Drawing
 - **Dimensione del foglio fissa** (D-05): presa dalle proporzioni dello
   schermo alla creazione e salvata in `sheet`; ruotando il tablet il foglio
   non si deforma ma viene adattato allo spazio disponibile.
+  **Precisazione (prototipo, 2026-10-24):** finché il foglio è vuoto (e non
+  c'è nulla da annullare) segue la forma dello schermo; la forma si fissa al
+  primo tratto. All'avvio Android può mostrare l'app per un istante in
+  verticale prima di ruotarla: senza questa regola il foglio nascerebbe
+  verticale e apparirebbe piccolo in orizzontale.
 - **Coordinate in unità del foglio**, non in pixel dello schermo: il disegno
   appare identico su tablet diversi e a qualsiasi risoluzione di esportazione.
 - **Ogni elemento ha una `transform`** (posizione, scala, rotazione): spostare

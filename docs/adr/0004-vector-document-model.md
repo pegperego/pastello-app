@@ -28,7 +28,8 @@ Drawing
 ```
 
 - **Sheet units, not screen pixels.** The sheet has a fixed size taken from the
-  screen proportions when it is created, in its orientation at that time.
+  screen proportions. While the sheet is still empty (and there is nothing to
+  undo) it follows the screen; its shape is fixed by the first stroke.
 - **Every element has a transform.** Moving, scaling or rotating changes the
   transform, never the element's own geometry.
 - **Direct manipulation:** text, stickers and shapes can be moved, resized,
