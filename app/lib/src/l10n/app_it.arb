@@ -37,5 +37,14 @@
   "gateQuestion": "{a} + {b} = ?",
   "cancel": "Annulla",
   "confirm": "Conferma",
-  "deleteDigit": "Cancella cifra"
+  "deleteDigit": "Cancella cifra",
+  "toolText": "Testo",
+  "editText": "Modifica il testo",
+  "font": "Carattere",
+  "deleteElement": "Elimina",
+  "rotate": "Ruota",
+  "resize": "Ingrandisci o rimpicciolisci",
+  "done": "Fatto",
+  "writeHere": "Scrivi qui",
+  "fontSample": "Ciao"
 }

@@ -11,6 +11,7 @@ String toolLabel(AppLocalizations l10n, EditorTool tool) => switch (tool) {
   EditorTool.crayon => l10n.toolCrayon,
   EditorTool.rainbow => l10n.toolRainbow,
   EditorTool.eraser => l10n.toolEraser,
+  EditorTool.text => l10n.toolText,
 };
 
 /// Localized name of [width].

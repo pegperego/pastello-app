@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   gate.
 - Drawings are excluded from cloud backups but follow the child to a new
   device with a direct transfer.
+- Texts on the sheet: tap with the Text tool to write (the field stays above
+  the keyboard), then move, resize, rotate, recolor, change font
+  (Andika, Playwrite IT Moderna, Fredoka, Comic Neue), edit or delete.
+  The eraser never erases texts.
 
 ### Removed
 

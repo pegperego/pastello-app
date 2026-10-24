@@ -6,11 +6,14 @@ library;
 
 export 'src/commands/commands.dart';
 export 'src/document/drawing.dart';
+export 'src/document/drawing_element.dart';
+export 'src/document/element_transform.dart';
 export 'src/document/element_id.dart';
 export 'src/document/serialization.dart';
 export 'src/document/sheet_point.dart';
 export 'src/document/stroke_element.dart';
 export 'src/document/stroke_tool.dart';
+export 'src/document/text_element.dart';
 export 'src/geometry/hit_test.dart';
 export 'src/geometry/simplify.dart';
 export 'src/geometry/stroke_outline.dart';

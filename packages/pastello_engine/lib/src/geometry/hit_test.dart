@@ -16,8 +16,20 @@ bool eraserTouchesStroke(
   StrokeElement stroke,
 ) {
   if (eraser.isEmpty || stroke.points.isEmpty) return false;
+  // Work in the stroke's own coordinates.
+  final t = stroke.transform;
+  if (!t.isIdentity) {
+    eraser = [
+      for (final p in eraser)
+        () {
+          final local = t.invert(p.offset);
+          return SheetPoint(local.dx, local.dy);
+        }(),
+    ];
+    eraserWidth /= t.scale;
+  }
   final reach = (eraserWidth + stroke.width) / 2;
-  if (!polylineBounds(eraser).inflate(reach).overlaps(stroke.bounds)) {
+  if (!polylineBounds(eraser).inflate(reach).overlaps(stroke.localBounds)) {
     return false;
   }
   final reachSquared = reach * reach;

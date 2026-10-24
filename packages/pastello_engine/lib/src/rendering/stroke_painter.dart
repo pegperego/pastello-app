@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/painting.dart' show HSVColor;
 
+import '../document/drawing_element.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
+import '../document/text_element.dart';
 import '../document/stroke_tool.dart';
 import '../geometry/stroke_outline.dart';
 import 'paper_grain.dart';
@@ -18,14 +20,31 @@ double grainStrength(StrokeTool tool) => switch (tool) {
   _ => 0,
 };
 
-/// Paints [stroke] on [canvas], in sheet coordinates.
+/// Paints any [element] on [canvas], in sheet coordinates.
+void paintElement(Canvas canvas, DrawingElement element, PaperGrain grain) {
+  final t = element.transform;
+  if (!t.isIdentity) {
+    canvas
+      ..save()
+      ..transform(t.matrix);
+  }
+  switch (element) {
+    case StrokeElement():
+      paintStroke(canvas, element, grain);
+    case TextElement():
+      element.paintLocal(canvas);
+  }
+  if (!t.isIdentity) canvas.restore();
+}
+
+/// Paints [stroke] on [canvas], in the stroke's local coordinates.
 ///
 /// Strokes with grain or erasures are composited in their own layer so the
 /// grain and the eraser only remove pixels of this stroke (ADR 0006).
 void paintStroke(Canvas canvas, StrokeElement stroke, PaperGrain grain) {
   final strength = grainStrength(stroke.tool);
   final needsLayer = strength > 0 || stroke.erasures.isNotEmpty;
-  final bounds = stroke.bounds;
+  final bounds = stroke.localBounds;
 
   if (needsLayer) canvas.saveLayer(bounds, Paint());
   paintStrokeInk(

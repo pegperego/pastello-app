@@ -10,6 +10,8 @@ void registerBundledLicenses() {
     for (final (font, file) in const [
       ('Andika', 'assets/fonts/Andika-OFL.txt'),
       ('Fredoka', 'assets/fonts/Fredoka-OFL.txt'),
+      ('Playwrite IT Moderna', 'assets/fonts/PlaywriteITModerna-OFL.txt'),
+      ('Comic Neue', 'assets/fonts/ComicNeue-OFL.txt'),
     ]) {
       yield LicenseEntryWithLineBreaks([
         font,

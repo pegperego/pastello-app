@@ -164,5 +164,41 @@
   "deleteDigit": "Delete digit",
   "@deleteDigit": {
     "description": "Keypad backspace key."
+  },
+  "toolText": "Text",
+  "@toolText": {
+    "description": "Tool name."
+  },
+  "editText": "Edit the text",
+  "@editText": {
+    "description": "Button on a selected text."
+  },
+  "font": "Font",
+  "@font": {
+    "description": "Button that opens the font chooser."
+  },
+  "deleteElement": "Delete",
+  "@deleteElement": {
+    "description": "Deletes the selected element."
+  },
+  "rotate": "Rotate",
+  "@rotate": {
+    "description": "Handle that rotates the selected element."
+  },
+  "resize": "Make bigger or smaller",
+  "@resize": {
+    "description": "Handle that resizes the selected element."
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Ends typing a text."
+  },
+  "writeHere": "Write here",
+  "@writeHere": {
+    "description": "Hint of the empty text field."
+  },
+  "fontSample": "Hello",
+  "@fontSample": {
+    "description": "Word used to preview each font."
   }
 }
