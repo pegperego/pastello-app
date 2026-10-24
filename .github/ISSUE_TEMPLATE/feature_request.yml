@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an idea for the app
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: Describe what a child (or a parent) wants to achieve and why it is hard today.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Project principles
+      description: See CONTRIBUTING.md
+      options:
+        - label: The feature works without an internet connection.
+          required: true
+        - label: The feature does not collect or send any data.
+          required: true
+        - label: The feature can be used by a child who reads little.
