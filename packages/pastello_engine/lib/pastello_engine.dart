@@ -1,0 +1,19 @@
+/// The Pastello drawing engine.
+///
+/// Pure Flutter rendering code with no dependency on the app, the file system
+/// or platform plugins (ADR 0012).
+library;
+
+export 'src/commands/commands.dart';
+export 'src/document/drawing.dart';
+export 'src/document/element_id.dart';
+export 'src/document/sheet_point.dart';
+export 'src/document/stroke_element.dart';
+export 'src/document/stroke_tool.dart';
+export 'src/geometry/hit_test.dart';
+export 'src/geometry/simplify.dart';
+export 'src/geometry/stroke_outline.dart';
+export 'src/rendering/drawing_renderer.dart';
+export 'src/rendering/paper_grain.dart';
+export 'src/rendering/sheet_painter.dart';
+export 'src/rendering/stroke_painter.dart';

@@ -1,0 +1,6 @@
+include: ../../analysis_options.yaml
+
+linter:
+  rules:
+    # The engine is a library: every public API must be documented.
+    - public_member_api_docs

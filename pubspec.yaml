@@ -1,0 +1,13 @@
+# Workspace root. See docs/adr/0012-workspace-app-and-engine.md.
+name: pastello_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+
+workspace:
+  - packages/pastello_engine
+  - prototype
+
+dev_dependencies:
+  flutter_lints: ^6.0.0

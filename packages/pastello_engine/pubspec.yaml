@@ -1,0 +1,21 @@
+name: pastello_engine
+description: "The Pastello drawing engine: document model, commands and rendering."
+version: 0.1.0
+publish_to: none
+repository: https://github.com/pegperego/pastello
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+resolution: workspace
+
+# The engine has no third-party dependencies by design (ADR 0014).
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
