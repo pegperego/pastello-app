@@ -33,8 +33,8 @@ void main() {
     FileDrawingRepository? into,
   }) async {
     final stack = CommandStack(const Drawing(sheetSize: Size(400, 300)))
-      ..execute(AddStrokeCommand(stroke(50)))
-      ..execute(AddStrokeCommand(stroke(150)))
+      ..execute(AddElementCommand(stroke(50)))
+      ..execute(AddElementCommand(stroke(150)))
       ..undo();
     await (into ?? repository).save(
       id,

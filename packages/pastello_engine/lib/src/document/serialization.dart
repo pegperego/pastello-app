@@ -2,15 +2,18 @@ import 'dart:ui';
 
 import '../commands/commands.dart';
 import 'drawing.dart';
+import 'drawing_element.dart';
+import 'element_transform.dart';
 import 'sheet_point.dart';
 import 'stroke_element.dart';
 import 'stroke_tool.dart';
+import 'text_element.dart';
 
 /// Version of the drawing file format written by this code.
 ///
 /// Bump it when the format changes and add a step to [migrateDrawingJson].
 /// The format is documented in `docs/file-format.md`.
-const int drawingSchemaVersion = 1;
+const int drawingSchemaVersion = 2;
 
 /// Thrown when a file cannot be read: it is malformed, or it was written by a
 /// newer version of the app.
@@ -32,7 +35,7 @@ Map<String, Object?> drawingToJson(Drawing drawing) => {
     'width': _round(drawing.sheetSize.width),
     'height': _round(drawing.sheetSize.height),
   },
-  'elements': [for (final e in drawing.elements) strokeToJson(e)],
+  'elements': [for (final e in drawing.elements) elementToJson(e)],
 };
 
 /// Decodes a drawing written by [drawingToJson], migrating older versions.
@@ -42,7 +45,7 @@ Drawing drawingFromJson(Map<String, Object?> json) {
   return Drawing(
     sheetSize: Size(_double(sheet['width']), _double(sheet['height'])),
     elements: [
-      for (final e in _list(current['elements'])) strokeFromJson(_map(e)),
+      for (final e in _list(current['elements'])) elementFromJson(_map(e)),
     ],
   );
 }
@@ -62,8 +65,71 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
       'this app reads up to $drawingSchemaVersion)',
     );
   }
-  // No migrations yet: version 1 is the first format.
+  // Version 2 added texts and element transforms: a version 1 file is a
+  // valid version 2 file, nothing to convert.
   return json;
+}
+
+/// Encodes any element.
+Map<String, Object?> elementToJson(DrawingElement element) => switch (element) {
+  StrokeElement() => strokeToJson(element),
+  TextElement() => textToJson(element),
+  _ => throw ArgumentError('Cannot serialize ${element.runtimeType}'),
+};
+
+/// Decodes an element written by [elementToJson].
+DrawingElement elementFromJson(Map<String, Object?> json) =>
+    switch (json['type']) {
+      'stroke' => strokeFromJson(json),
+      'text' => textFromJson(json),
+      final type => throw DrawingFormatException('Unknown element type $type'),
+    };
+
+/// Encodes a text.
+Map<String, Object?> textToJson(TextElement text) => {
+  'type': 'text',
+  'id': text.id,
+  'text': text.text,
+  'color': text.color.toARGB32(),
+  'font': text.font.name,
+  'fontSize': _round(text.fontSize),
+  ..._transformToJson(text.transform),
+};
+
+/// Decodes a text written by [textToJson].
+TextElement textFromJson(Map<String, Object?> json) {
+  final fontName = json['font'];
+  return TextElement(
+    id: _string(json['id']),
+    text: _string(json['text']),
+    color: Color(_int(json['color'])),
+    font:
+        TextFont.values.where((f) => f.name == fontName).firstOrNull ??
+        TextFont.andika,
+    fontSize: _double(json['fontSize']),
+    transform: _transformFromJson(json['transform']),
+  );
+}
+
+Map<String, Object?> _transformToJson(ElementTransform t) => t.isIdentity
+    ? const {}
+    : {
+        'transform': {
+          'x': _round(t.translation.dx),
+          'y': _round(t.translation.dy),
+          'scale': t.scale,
+          'rotation': t.rotation,
+        },
+      };
+
+ElementTransform _transformFromJson(Object? json) {
+  if (json == null) return ElementTransform.identity;
+  final t = _map(json);
+  return ElementTransform(
+    translation: Offset(_double(t['x']), _double(t['y'])),
+    scale: _double(t['scale']),
+    rotation: _double(t['rotation']),
+  );
 }
 
 /// Encodes a stroke.
@@ -80,6 +146,7 @@ Map<String, Object?> strokeToJson(StrokeElement stroke) => {
   'points': _pointsToJson(stroke.points),
   if (stroke.erasures.isNotEmpty)
     'erasures': [for (final e in stroke.erasures) _erasureToJson(e)],
+  ..._transformToJson(stroke.transform),
 };
 
 /// Decodes a stroke written by [strokeToJson].
@@ -100,39 +167,79 @@ StrokeElement strokeFromJson(Map<String, Object?> json) {
       for (final e in _list(json['erasures'] ?? const <Object?>[]))
         _erasureFromJson(_map(e)),
     ],
+    transform: _transformFromJson(json['transform']),
   );
 }
 
 /// Encodes an undoable command, for the persisted history (ADR 0007).
 Map<String, Object?> commandToJson(DrawingCommand command) => switch (command) {
-  AddStrokeCommand(:final stroke) => {
+  AddElementCommand(:final element) => {
     'type': 'add',
-    'stroke': strokeToJson(stroke),
+    'element': elementToJson(element),
   },
-  EraseCommand(:final erasure, :final strokeIds) => {
+  UpdateElementCommand(:final before, :final after) => {
+    'type': 'update',
+    'before': elementToJson(before),
+    'after': elementToJson(after),
+  },
+  DeleteElementCommand(:final element, :final index) => {
+    'type': 'delete',
+    'element': elementToJson(element),
+    'index': index,
+  },
+  EraseCommand(:final sheetErasure, :final erasures) => {
     'type': 'erase',
-    'erasure': _erasureToJson(erasure),
-    'strokeIds': strokeIds.toList(),
+    'sheetErasure': _erasureToJson(sheetErasure),
+    'erasures': {
+      for (final MapEntry(:key, :value) in erasures.entries)
+        key: _erasureToJson(value),
+    },
   },
   ClearCommand(:final removed) => {
     'type': 'clear',
-    'removed': [for (final e in removed) strokeToJson(e)],
+    'removed': [for (final e in removed) elementToJson(e)],
   },
   _ => throw ArgumentError('Cannot serialize ${command.runtimeType}'),
 };
 
-/// Decodes a command written by [commandToJson].
-DrawingCommand commandFromJson(Map<String, Object?> json) =>
-    switch (json['type']) {
-      'add' => AddStrokeCommand(strokeFromJson(_map(json['stroke']))),
-      'erase' => EraseCommand(_erasureFromJson(_map(json['erasure'])), {
-        for (final id in _list(json['strokeIds'])) _string(id),
-      }),
-      'clear' => ClearCommand([
-        for (final e in _list(json['removed'])) strokeFromJson(_map(e)),
-      ]),
-      final type => throw DrawingFormatException('Unknown command $type'),
-    };
+/// Decodes a command written by [commandToJson], including the version 1
+/// forms (`add` with a `stroke`, `erase` with one `erasure`).
+DrawingCommand commandFromJson(Map<String, Object?> json) {
+  switch (json['type']) {
+    case 'add':
+      return AddElementCommand(
+        json.containsKey('stroke')
+            ? strokeFromJson(_map(json['stroke']))
+            : elementFromJson(_map(json['element'])),
+      );
+    case 'update':
+      return UpdateElementCommand(
+        elementFromJson(_map(json['before'])),
+        elementFromJson(_map(json['after'])),
+      );
+    case 'delete':
+      return DeleteElementCommand(
+        elementFromJson(_map(json['element'])),
+        _int(json['index']),
+      );
+    case 'erase' when json.containsKey('erasure'):
+      final erasure = _erasureFromJson(_map(json['erasure']));
+      return EraseCommand(erasure, {
+        for (final id in _list(json['strokeIds'])) _string(id): erasure,
+      });
+    case 'erase':
+      return EraseCommand(_erasureFromJson(_map(json['sheetErasure'])), {
+        for (final MapEntry(:key, :value) in _map(json['erasures']).entries)
+          key: _erasureFromJson(_map(value)),
+      });
+    case 'clear':
+      return ClearCommand([
+        for (final e in _list(json['removed'])) elementFromJson(_map(e)),
+      ]);
+    case final type:
+      throw DrawingFormatException('Unknown command $type');
+  }
+}
 
 Map<String, Object?> _erasureToJson(Erasure erasure) => {
   'id': erasure.id,

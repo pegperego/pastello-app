@@ -8,7 +8,9 @@ import '../../../app/tokens.dart';
 /// events into sheet points.
 ///
 /// Only the first pointer draws: a second finger or a palm touching the
-/// screen while a stroke is in progress is ignored (ADR 0008).
+/// screen while a stroke is in progress is ignored (ADR 0008). With tools
+/// that do not draw, a tap is reported instead, and [overlayBuilder] adds
+/// widgets on top of the sheet (the selection frame).
 class SheetView extends StatefulWidget {
   const SheetView({
     super.key,
@@ -18,6 +20,9 @@ class SheetView extends StatefulWidget {
     required this.semanticLabel,
     required this.onStrokeStart,
     required this.onStrokeEnd,
+    this.draws = true,
+    this.onTap,
+    this.overlayBuilder,
   });
 
   final Size sheetSize;
@@ -30,6 +35,15 @@ class SheetView extends StatefulWidget {
 
   /// Called when the finger lifts.
   final VoidCallback onStrokeEnd;
+
+  /// Whether a finger on the sheet draws.
+  final bool draws;
+
+  /// Called with the sheet point of a tap, when [draws] is false.
+  final ValueChanged<Offset>? onTap;
+
+  /// Builds widgets above the sheet, positioned in sheet units × scale.
+  final Widget Function(BuildContext context, double scale)? overlayBuilder;
 
   @override
   State<SheetView> createState() => _SheetViewState();
@@ -54,7 +68,7 @@ class _SheetViewState extends State<SheetView> {
   }
 
   void _down(PointerDownEvent event) {
-    if (_activePointer != null) return;
+    if (!widget.draws || _activePointer != null) return;
     _activePointer = event.pointer;
     _clock
       ..reset()
@@ -103,20 +117,40 @@ class _SheetViewState extends State<SheetView> {
               decoration: BoxDecoration(
                 border: Border.all(color: Tokens.border, width: 1.5),
               ),
-              child: Listener(
-                onPointerDown: _down,
-                onPointerMove: _move,
-                onPointerUp: _up,
-                onPointerCancel: _up,
-                child: RepaintBoundary(
-                  child: CustomPaint(
-                    size: sheet * _scale,
-                    painter: SheetPainter(
-                      renderer: widget.renderer,
-                      live: widget.live,
-                      sheetSize: sheet,
+              child: SizedBox.fromSize(
+                size: sheet * _scale,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTapUp: widget.draws
+                            ? null
+                            : (details) => widget.onTap?.call(
+                                details.localPosition / _scale,
+                              ),
+                        child: Listener(
+                          onPointerDown: _down,
+                          onPointerMove: _move,
+                          onPointerUp: _up,
+                          onPointerCancel: _up,
+                          child: RepaintBoundary(
+                            child: CustomPaint(
+                              painter: SheetPainter(
+                                renderer: widget.renderer,
+                                live: widget.live,
+                                sheetSize: sheet,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    if (widget.overlayBuilder != null)
+                      Positioned.fill(
+                        child: widget.overlayBuilder!(context, _scale),
+                      ),
+                  ],
                 ),
               ),
             ),

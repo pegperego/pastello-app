@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pastello_engine/pastello_engine.dart';
@@ -10,9 +11,12 @@ import '../application/editor_controller.dart';
 import '../domain/editor_tool.dart';
 import '../domain/palette.dart';
 import 'editor_buttons.dart';
+import 'font_sheet.dart';
 import 'labels.dart';
 import 'more_colors_sheet.dart';
+import 'selection_overlay.dart';
 import 'sheet_view.dart';
+import 'text_edit_panel.dart';
 
 /// The editor: action bar on top, tools and colors on the sides (landscape)
 /// or at the bottom (portrait), the sheet in the middle (F-03).
@@ -107,15 +111,17 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     final settings = ref.watch(settingsProvider).value ?? const AppSettings();
     final controller = ref.read(editorProvider.notifier);
 
-    // Keep the renderer in sync with the drawing.
+    // Keep the renderer in sync with the drawing and the floating elements
+    // (the text being typed, the element being moved).
     ref.listen(editorProvider, (previous, next) {
       final drawing = next.drawing;
-      if (drawing == null || previous?.revision == next.revision) return;
+      if (drawing == null) return;
       final erasure = next.lastErasure;
-      if (erasure != null) {
+      if (previous?.revision != next.revision && erasure != null) {
         _renderer.showErased(drawing, erasure);
-      } else {
-        _renderer.show(drawing);
+      } else if (previous?.revision != next.revision ||
+          !listEquals(previous?.floating, next.floating)) {
+        _renderer.show(drawing, floating: next.floating);
       }
     });
 
@@ -142,6 +148,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
             semanticLabel: l10n.sheet,
             onStrokeStart: _onStrokeStart,
             onStrokeEnd: _onStrokeEnd,
+            draws: state.tool.draws,
+            onTap: controller.tapSheet,
+            overlayBuilder: (context, scale) =>
+                _selectionOverlay(l10n, state, scale),
           );
         },
       ),
@@ -184,14 +194,15 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     ];
 
     final widths = [
-      for (final width in WidthPreset.values)
-        WidthButton(
-          dotSize: 6.0 + width.index * 9,
-          color: state.tool.usesColor ? state.color : Tokens.graphite,
-          label: widthLabel(l10n, width),
-          selected: state.widths[state.tool] == width,
-          onPressed: () => controller.selectWidth(width),
-        ),
+      if (state.tool.usesWidth)
+        for (final width in WidthPreset.values)
+          WidthButton(
+            dotSize: 6.0 + width.index * 9,
+            color: state.tool.usesColor ? state.color : Tokens.graphite,
+            label: widthLabel(l10n, width),
+            selected: state.widths[state.tool] == width,
+            onPressed: () => controller.selectWidth(width),
+          ),
     ];
 
     final landscape =
@@ -222,6 +233,30 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       );
     }
 
+    final editing = state.editing;
+    if (editing != null) {
+      // The text field sits above the keyboard; the sheet does not shrink
+      // (see resizeToAvoidBottomInset), so it never changes shape.
+      body = Stack(
+        children: [
+          Positioned.fill(child: body),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+            child: TextEditPanel(
+              key: ValueKey(editing.id),
+              initialText: editing.text,
+              hint: l10n.writeHere,
+              doneLabel: l10n.done,
+              onChanged: controller.updateText,
+              onDone: controller.commitText,
+            ),
+          ),
+        ],
+      );
+    }
+
     final locked = settings.rotationLock != null;
     return PopScope(
       canPop: false,
@@ -230,6 +265,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         if (!didPop) _leave();
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: Column(
             children: [
@@ -280,6 +316,56 @@ class _EditorPageState extends ConsumerState<EditorPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+extension on _EditorPageState {
+  /// The selection frame and its buttons, for the selected text (F-07).
+  Widget _selectionOverlay(
+    AppLocalizations l10n,
+    EditorState state,
+    double scale,
+  ) {
+    final selected = state.selected;
+    if (!state.tool.selects || selected == null || state.editing != null) {
+      return const SizedBox.shrink();
+    }
+    final controller = ref.read(editorProvider.notifier);
+    return ElementSelectionOverlay(
+      element: selected,
+      scale: scale,
+      rotateLabel: l10n.rotate,
+      resizeLabel: l10n.resize,
+      onTransform: controller.previewTransform,
+      onTransformEnd: controller.commitTransform,
+      actions: [
+        if (selected is TextElement) ...[
+          SelectionAction(
+            icon: Icons.edit_rounded,
+            tooltip: l10n.editText,
+            onPressed: controller.editSelected,
+          ),
+          SelectionAction(
+            icon: Icons.font_download_rounded,
+            tooltip: l10n.font,
+            onPressed: () async {
+              final font = await showFontSheet(
+                context,
+                selected: selected.font,
+                sample: l10n.fontSample,
+              );
+              if (font != null) controller.selectFont(font);
+            },
+          ),
+        ],
+        SelectionAction(
+          icon: Icons.delete_rounded,
+          tooltip: l10n.deleteElement,
+          color: Tokens.raspberry,
+          onPressed: controller.deleteSelected,
+        ),
+      ],
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 
 import '../document/drawing.dart';
+import '../document/drawing_element.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
 import '../document/stroke_tool.dart';
@@ -47,6 +48,11 @@ class DrawingRenderer extends ChangeNotifier {
   double _pixelScale = 1;
   bool _cacheEnabled = true;
 
+  /// Elements painted on top of everything, outside the cache: the one being
+  /// moved or edited (ADR 0005). Their committed versions are hidden.
+  List<DrawingElement> _floating = const [];
+  Set<String> _hidden = const {};
+
   int _liveGeneration = -1;
   int _frozenUntil = 0;
   ui.Image? _working;
@@ -80,11 +86,28 @@ class DrawingRenderer extends ChangeNotifier {
   }
 
   /// Shows [drawing], updating the cache as cheaply as possible.
-  void show(Drawing drawing) {
+  ///
+  /// [floating] elements are painted on top of everything without touching
+  /// the cache, so they can follow a finger at full frame rate. If one of
+  /// them is also in the drawing (an element being moved), its committed
+  /// version is left out of the cache meanwhile.
+  void show(Drawing drawing, {List<DrawingElement> floating = const []}) {
     final previous = _drawing;
     _drawing = drawing;
-    if (previous != null && _isAppend(previous, drawing)) {
-      _update((canvas) => paintStroke(canvas, drawing.elements.last, grain));
+    final hidden = {
+      for (final f in floating)
+        if (drawing.elementById(f.id) != null) f.id,
+    };
+    final hiddenChanged = !setEquals(hidden, _hidden);
+    _floating = floating;
+    _hidden = hidden;
+    if (!hiddenChanged && identical(previous, drawing)) {
+      notifyListeners();
+    } else if (!hiddenChanged &&
+        previous != null &&
+        _isAppend(previous, drawing) &&
+        !hidden.contains(drawing.elements.last.id)) {
+      _update((canvas) => paintElement(canvas, drawing.elements.last, grain));
     } else {
       _rebuild();
     }
@@ -93,11 +116,44 @@ class DrawingRenderer extends ChangeNotifier {
   /// Shows [drawing], which is the previous drawing after [erasure] was
   /// applied: the cache is updated by painting the background along the
   /// eraser path.
+  ///
+  /// Elements the eraser does not affect (texts...) would be covered by the
+  /// background: when the pass crosses one, the cache is rebuilt instead.
   void showErased(Drawing drawing, Erasure erasure) {
     _drawing = drawing;
+    final area = polylineBounds(erasure.points).inflate(erasure.width);
+    if (_protectedIn(drawing, area).isNotEmpty) {
+      _rebuild();
+      return;
+    }
     _update(
       (canvas) => _paintBackgroundStroke(canvas, erasure.points, erasure.width),
     );
+  }
+
+  /// Elements the eraser leaves untouched whose bounds meet [area].
+  Iterable<DrawingElement> _protectedIn(Drawing drawing, ui.Rect area) =>
+      drawing.elements.where(
+        (e) =>
+            !e.erasable && !_hidden.contains(e.id) && e.bounds.overlaps(area),
+      );
+
+  /// Paints the background along an eraser path, then repaints on top the
+  /// elements the eraser does not affect. During a live pass the z-order of
+  /// those elements is approximate; it is exact again once the pass is
+  /// committed.
+  void _paintEraserPreview(
+    ui.Canvas canvas,
+    List<SheetPoint> points,
+    double width,
+  ) {
+    _paintBackgroundStroke(canvas, points, width);
+    final drawing = _drawing;
+    if (drawing == null || points.isEmpty) return;
+    final area = polylineBounds(points).inflate(width);
+    for (final element in _protectedIn(drawing, area)) {
+      paintElement(canvas, element, grain);
+    }
   }
 
   /// Paints the sheet with the committed content and [live] on top, in sheet
@@ -114,6 +170,13 @@ class DrawingRenderer extends ChangeNotifier {
     if (hasLive) _syncFrozen(live);
     _paintImage(canvas, hasLive ? (_working ?? cache) : cache);
     if (hasLive) _paintTail(canvas, live);
+    _paintFloating(canvas);
+  }
+
+  void _paintFloating(ui.Canvas canvas) {
+    for (final element in _floating) {
+      paintElement(canvas, element, grain);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -124,7 +187,7 @@ class DrawingRenderer extends ChangeNotifier {
     final start = _tailStart(live);
     final tool = live.tool;
     if (tool == null) {
-      _paintBackgroundStroke(canvas, live.points.sublist(start), live.width);
+      _paintEraserPreview(canvas, live.points.sublist(start), live.width);
     } else {
       _paintInkRange(canvas, live, tool, start, live.points.length);
     }
@@ -216,11 +279,7 @@ class DrawingRenderer extends ChangeNotifier {
       ..scale(_pixelScale);
     final tool = live.tool;
     if (tool == null) {
-      _paintBackgroundStroke(
-        canvas,
-        live.points.sublist(start, end),
-        live.width,
-      );
+      _paintEraserPreview(canvas, live.points.sublist(start, end), live.width);
     } else {
       _paintInkRange(canvas, live, tool, start, end);
     }
@@ -265,7 +324,7 @@ class DrawingRenderer extends ChangeNotifier {
 
   void _paintElements(ui.Canvas canvas, Drawing drawing) {
     for (final element in drawing.elements) {
-      paintStroke(canvas, element, grain);
+      if (!_hidden.contains(element.id)) paintElement(canvas, element, grain);
     }
   }
 
@@ -274,10 +333,11 @@ class DrawingRenderer extends ChangeNotifier {
   void _paintUncached(ui.Canvas canvas, Drawing drawing, LiveStroke live) {
     _paintBackground(canvas, drawing.sheetSize);
     _paintElements(canvas, drawing);
+    _paintFloating(canvas);
     if (live.points.isEmpty) return;
     final tool = live.tool;
     if (tool == null) {
-      _paintBackgroundStroke(canvas, live.points, live.width);
+      _paintEraserPreview(canvas, live.points, live.width);
     } else {
       paintStroke(
         canvas,

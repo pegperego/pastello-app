@@ -89,7 +89,12 @@ void main() {
       ..commitStroke([const SheetPoint(100, 0), const SheetPoint(100, 300)]);
     state = c.read(editorProvider);
     expect(state.lastErasure, isNotNull);
-    expect(state.drawing!.elements.every((e) => e.erasures.isNotEmpty), isTrue);
+    expect(
+      state.drawing!.elements.every(
+        (e) => (e as StrokeElement).erasures.isNotEmpty,
+      ),
+      isTrue,
+    );
 
     // An eraser pass that touches nothing is not recorded.
     final revision = state.revision;

@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'drawing_element.dart';
+import 'element_transform.dart';
 import 'sheet_point.dart';
 import 'stroke_tool.dart';
 
@@ -26,19 +28,20 @@ class Erasure {
 }
 
 /// A freehand stroke drawn with one of the [StrokeTool]s.
-class StrokeElement {
+///
+/// Points and erasures are in local coordinates; they equal sheet
+/// coordinates until the stroke is moved with the Select tool.
+class StrokeElement extends DrawingElement {
   /// Creates a stroke.
   const StrokeElement({
-    required this.id,
+    required super.id,
     required this.tool,
     required this.color,
     required this.width,
     required this.points,
     this.erasures = const [],
+    super.transform,
   });
-
-  /// Unique identifier.
-  final String id;
 
   /// Tool used to draw the stroke.
   final StrokeTool tool;
@@ -55,8 +58,9 @@ class StrokeElement {
   /// Eraser passes applied to this stroke, oldest first.
   final List<Erasure> erasures;
 
-  /// Axis-aligned bounds of the stroke, including its width.
-  Rect get bounds {
+  /// Local bounds of the stroke, including its width.
+  @override
+  Rect get localBounds {
     if (points.isEmpty) return Rect.zero;
     var left = points.first.x, right = left;
     var top = points.first.y, bottom = top;
@@ -81,12 +85,27 @@ class StrokeElement {
     ],
   );
 
-  StrokeElement _copyWith({List<Erasure>? erasures}) => StrokeElement(
-    id: id,
+  @override
+  bool get erasable => true;
+
+  @override
+  StrokeElement withTransform(ElementTransform transform) =>
+      _copyWith(transform: transform);
+
+  @override
+  StrokeElement withId(String id) => _copyWith(id: id);
+
+  StrokeElement _copyWith({
+    List<Erasure>? erasures,
+    ElementTransform? transform,
+    String? id,
+  }) => StrokeElement(
+    id: id ?? this.id,
     tool: tool,
     color: color,
     width: width,
     points: points,
     erasures: erasures ?? this.erasures,
+    transform: transform ?? this.transform,
   );
 }

@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import '../document/drawing.dart';
+import '../document/drawing_element.dart';
 import '../document/element_id.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
@@ -15,63 +18,143 @@ abstract interface class DrawingCommand {
   Drawing revert(Drawing drawing);
 }
 
-/// Adds a stroke on top of the drawing.
-class AddStrokeCommand implements DrawingCommand {
-  /// Creates a command that adds [stroke].
-  const AddStrokeCommand(this.stroke);
+/// Adds an element on top of the drawing: a stroke, a text, a duplicate...
+class AddElementCommand implements DrawingCommand {
+  /// Creates a command that adds [element].
+  const AddElementCommand(this.element);
 
-  /// The stroke to add.
-  final StrokeElement stroke;
-
-  @override
-  Drawing apply(Drawing drawing) => drawing.withElementAdded(stroke);
+  /// The element to add.
+  final DrawingElement element;
 
   @override
-  Drawing revert(Drawing drawing) => drawing.withElementRemoved(stroke.id);
+  Drawing apply(Drawing drawing) => drawing.withElementAdded(element);
+
+  @override
+  Drawing revert(Drawing drawing) => drawing.withElementRemoved(element.id);
+}
+
+/// Replaces an element with a changed version of itself: moved, resized,
+/// rotated, recolored, a text edited... (ADR 0004).
+class UpdateElementCommand implements DrawingCommand {
+  /// Creates a command that turns [before] into [after]; both must have the
+  /// same id.
+  UpdateElementCommand(this.before, this.after)
+    : assert(before.id == after.id, 'An update keeps the element id');
+
+  /// The element as it was.
+  final DrawingElement before;
+
+  /// The element as it becomes.
+  final DrawingElement after;
+
+  @override
+  Drawing apply(Drawing drawing) => drawing.withElementReplaced(after);
+
+  @override
+  Drawing revert(Drawing drawing) => drawing.withElementReplaced(before);
+}
+
+/// Removes an element, remembering its place in the z-order.
+class DeleteElementCommand implements DrawingCommand {
+  /// Creates a command that deletes [element], found at [index].
+  const DeleteElementCommand(this.element, this.index);
+
+  /// Creates a command that deletes the element [id] from [drawing], or
+  /// returns `null` if there is no such element.
+  static DeleteElementCommand? forDrawing(Drawing drawing, String id) {
+    final index = drawing.elements.indexWhere((e) => e.id == id);
+    if (index < 0) return null;
+    return DeleteElementCommand(drawing.elements[index], index);
+  }
+
+  /// The deleted element.
+  final DrawingElement element;
+
+  /// Its index in the z-order.
+  final int index;
+
+  @override
+  Drawing apply(Drawing drawing) => drawing.withElementRemoved(element.id);
+
+  @override
+  Drawing revert(Drawing drawing) =>
+      drawing.withElementInserted(index, element);
 }
 
 /// Attaches an eraser pass to every stroke it touches (ADR 0006).
+///
+/// The pass is stored on each stroke in that stroke's local coordinates, so
+/// [erasures] holds one [Erasure] per stroke id, all sharing the same id.
 class EraseCommand implements DrawingCommand {
-  /// Creates an erase command for the strokes listed in [strokeIds].
-  ///
-  /// Use [EraseCommand.forDrawing] to compute the affected strokes.
-  const EraseCommand(this.erasure, this.strokeIds);
+  /// Creates an erase command.
+  const EraseCommand(this.sheetErasure, this.erasures);
 
   /// Creates an erase command for the strokes of [drawing] touched by the
-  /// eraser path [points] of the given [width].
+  /// eraser path [points] of the given [width], in sheet units.
   ///
   /// Returns `null` when the eraser touches nothing, so that empty passes do
-  /// not pollute the undo history.
+  /// not pollute the undo history. Only erasable elements are affected.
   static EraseCommand? forDrawing(
     Drawing drawing,
     List<SheetPoint> points,
     double width,
   ) {
-    final ids = <String>{
+    final sheetErasure = Erasure(
+      id: newElementId(),
+      points: points,
+      width: width,
+    );
+    final erasures = <String, Erasure>{
       for (final e in drawing.elements)
-        if (eraserTouchesStroke(points, width, e)) e.id,
+        if (e is StrokeElement && eraserTouchesStroke(points, width, e))
+          e.id: _toLocal(sheetErasure, e),
     };
-    if (ids.isEmpty) return null;
-    return EraseCommand(
-      Erasure(id: newElementId(), points: points, width: width),
-      ids,
+    if (erasures.isEmpty) return null;
+    return EraseCommand(sheetErasure, erasures);
+  }
+
+  static Erasure _toLocal(Erasure erasure, DrawingElement element) {
+    final t = element.transform;
+    if (t.isIdentity) return erasure;
+    return Erasure(
+      id: erasure.id,
+      width: erasure.width / t.scale,
+      points: [
+        for (final p in erasure.points)
+          () {
+            final local = t.invert(Offset(p.x, p.y));
+            return SheetPoint(
+              local.dx,
+              local.dy,
+              pressure: p.pressure,
+              time: p.time,
+            );
+          }(),
+      ],
     );
   }
 
-  /// The eraser pass.
-  final Erasure erasure;
+  /// The eraser pass in sheet coordinates, as the child drew it.
+  final Erasure sheetErasure;
+
+  /// The pass in each touched stroke's coordinates, by stroke id.
+  final Map<String, Erasure> erasures;
 
   /// Ids of the strokes the pass is attached to.
-  final Set<String> strokeIds;
+  Set<String> get strokeIds => erasures.keys.toSet();
 
   @override
   Drawing apply(Drawing drawing) => drawing.withElementsMapped(
-    (e) => strokeIds.contains(e.id) ? e.withErasure(erasure) : e,
+    (e) => e is StrokeElement && erasures.containsKey(e.id)
+        ? e.withErasure(erasures[e.id]!)
+        : e,
   );
 
   @override
   Drawing revert(Drawing drawing) => drawing.withElementsMapped(
-    (e) => strokeIds.contains(e.id) ? e.withoutErasure(erasure) : e,
+    (e) => e is StrokeElement && erasures.containsKey(e.id)
+        ? e.withoutErasure(erasures[e.id]!)
+        : e,
   );
 }
 
@@ -81,7 +164,7 @@ class ClearCommand implements DrawingCommand {
   const ClearCommand(this.removed);
 
   /// The elements that were on the sheet before clearing.
-  final List<StrokeElement> removed;
+  final List<DrawingElement> removed;
 
   @override
   Drawing apply(Drawing drawing) => drawing.withElements(const []);

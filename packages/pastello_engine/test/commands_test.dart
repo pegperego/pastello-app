@@ -17,7 +17,7 @@ void main() {
   test('add, undo and redo a stroke', () {
     final stack = CommandStack(empty);
     final s = horizontal(10);
-    stack.execute(AddStrokeCommand(s));
+    stack.execute(AddElementCommand(s));
     expect(stack.drawing.elements, [s]);
     expect(stack.canUndo, isTrue);
 
@@ -36,16 +36,17 @@ void main() {
   });
 
   test('a new command clears the redo stack', () {
-    final stack = CommandStack(empty)..execute(AddStrokeCommand(horizontal(1)));
+    final stack = CommandStack(empty)
+      ..execute(AddElementCommand(horizontal(1)));
     stack.undo();
-    stack.execute(AddStrokeCommand(horizontal(2)));
+    stack.execute(AddElementCommand(horizontal(2)));
     expect(stack.canRedo, isFalse);
   });
 
   test('history is limited', () {
     final stack = CommandStack(empty, limit: 3);
     for (var i = 0; i < 5; i++) {
-      stack.execute(AddStrokeCommand(horizontal(i.toDouble())));
+      stack.execute(AddElementCommand(horizontal(i.toDouble())));
     }
     var undone = 0;
     while (stack.undo()) {
@@ -66,11 +67,11 @@ void main() {
       expect(command.strokeIds, {top.id});
 
       final erased = command.apply(drawing);
-      expect(erased.elements[0].erasures, hasLength(1));
-      expect(erased.elements[1].erasures, isEmpty);
+      expect((erased.elements[0] as StrokeElement).erasures, hasLength(1));
+      expect((erased.elements[1] as StrokeElement).erasures, isEmpty);
 
       final restored = command.revert(erased);
-      expect(restored.elements[0].erasures, isEmpty);
+      expect((restored.elements[0] as StrokeElement).erasures, isEmpty);
     });
 
     test('returns null when nothing is touched', () {
@@ -81,7 +82,7 @@ void main() {
 
   test('clear is undoable', () {
     final s = horizontal(10);
-    final stack = CommandStack(empty)..execute(AddStrokeCommand(s));
+    final stack = CommandStack(empty)..execute(AddElementCommand(s));
     stack.execute(ClearCommand(stack.drawing.elements));
     expect(stack.drawing.isEmpty, isTrue);
     stack.undo();

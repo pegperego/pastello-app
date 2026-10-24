@@ -23,7 +23,7 @@ ui.Picture renderDrawing(
     ui.Paint()..color = background,
   );
   for (final element in drawing.elements) {
-    paintStroke(canvas, element, grain);
+    paintElement(canvas, element, grain);
   }
   return recorder.endRecording();
 }

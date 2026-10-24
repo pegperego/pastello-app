@@ -30,7 +30,7 @@ Drawing sampleDrawing() {
     wave(StrokeTool.rainbow, 180, const Color(0xFF000000)),
   ];
   for (final s in strokes) {
-    drawing = AddStrokeCommand(s).apply(drawing);
+    drawing = AddElementCommand(s).apply(drawing);
   }
   final eraser = EraseCommand.forDrawing(drawing, [
     const SheetPoint(200, 0),
@@ -141,7 +141,7 @@ void main() {
       const SheetPoint(0, 60),
       const SheetPoint(400, 60),
     ], 10)!;
-    renderer.showErased(command.apply(drawing), command.erasure);
+    renderer.showErased(command.apply(drawing), command.sheetErasure);
     expect(renderer.lastUpdateWasRebuild, isFalse);
   });
 

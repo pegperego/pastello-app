@@ -38,7 +38,8 @@ void main() {
     expect(restored.sheetSize, drawing.sheetSize);
     expect(restored.elements, hasLength(drawing.elements.length));
     for (var i = 0; i < drawing.elements.length; i++) {
-      final a = drawing.elements[i], b = restored.elements[i];
+      final a = drawing.elements[i] as StrokeElement;
+      final b = restored.elements[i] as StrokeElement;
       expect(b.id, a.id);
       expect(b.tool, a.tool);
       expect(b.color, a.color);
@@ -54,8 +55,8 @@ void main() {
   test('commands survive a round trip and still undo after loading', () {
     final stack = CommandStack(const Drawing(sheetSize: Size(400, 300)));
     stack
-      ..execute(AddStrokeCommand(stroke(StrokeTool.marker, 50)))
-      ..execute(AddStrokeCommand(stroke(StrokeTool.crayon, 100)));
+      ..execute(AddElementCommand(stroke(StrokeTool.marker, 50)))
+      ..execute(AddElementCommand(stroke(StrokeTool.crayon, 100)));
     final erase = EraseCommand.forDrawing(stack.drawing, [
       const SheetPoint(50, 0),
       const SheetPoint(50, 300),
@@ -75,7 +76,12 @@ void main() {
 
     expect(restored.canRedo, isTrue);
     expect(restored.undo(), isTrue); // the eraser pass
-    expect(restored.drawing.elements.every((e) => e.erasures.isEmpty), isTrue);
+    expect(
+      restored.drawing.elements.every(
+        (e) => (e as StrokeElement).erasures.isEmpty,
+      ),
+      isTrue,
+    );
     expect(restored.undo(), isTrue);
     expect(restored.undo(), isTrue);
     expect(restored.drawing.isEmpty, isTrue);
@@ -84,7 +90,7 @@ void main() {
   test('restore keeps at most `limit` undo steps', () {
     final commands = [
       for (var i = 0; i < 5; i++)
-        AddStrokeCommand(stroke(StrokeTool.pencil, 0)),
+        AddElementCommand(stroke(StrokeTool.pencil, 0)),
     ];
     final stack = CommandStack(const Drawing(sheetSize: Size.zero), limit: 3)
       ..restore(const Drawing(sheetSize: Size.zero), commands, const []);

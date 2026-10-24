@@ -38,8 +38,17 @@ flutter:
     - family: Fredoka
       fonts:
         - asset: assets/fonts/Fredoka.ttf
+    - family: PlaywriteITModerna
+      fonts:
+        - asset: assets/fonts/PlaywriteITModerna.ttf
+    - family: ComicNeue
+      fonts:
+        - asset: assets/fonts/ComicNeue-Bold.ttf
+          weight: 700
 
   assets:
     - assets/fonts/Andika-OFL.txt
     - assets/fonts/Fredoka-OFL.txt
+    - assets/fonts/PlaywriteITModerna-OFL.txt
+    - assets/fonts/ComicNeue-OFL.txt
     - assets/icons/tools/

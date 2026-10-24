@@ -22,7 +22,7 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "revision": 12,
   "sheet": { "width": 1114, "height": 663 },
   "elements": [
@@ -36,6 +36,15 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
       "erasures": [
         { "id": "41ab…", "width": 20, "points": [125, 60, 0.5, 0, 126, 120, 0.5, 40] }
       ]
+    },
+    {
+      "type": "text",
+      "id": "77d0…",
+      "text": "Ciao nonna!",
+      "color": 4287513773,
+      "font": "playwrite",
+      "fontSize": 48,
+      "transform": { "x": 540, "y": 120, "scale": 1.4, "rotation": -0.2 }
     }
   ]
 }
@@ -48,6 +57,23 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 | `sheet` | Fixed sheet size in sheet units (not pixels). |
 | `elements` | Elements from bottom to top (z-order). |
 
+### Transform
+
+Any element may have a `transform` (omitted when it changes nothing): the
+element is described in local coordinates, scaled by `scale`, rotated by
+`rotation` (radians, clockwise on screen) and moved by `x`, `y`.
+
+### Text
+
+| Field | Meaning |
+|---|---|
+| `text` | The text; lines are separated by `\n`. |
+| `color` | ARGB as a 32-bit integer. |
+| `font` | `andika`, `playwrite`, `fredoka` or `comicNeue`. |
+| `fontSize` | Size in sheet units, before the transform's scale. |
+
+The local origin of a text is the center of its box.
+
 ### Stroke
 
 | Field | Meaning |
@@ -57,21 +83,25 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 | `color` | ARGB as a 32-bit integer (ignored by `rainbow`). |
 | `width` | Base width in sheet units. |
 | `points` | Flat list of `x, y, pressure, time` quadruples: sheet units, 0–1, milliseconds since the stroke started. Rounded to hundredths. |
-| `erasures` | Eraser passes attached to this stroke, in the stroke's coordinates. The same pass (same `id`) is attached to every stroke it touched. |
+| `erasures` | Eraser passes attached to this stroke, in the stroke's local coordinates. The same pass (same `id`) is attached to every stroke it touched. Texts are never erased. |
 
 ## `history.json`
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "revision": 12,
   "undo": [ { "type": "add", "stroke": { … } } ],
   "redo": []
 }
 ```
 
-Commands: `add` (`stroke`), `erase` (`erasure`, `strokeIds`) and `clear`
-(`removed`: the strokes that were on the sheet). At most 100 undo steps are
+Commands: `add` (`element`), `update` (`before`, `after`: the same element
+moved, resized, rotated or edited), `delete` (`element`, `index` in the
+z-order), `erase` (`sheetErasure` as drawn, and `erasures`: the pass in each
+touched stroke's coordinates, by stroke id) and `clear` (`removed`: the
+elements that were on the sheet). Version 1 forms (`add` with `stroke`,
+`erase` with `erasure` and `strokeIds`) are still read. At most 100 undo steps are
 kept. If `revision` does not match `drawing.json`, or the file cannot be read,
 the history is discarded and the drawing is opened without it
 ([ADR 0007](adr/0007-persistent-undo-history.md)).
@@ -83,6 +113,13 @@ the history is discarded and the drawing is opened without it
 ```
 
 Files in the trash also have `deletedAt`; they are purged 30 days later.
+
+## Versions
+
+| Version | Changes |
+|---|---|
+| 1 | Strokes and erasures. |
+| 2 | Texts, element transforms, `update` and `delete` commands. Version 1 files are read as they are. |
 
 ## Changing the format
 
