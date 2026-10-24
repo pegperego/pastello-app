@@ -66,6 +66,39 @@ Conclusioni:
   dell'ottimizzazione 1 di AD-04). Il costo per frame diventerebbe costante
   anche per tratti lunghissimi.
 
+### Seconda serie: ottimizzazione del tratto in corso
+
+| Versione | Cosa cambia | Pastello (raster peggiore medio · finestre oltre budget) | Pennarello |
+|---|---|---|---|
+| v1 (sopra) | cache + tratto intero ridisegnato a ogni frame | 9,7 ms · 28/88 | 7,5 ms · 22/82 |
+| v2 | parte del tratto "congelata" + 2 livelli separati | 12,8 ms · 74/84 ❌ | 12,9 ms · 73/82 ❌ |
+| v3 | **una sola passata a schermo intero per frame**: sfondo dentro la cache, parte congelata fusa in una copia della cache, gomma che ridipinge lo sfondo, niente ombra sfocata | **6,2–8,2 ms · 4–14/89** ✅ | **7,5 ms · 9/88** |
+
+Cosa abbiamo imparato:
+
+- Su Android Flutter usa **Impeller**, che ridisegna tutti i livelli a ogni
+  frame: i `RepaintBoundary` non fanno risparmiare lavoro alla GPU. Il costo
+  dipende da **quante volte un frame riempie lo schermo intero**. La v2 ne
+  faceva tre ed è peggiorata; la v3 ne fa una.
+- **A riposo** (solo la cache sullo schermo) il frame costa 5–7 ms, con 0 o
+  500 tratti.
+- Restano **picchi isolati** (20–35 ms) durante il disegno, probabilmente nei
+  momenti in cui la parte congelata viene copiata (ogni 48 punti) o il tratto
+  viene salvato nella cache al rilascio del dito. Da indagare con il profiler
+  di Flutter (DevTools) se si notano a occhio.
+- Le misure variano parecchio tra una serie e l'altra (temperatura del
+  tablet, processi in background): in una serie la cache "a riposo" con 500
+  tratti costava 12,7 ms, in quella successiva 6,9 ms con lo stesso codice.
+  L'ipotesi che `toImageSync` producesse immagini "non rasterizzate" è stata
+  provata (rasterizzazione asincrona) e **non confermata**: la modifica è
+  stata scartata.
+- **Rotazione:** un tablet appoggiato in piano non sa se è orizzontale o
+  verticale; per i test automatici la rotazione va bloccata con
+  `adb shell cmd window user-rotation lock 1`.
+- **Bug trovati e corretti:** cache 0×0 al primo frame su Android; foglio
+  creato verticale all'avvio (ora il foglio vuoto segue lo schermo fino al
+  primo tratto, precisazione di D-05).
+
 Da verificare a mano:
 
 - [ ] ritardo percepito del tratto sotto il dito;
