@@ -11,7 +11,6 @@ import '../document/stroke_tool.dart';
 /// management: pointer moves repaint the sheet without rebuilding any widget
 /// (ADR 0009).
 class LiveStroke extends ChangeNotifier {
-  final _Signal _eraserRepaint = _Signal();
   int _generation = 0;
 
   /// The tool, or `null` for the eraser.
@@ -33,12 +32,6 @@ class LiveStroke extends ChangeNotifier {
   /// apart even when they have the same number of points.
   int get generation => _generation;
 
-  /// Notifies only for eraser passes.
-  ///
-  /// The eraser preview has to repaint the committed content; ink strokes
-  /// don't, so the committed layer listens to this instead of the stroke.
-  Listenable get eraserRepaint => _eraserRepaint;
-
   /// Starts a new stroke.
   void begin({
     required StrokeTool? tool,
@@ -56,24 +49,11 @@ class LiveStroke extends ChangeNotifier {
   void add(SheetPoint point) {
     points.add(point);
     notifyListeners();
-    if (isEraser) _eraserRepaint.ping();
   }
 
   /// Discards the stroke.
   void clear() {
-    final wasEraser = isEraser;
     points.clear();
     notifyListeners();
-    if (wasEraser) _eraserRepaint.ping();
   }
-
-  @override
-  void dispose() {
-    _eraserRepaint.dispose();
-    super.dispose();
-  }
-}
-
-class _Signal extends ChangeNotifier {
-  void ping() => notifyListeners();
 }

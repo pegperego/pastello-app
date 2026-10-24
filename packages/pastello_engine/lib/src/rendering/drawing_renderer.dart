@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 
 import '../document/drawing.dart';
+import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
 import '../document/stroke_tool.dart';
 import '../geometry/hit_test.dart';
@@ -10,37 +11,45 @@ import 'live_stroke.dart';
 import 'paper_grain.dart';
 import 'stroke_painter.dart';
 
-/// Renders a [Drawing], keeping committed content in a raster cache.
+/// Renders a [Drawing] and the stroke in progress.
 ///
-/// The cache is an image of every committed element at the current pixel
-/// density. Painting a frame then costs one image draw, regardless of how many
-/// strokes the drawing has (ADR 0005). The cache is updated incrementally when
-/// a stroke is added or an eraser pass is applied, and rebuilt from scratch
-/// otherwise (undo, redo, clear, density changes).
+/// The GPU cost of a frame is dominated by how many times the whole sheet is
+/// filled, so the renderer makes sure a frame covers the sheet **once**
+/// (ADR 0005):
 ///
-/// The stroke in progress gets the same treatment while it is being drawn:
-/// its older part is periodically "frozen" into an image and only the tail is
-/// redrawn every frame, so the cost per frame does not grow with the length
-/// of the stroke.
+/// - The **cache** is an opaque image of the background and of every
+///   committed element. It is updated incrementally when a stroke is added or
+///   an eraser pass is applied, and rebuilt otherwise (undo, redo, clear,
+///   density changes).
+/// - While a stroke is drawn, its older part is periodically **frozen** into a
+///   copy of the cache (the *working* image), and only the tail is painted
+///   live. The cost per frame does not grow with the length of the stroke.
+/// - The eraser paints the background along its path instead of punching
+///   holes in a layer: the result is the same and no extra layer is needed.
 class DrawingRenderer extends ChangeNotifier {
-  /// Creates a renderer that draws grain with [grain].
-  DrawingRenderer({required this.grain});
+  /// Creates a renderer that draws grain with [grain] on a [background].
+  DrawingRenderer({
+    required this.grain,
+    this.background = const ui.Color(0xFFFFFFFF),
+  });
 
   /// Paper texture shared by every stroke.
   final PaperGrain grain;
+
+  /// Color of the sheet.
+  final ui.Color background;
+
+  /// How many new points of the live stroke trigger a freeze.
+  static const int freezeBatch = 48;
 
   Drawing? _drawing;
   ui.Image? _cache;
   double _pixelScale = 1;
   bool _cacheEnabled = true;
 
-  // Frozen part of the live stroke (see [paintLiveInk]).
   int _liveGeneration = -1;
   int _frozenUntil = 0;
-  ui.Image? _frozen;
-
-  /// How many new points of the live stroke trigger a freeze.
-  static const int freezeBatch = 32;
+  ui.Image? _working;
 
   /// Duration of the last cache update, for the performance panel.
   Duration lastCacheUpdate = Duration.zero;
@@ -56,6 +65,7 @@ class DrawingRenderer extends ChangeNotifier {
   set cacheEnabled(bool value) {
     if (value == _cacheEnabled) return;
     _cacheEnabled = value;
+    _resetLive();
     _rebuild();
   }
 
@@ -65,7 +75,7 @@ class DrawingRenderer extends ChangeNotifier {
     if ((value - _pixelScale).abs() < 1e-6) return;
     _pixelScale = value;
     // The frozen live stroke was rendered at the old density.
-    _liveGeneration = -1;
+    _resetLive();
     _rebuild();
   }
 
@@ -81,85 +91,100 @@ class DrawingRenderer extends ChangeNotifier {
   }
 
   /// Shows [drawing], which is the previous drawing after [erasure] was
-  /// applied: the cache is updated by clearing the eraser path only.
+  /// applied: the cache is updated by painting the background along the
+  /// eraser path.
   void showErased(Drawing drawing, Erasure erasure) {
     _drawing = drawing;
-    _update((canvas) => paintEraser(canvas, erasure.points, erasure.width));
+    _update(
+      (canvas) => _paintBackgroundStroke(canvas, erasure.points, erasure.width),
+    );
   }
 
-  /// Paints the committed content on [canvas], in sheet coordinates.
-  void paint(ui.Canvas canvas) {
+  /// Paints the sheet with the committed content and [live] on top, in sheet
+  /// coordinates.
+  void paint(ui.Canvas canvas, LiveStroke live) {
     final drawing = _drawing;
     if (drawing == null) return;
     final cache = _cache;
-    if (_cacheEnabled && cache != null) {
-      final sheet = ui.Offset.zero & drawing.sheetSize;
-      canvas.drawImageRect(
-        cache,
-        ui.Rect.fromLTWH(0, 0, cache.width.toDouble(), cache.height.toDouble()),
-        sheet,
-        ui.Paint()..filterQuality = ui.FilterQuality.low,
-      );
+    if (!_cacheEnabled || cache == null) {
+      _paintUncached(canvas, drawing, live);
+      return;
+    }
+    final hasLive = live.points.isNotEmpty;
+    if (hasLive) _syncFrozen(live);
+    _paintImage(canvas, hasLive ? (_working ?? cache) : cache);
+    if (hasLive) _paintTail(canvas, live);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Live stroke
+
+  /// Paints the points of [live] that are not frozen yet.
+  void _paintTail(ui.Canvas canvas, LiveStroke live) {
+    final start = _tailStart(live);
+    final tool = live.tool;
+    if (tool == null) {
+      _paintBackgroundStroke(canvas, live.points.sublist(start), live.width);
     } else {
-      _paintAll(canvas, drawing);
+      _paintInkRange(canvas, live, tool, start, live.points.length);
     }
   }
 
-  /// Paints the ink of the live stroke, grain included, in sheet
-  /// coordinates. Does nothing for eraser passes, see [paintWithEraser].
+  /// Paints the points [from]..[to] of an ink stroke, grain included.
   ///
-  /// The result is identical to painting the whole stroke at once: the frozen
-  /// part only contains ink, and the grain is applied to frozen part and tail
-  /// together.
-  void paintLiveInk(ui.Canvas canvas, LiveStroke live) {
-    final tool = live.tool;
-    if (tool == null || live.points.isEmpty) return;
-    _syncFrozen(live);
-    final start = _tailStart(live);
+  /// When the range continues an earlier piece, the round cap where they meet
+  /// was already painted by that piece. It is clipped out here (minus half a
+  /// pixel, so no hairline shows) to avoid painting grain twice there.
+  void _paintInkRange(
+    ui.Canvas canvas,
+    LiveStroke live,
+    StrokeTool tool,
+    int from,
+    int to,
+  ) {
     final strength = grainStrength(tool);
-    final bounds = polylineBounds(live.points).inflate(live.width);
-
-    if (strength > 0) canvas.saveLayer(bounds, ui.Paint());
-    _paintFrozen(canvas);
+    if (strength == 0) {
+      paintStrokeInk(
+        canvas,
+        tool,
+        live.color,
+        live.width,
+        live.points,
+        from: from,
+        to: to,
+      );
+      return;
+    }
+    final bounds = polylineBounds(
+      live.points.sublist(from, to),
+    ).inflate(live.width);
+    canvas.saveLayer(bounds, ui.Paint());
+    if (from > 0) {
+      final joint = live.points[from].offset;
+      final radius = live.width / 2 - 0.5 / _pixelScale;
+      canvas.clipPath(
+        ui.Path()
+          ..fillType = ui.PathFillType.evenOdd
+          ..addRect(bounds)
+          ..addOval(ui.Rect.fromCircle(center: joint, radius: radius)),
+        doAntiAlias: false,
+      );
+    }
     paintStrokeInk(
       canvas,
       tool,
       live.color,
       live.width,
       live.points,
-      from: start,
+      from: from,
+      to: to,
     );
-    if (strength > 0) {
-      paintGrain(canvas, bounds, strength, grain);
-      canvas.restore();
-    }
-  }
-
-  /// Paints the committed content with the live eraser pass previewed on
-  /// top, in sheet coordinates. Falls back to [paint] for ink strokes.
-  void paintWithEraser(ui.Canvas canvas, LiveStroke live) {
-    final drawing = _drawing;
-    if (drawing == null) return;
-    if (!live.isEraser || live.points.isEmpty) {
-      paint(canvas);
-      return;
-    }
-    _syncFrozen(live);
-    // For the eraser the frozen image is the committed content with the
-    // frozen part of the pass already cleared.
-    canvas.saveLayer(ui.Offset.zero & drawing.sheetSize, ui.Paint());
-    if (_frozen != null) {
-      _paintFrozen(canvas);
-    } else {
-      paint(canvas);
-    }
-    paintEraser(canvas, live.points.sublist(_tailStart(live)), live.width);
+    paintGrain(canvas, bounds, strength, grain);
     canvas.restore();
   }
 
-  /// Index of the first point that is still painted live.
-  ///
-  /// The tail overlaps the frozen part by one point so the two join.
+  /// Index of the first point that is still painted live. The tail starts
+  /// at the last frozen point, so the two pieces join.
   int _tailStart(LiveStroke live) {
     if (_frozenUntil == 0) return 0;
     return (_frozenUntil - 1).clamp(0, live.points.length - 1);
@@ -168,65 +193,54 @@ class DrawingRenderer extends ChangeNotifier {
   /// Freezes the older points of the live stroke when enough have arrived.
   void _syncFrozen(LiveStroke live) {
     if (live.generation != _liveGeneration) {
+      _resetLive();
       _liveGeneration = live.generation;
-      _frozenUntil = 0;
-      _frozen?.dispose();
-      _frozen = null;
     }
-    final drawing = _drawing;
-    if (!_cacheEnabled || drawing == null) return;
-    // Keep the newest points live: the brush outline still changes there.
-    final keep = live.tool == StrokeTool.brush ? 8 : 4;
+    final cache = _cache;
+    if (cache == null) return;
+    // The newest points stay live: smoothing still moves them.
+    const keep = 8;
     final end = live.points.length - keep;
     if (end - _frozenUntil < freezeBatch) return;
-
-    final width = (drawing.sheetSize.width * _pixelScale).ceil();
-    final height = (drawing.sheetSize.height * _pixelScale).ceil();
-    if (width <= 0 || height <= 0) return;
 
     final start = _tailStart(live);
     final recorder = ui.PictureRecorder();
     final canvas = ui.Canvas(recorder);
-    final previous = _frozen;
-    if (previous != null) {
-      canvas.drawImage(previous, ui.Offset.zero, ui.Paint());
-      canvas.scale(_pixelScale);
-    } else {
-      canvas.scale(_pixelScale);
-      if (live.isEraser) paint(canvas);
-    }
+    final base = _working ?? cache;
+    canvas
+      ..drawImage(
+        base,
+        ui.Offset.zero,
+        ui.Paint()..blendMode = ui.BlendMode.src,
+      )
+      ..scale(_pixelScale);
     final tool = live.tool;
     if (tool == null) {
-      paintEraser(canvas, live.points.sublist(start, end), live.width);
-    } else {
-      paintStrokeInk(
+      _paintBackgroundStroke(
         canvas,
-        tool,
-        live.color,
+        live.points.sublist(start, end),
         live.width,
-        live.points,
-        from: start,
-        to: end,
       );
+    } else {
+      _paintInkRange(canvas, live, tool, start, end);
     }
     final picture = recorder.endRecording();
-    _frozen = picture.toImageSync(width, height);
+    final working = picture.toImageSync(base.width, base.height);
     picture.dispose();
-    previous?.dispose();
+    _working?.dispose();
+    _working = working;
     _frozenUntil = end;
   }
 
-  void _paintFrozen(ui.Canvas canvas) {
-    final frozen = _frozen;
-    final drawing = _drawing;
-    if (frozen == null || drawing == null) return;
-    canvas.drawImageRect(
-      frozen,
-      ui.Rect.fromLTWH(0, 0, frozen.width.toDouble(), frozen.height.toDouble()),
-      ui.Offset.zero & drawing.sheetSize,
-      ui.Paint()..filterQuality = ui.FilterQuality.low,
-    );
+  void _resetLive() {
+    _liveGeneration = -1;
+    _frozenUntil = 0;
+    _working?.dispose();
+    _working = null;
   }
+
+  // ---------------------------------------------------------------------------
+  // Committed content
 
   bool _isAppend(Drawing previous, Drawing next) {
     if (next.elements.length != previous.elements.length + 1) return false;
@@ -236,10 +250,60 @@ class DrawingRenderer extends ChangeNotifier {
     return true;
   }
 
-  void _paintAll(ui.Canvas canvas, Drawing drawing) {
+  void _paintBackground(ui.Canvas canvas, ui.Size sheetSize) {
+    canvas.drawRect(ui.Offset.zero & sheetSize, ui.Paint()..color = background);
+  }
+
+  /// Paints the background along [points]: what the eraser leaves behind.
+  void _paintBackgroundStroke(
+    ui.Canvas canvas,
+    List<SheetPoint> points,
+    double width,
+  ) {
+    paintEraser(canvas, points, width, color: background);
+  }
+
+  void _paintElements(ui.Canvas canvas, Drawing drawing) {
     for (final element in drawing.elements) {
       paintStroke(canvas, element, grain);
     }
+  }
+
+  /// Slow path, used to measure the benefit of the cache: everything is
+  /// painted from scratch every frame.
+  void _paintUncached(ui.Canvas canvas, Drawing drawing, LiveStroke live) {
+    _paintBackground(canvas, drawing.sheetSize);
+    _paintElements(canvas, drawing);
+    if (live.points.isEmpty) return;
+    final tool = live.tool;
+    if (tool == null) {
+      _paintBackgroundStroke(canvas, live.points, live.width);
+    } else {
+      paintStroke(
+        canvas,
+        StrokeElement(
+          id: 'live',
+          tool: tool,
+          color: live.color,
+          width: live.width,
+          points: live.points,
+        ),
+        grain,
+      );
+    }
+  }
+
+  void _paintImage(ui.Canvas canvas, ui.Image image) {
+    final drawing = _drawing!;
+    canvas.drawImageRect(
+      image,
+      ui.Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      ui.Offset.zero & drawing.sheetSize,
+      ui.Paint()
+        // The cache is opaque: no need to blend with what is underneath.
+        ..blendMode = ui.BlendMode.src
+        ..filterQuality = ui.FilterQuality.low,
+    );
   }
 
   /// Draws the old cache plus [paintDelta] into a new cache image.
@@ -252,7 +316,7 @@ class DrawingRenderer extends ChangeNotifier {
     final watch = Stopwatch()..start();
     final recorder = ui.PictureRecorder();
     final canvas = ui.Canvas(recorder)
-      ..drawImage(old, ui.Offset.zero, ui.Paint())
+      ..drawImage(old, ui.Offset.zero, ui.Paint()..blendMode = ui.BlendMode.src)
       ..scale(_pixelScale);
     paintDelta(canvas);
     _replaceCache(recorder.endRecording(), old.width, old.height);
@@ -271,7 +335,8 @@ class DrawingRenderer extends ChangeNotifier {
     if (_cacheEnabled && width > 0 && height > 0) {
       final recorder = ui.PictureRecorder();
       final canvas = ui.Canvas(recorder)..scale(_pixelScale);
-      _paintAll(canvas, drawing);
+      _paintBackground(canvas, drawing.sheetSize);
+      _paintElements(canvas, drawing);
       _replaceCache(recorder.endRecording(), width, height);
     } else {
       _cache?.dispose();
@@ -291,7 +356,7 @@ class DrawingRenderer extends ChangeNotifier {
 
   @override
   void dispose() {
-    _frozen?.dispose();
+    _working?.dispose();
     _cache?.dispose();
     super.dispose();
   }

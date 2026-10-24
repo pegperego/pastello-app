@@ -88,15 +88,21 @@ void paintStrokeInk(
   }
 }
 
-/// Paints an eraser pass: clears the pixels under [points].
+/// Paints an eraser pass along [points].
 ///
-/// Must be drawn inside a layer, otherwise it would clear everything beneath,
-/// background included.
-void paintEraser(Canvas canvas, List<SheetPoint> points, double width) {
-  canvas.drawPath(
-    smoothPolyline(points),
-    _linePaint(const Color(0xFF000000), width)..blendMode = BlendMode.clear,
-  );
+/// Without a [color] it clears the pixels under the path: used inside a
+/// stroke's own layer, for the erasures attached to it (ADR 0006). With a
+/// [color] it paints that color instead: used on the opaque cache, where
+/// erasing means showing the background again.
+void paintEraser(
+  Canvas canvas,
+  List<SheetPoint> points,
+  double width, {
+  Color? color,
+}) {
+  final paint = _linePaint(color ?? const Color(0xFF000000), width);
+  if (color == null) paint.blendMode = BlendMode.clear;
+  canvas.drawPath(smoothPolyline(points), paint);
 }
 
 Paint _linePaint(Color color, double width) => Paint()
