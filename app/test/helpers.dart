@@ -12,6 +12,9 @@ import 'package:pastello/src/features/drawings/application/drawings_providers.da
 import 'package:pastello/src/features/drawings/data/drawing_repository.dart';
 import 'package:pastello/src/features/drawings/domain/drawing_summary.dart';
 import 'package:pastello/src/features/drawings/domain/saved_drawing.dart';
+import 'package:pastello/src/features/stickers/application/stickers_providers.dart';
+import 'package:pastello/src/features/stickers/data/bundled_packs.dart';
+import 'package:pastello/src/features/stickers/domain/sticker_pack.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
 /// Settings kept in memory, for tests.
@@ -187,6 +190,18 @@ class MemoryDrawingRepository implements DrawingRepository {
   Future<int> purgeTrash() async => 0;
 }
 
+/// The bundled sticker packs, loaded once per test file by [loadTestPacks].
+///
+/// Reading assets needs real asynchronous work, which widget tests' fake
+/// time does not provide; loading them up front keeps the tests fast and
+/// deterministic.
+List<StickerPack> testPacks = const [];
+
+/// Loads [testPacks]; call it from `setUpAll`.
+Future<void> loadTestPacks() async {
+  testPacks = await loadBundledPacks(rootBundle);
+}
+
 /// Records the orientations requested by the rotation lock.
 final requestedOrientations = <List<DeviceOrientation>>[];
 
@@ -201,6 +216,9 @@ List<Override> testOverrides(
   ),
   thumbnailRendererProvider.overrideWithValue((_) async => transparentPng),
   clockProvider.overrideWithValue(() => testNow),
+  stickerPacksProvider.overrideWith((ref) async => testPacks),
+  // Stickers render as placeholders: no SVG work in widget tests.
+  stickerArtworkProvider.overrideWith((ref) async => PackArtwork(const {})),
   orientationSetterProvider.overrideWithValue((orientations) async {
     requestedOrientations.add(orientations);
   }),

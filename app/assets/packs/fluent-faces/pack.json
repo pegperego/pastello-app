@@ -1,0 +1,156 @@
+{
+ "id": "fluent-faces",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Facce",
+  "en": "Faces"
+ },
+ "icon": "grinning_face",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "grinning_face",
+   "file": "stickers/grinning_face.svg",
+   "name": "Grinning face"
+  },
+  {
+   "id": "grinning_face_with_big_eyes",
+   "file": "stickers/grinning_face_with_big_eyes.svg",
+   "name": "Grinning face with big eyes"
+  },
+  {
+   "id": "beaming_face_with_smiling_eyes",
+   "file": "stickers/beaming_face_with_smiling_eyes.svg",
+   "name": "Beaming face with smiling eyes"
+  },
+  {
+   "id": "face_with_tears_of_joy",
+   "file": "stickers/face_with_tears_of_joy.svg",
+   "name": "Face with tears of joy"
+  },
+  {
+   "id": "smiling_face_with_halo",
+   "file": "stickers/smiling_face_with_halo.svg",
+   "name": "Smiling face with halo"
+  },
+  {
+   "id": "smiling_face_with_heart_eyes",
+   "file": "stickers/smiling_face_with_heart_eyes.svg",
+   "name": "Smiling face with heart-eyes"
+  },
+  {
+   "id": "star_struck",
+   "file": "stickers/star_struck.svg",
+   "name": "Star-struck"
+  },
+  {
+   "id": "smiling_face_with_sunglasses",
+   "file": "stickers/smiling_face_with_sunglasses.svg",
+   "name": "Smiling face with sunglasses"
+  },
+  {
+   "id": "winking_face",
+   "file": "stickers/winking_face.svg",
+   "name": "Winking face"
+  },
+  {
+   "id": "face_blowing_a_kiss",
+   "file": "stickers/face_blowing_a_kiss.svg",
+   "name": "Face blowing a kiss"
+  },
+  {
+   "id": "face_savoring_food",
+   "file": "stickers/face_savoring_food.svg",
+   "name": "Face savoring food"
+  },
+  {
+   "id": "zany_face",
+   "file": "stickers/zany_face.svg",
+   "name": "Zany face"
+  },
+  {
+   "id": "thinking_face",
+   "file": "stickers/thinking_face.svg",
+   "name": "Thinking face"
+  },
+  {
+   "id": "hugging_face",
+   "file": "stickers/hugging_face.svg",
+   "name": "Hugging face"
+  },
+  {
+   "id": "partying_face",
+   "file": "stickers/partying_face.svg",
+   "name": "Partying face"
+  },
+  {
+   "id": "sleeping_face",
+   "file": "stickers/sleeping_face.svg",
+   "name": "Sleeping face"
+  },
+  {
+   "id": "astonished_face",
+   "file": "stickers/astonished_face.svg",
+   "name": "Astonished face"
+  },
+  {
+   "id": "crying_face",
+   "file": "stickers/crying_face.svg",
+   "name": "Crying face"
+  },
+  {
+   "id": "pouting_face",
+   "file": "stickers/pouting_face.svg",
+   "name": "Pouting face"
+  },
+  {
+   "id": "ghost",
+   "file": "stickers/ghost.svg",
+   "name": "Ghost"
+  },
+  {
+   "id": "alien",
+   "file": "stickers/alien.svg",
+   "name": "Alien"
+  },
+  {
+   "id": "robot",
+   "file": "stickers/robot.svg",
+   "name": "Robot"
+  },
+  {
+   "id": "clown_face",
+   "file": "stickers/clown_face.svg",
+   "name": "Clown face"
+  },
+  {
+   "id": "smiling_face_with_horns",
+   "file": "stickers/smiling_face_with_horns.svg",
+   "name": "Smiling face with horns"
+  },
+  {
+   "id": "pile_of_poo",
+   "file": "stickers/pile_of_poo.svg",
+   "name": "Pile of poo"
+  },
+  {
+   "id": "jack_o_lantern",
+   "file": "stickers/jack_o_lantern.svg",
+   "name": "Jack-o-lantern"
+  },
+  {
+   "id": "cat_with_wry_smile",
+   "file": "stickers/cat_with_wry_smile.svg",
+   "name": "Cat with wry smile"
+  },
+  {
+   "id": "grinning_cat",
+   "file": "stickers/grinning_cat.svg",
+   "name": "Grinning cat"
+  }
+ ]
+}

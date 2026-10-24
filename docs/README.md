@@ -7,6 +7,7 @@ English documentation for users and contributors.
 | [`adr/`](adr/) | Architecture Decision Records: one file per significant technical decision |
 | [`design/`](design/) | Design guidelines: colors, typography, icons, accessibility |
 | [`file-format.md`](file-format.md) | How drawings, history and thumbnails are stored |
+| [`content-packs.md`](content-packs.md) | Sticker packs: structure, `pack.json`, how to add one |
 
 More guides (architecture overview, drawing file format, build and release)
 will be added once the analysis phase is complete. The original analysis notes

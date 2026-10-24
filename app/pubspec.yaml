@@ -52,3 +52,20 @@ flutter:
     - assets/fonts/PlaywriteITModerna-OFL.txt
     - assets/fonts/ComicNeue-OFL.txt
     - assets/icons/tools/
+    - assets/packs/
+    - assets/packs/fluent-animals/
+    - assets/packs/fluent-animals/stickers/
+    - assets/packs/fluent-nature/
+    - assets/packs/fluent-nature/stickers/
+    - assets/packs/fluent-food/
+    - assets/packs/fluent-food/stickers/
+    - assets/packs/fluent-hearts/
+    - assets/packs/fluent-hearts/stickers/
+    - assets/packs/fluent-faces/
+    - assets/packs/fluent-faces/stickers/
+    - assets/packs/fluent-school/
+    - assets/packs/fluent-school/stickers/
+    - assets/packs/fluent-vehicles/
+    - assets/packs/fluent-vehicles/stickers/
+    - assets/packs/fluent-party/
+    - assets/packs/fluent-party/stickers/

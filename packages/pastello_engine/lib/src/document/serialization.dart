@@ -5,6 +5,7 @@ import 'drawing.dart';
 import 'drawing_element.dart';
 import 'element_transform.dart';
 import 'sheet_point.dart';
+import 'sticker_element.dart';
 import 'stroke_element.dart';
 import 'stroke_tool.dart';
 import 'text_element.dart';
@@ -13,7 +14,7 @@ import 'text_element.dart';
 ///
 /// Bump it when the format changes and add a step to [migrateDrawingJson].
 /// The format is documented in `docs/file-format.md`.
-const int drawingSchemaVersion = 2;
+const int drawingSchemaVersion = 3;
 
 /// Thrown when a file cannot be read: it is malformed, or it was written by a
 /// newer version of the app.
@@ -65,8 +66,8 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
       'this app reads up to $drawingSchemaVersion)',
     );
   }
-  // Version 2 added texts and element transforms: a version 1 file is a
-  // valid version 2 file, nothing to convert.
+  // Version 2 added texts and element transforms, version 3 stickers: older
+  // files are valid newer files, nothing to convert.
   return json;
 }
 
@@ -74,6 +75,7 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
 Map<String, Object?> elementToJson(DrawingElement element) => switch (element) {
   StrokeElement() => strokeToJson(element),
   TextElement() => textToJson(element),
+  StickerElement() => stickerToJson(element),
   _ => throw ArgumentError('Cannot serialize ${element.runtimeType}'),
 };
 
@@ -82,6 +84,7 @@ DrawingElement elementFromJson(Map<String, Object?> json) =>
     switch (json['type']) {
       'stroke' => strokeFromJson(json),
       'text' => textFromJson(json),
+      'sticker' => stickerFromJson(json),
       final type => throw DrawingFormatException('Unknown element type $type'),
     };
 
@@ -110,6 +113,25 @@ TextElement textFromJson(Map<String, Object?> json) {
     transform: _transformFromJson(json['transform']),
   );
 }
+
+/// Encodes a sticker.
+Map<String, Object?> stickerToJson(StickerElement sticker) => {
+  'type': 'sticker',
+  'id': sticker.id,
+  'pack': sticker.packId,
+  'item': sticker.elementId,
+  'size': _round(sticker.size),
+  ..._transformToJson(sticker.transform),
+};
+
+/// Decodes a sticker written by [stickerToJson].
+StickerElement stickerFromJson(Map<String, Object?> json) => StickerElement(
+  id: _string(json['id']),
+  packId: _string(json['pack']),
+  elementId: _string(json['item']),
+  size: _double(json['size']),
+  transform: _transformFromJson(json['transform']),
+);
 
 Map<String, Object?> _transformToJson(ElementTransform t) => t.isIdentity
     ? const {}

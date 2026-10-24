@@ -166,6 +166,9 @@ VERTICALE
 - **Inserire:** strumento 🔤 Testo → tocco sul foglio → riquadro con cursore
   e tastiera (il foglio scorre se la tastiera coprirebbe il punto) → si
   scrive nel **colore selezionato** → tocco fuori o ✓ per confermare.
+- **Modifica (2026-10-24, confermata sul tablet):** invece di far scorrere il
+  foglio, il testo si scrive in una casella **sopra la tastiera** e la scritta
+  compare in tempo reale sul foglio; il foglio non cambia mai forma.
 - Testo **su più righe** (Invio), **centrato** nel riquadro.
 - **Selezione:** toccando la scritta compare una cornice con:
   maniglia ⟳ per ruotare, angolo ◢ per ingrandire, trascinamento interno per

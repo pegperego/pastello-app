@@ -1,9 +1,11 @@
 import 'dart:ui';
 
-import 'package:flutter/painting.dart' show HSVColor;
+import 'package:flutter/painting.dart'
+    show FontWeight, HSVColor, TextDirection, TextPainter, TextSpan, TextStyle;
 
 import '../document/drawing_element.dart';
 import '../document/sheet_point.dart';
+import '../document/sticker_element.dart';
 import '../document/stroke_element.dart';
 import '../document/text_element.dart';
 import '../document/stroke_tool.dart';
@@ -21,7 +23,15 @@ double grainStrength(StrokeTool tool) => switch (tool) {
 };
 
 /// Paints any [element] on [canvas], in sheet coordinates.
-void paintElement(Canvas canvas, DrawingElement element, PaperGrain grain) {
+///
+/// Stickers are drawn with the pictures from [stickers]; without them, or
+/// when a sticker is missing, a placeholder is drawn instead.
+void paintElement(
+  Canvas canvas,
+  DrawingElement element,
+  PaperGrain grain, {
+  StickerArtwork? stickers,
+}) {
   final t = element.transform;
   if (!t.isIdentity) {
     canvas
@@ -33,6 +43,8 @@ void paintElement(Canvas canvas, DrawingElement element, PaperGrain grain) {
       paintStroke(canvas, element, grain);
     case TextElement():
       element.paintLocal(canvas);
+    case StickerElement():
+      paintSticker(canvas, element, stickers);
   }
   if (!t.isIdentity) canvas.restore();
 }
@@ -208,4 +220,50 @@ double polylineLength(List<SheetPoint> points, [int? end]) {
     total += points[i].distanceTo(points[i - 1]);
   }
   return total;
+}
+
+/// Paints a sticker in its local coordinates, or a "?" placeholder when its
+/// artwork is not available (ADR 0018).
+void paintSticker(
+  Canvas canvas,
+  StickerElement sticker,
+  StickerArtwork? stickers,
+) {
+  final picture = stickers?.pictureFor(sticker.packId, sticker.elementId);
+  final half = sticker.size / 2;
+  if (picture != null) {
+    final scale = sticker.size / stickers!.size;
+    canvas
+      ..save()
+      ..translate(-half, -half)
+      ..scale(scale)
+      ..drawPicture(picture)
+      ..restore();
+    return;
+  }
+  final box = RRect.fromRectAndRadius(
+    sticker.localBounds.deflate(sticker.size * 0.08),
+    Radius.circular(sticker.size * 0.15),
+  );
+  canvas
+    ..drawRRect(box, Paint()..color = const Color(0xFFEDE7DD))
+    ..drawRRect(
+      box,
+      Paint()
+        ..color = const Color(0xFFB9AE9E)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = sticker.size * 0.03,
+    );
+  final question = TextPainter(
+    text: TextSpan(
+      text: '?',
+      style: TextStyle(
+        fontSize: sticker.size * 0.5,
+        fontWeight: FontWeight.bold,
+        color: const Color(0xFF8C8173),
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  question.paint(canvas, Offset(-question.width / 2, -question.height / 2));
 }

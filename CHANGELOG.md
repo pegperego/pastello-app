@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the keyboard), then move, resize, rotate, recolor, change font
   (Andika, Playwrite IT Moderna, Fredoka, Comic Neue), edit or delete.
   The eraser never erases texts.
+- Stickers: 220 Fluent Emoji (MIT) in 8 categories, delivered as content
+  packs; choose one in the panel, tap the sheet to place it, then move,
+  resize, rotate, duplicate or delete it. Missing stickers show a "?".
 
 ### Removed
 

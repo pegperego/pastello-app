@@ -1,0 +1,181 @@
+{
+ "id": "fluent-food",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Cibo",
+  "en": "Food"
+ },
+ "icon": "strawberry",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "red_apple",
+   "file": "stickers/red_apple.svg",
+   "name": "Red apple"
+  },
+  {
+   "id": "green_apple",
+   "file": "stickers/green_apple.svg",
+   "name": "Green apple"
+  },
+  {
+   "id": "banana",
+   "file": "stickers/banana.svg",
+   "name": "Banana"
+  },
+  {
+   "id": "strawberry",
+   "file": "stickers/strawberry.svg",
+   "name": "Strawberry"
+  },
+  {
+   "id": "grapes",
+   "file": "stickers/grapes.svg",
+   "name": "Grapes"
+  },
+  {
+   "id": "watermelon",
+   "file": "stickers/watermelon.svg",
+   "name": "Watermelon"
+  },
+  {
+   "id": "cherries",
+   "file": "stickers/cherries.svg",
+   "name": "Cherries"
+  },
+  {
+   "id": "pineapple",
+   "file": "stickers/pineapple.svg",
+   "name": "Pineapple"
+  },
+  {
+   "id": "lemon",
+   "file": "stickers/lemon.svg",
+   "name": "Lemon"
+  },
+  {
+   "id": "peach",
+   "file": "stickers/peach.svg",
+   "name": "Peach"
+  },
+  {
+   "id": "carrot",
+   "file": "stickers/carrot.svg",
+   "name": "Carrot"
+  },
+  {
+   "id": "ear_of_corn",
+   "file": "stickers/ear_of_corn.svg",
+   "name": "Ear of corn"
+  },
+  {
+   "id": "broccoli",
+   "file": "stickers/broccoli.svg",
+   "name": "Broccoli"
+  },
+  {
+   "id": "pizza",
+   "file": "stickers/pizza.svg",
+   "name": "Pizza"
+  },
+  {
+   "id": "hamburger",
+   "file": "stickers/hamburger.svg",
+   "name": "Hamburger"
+  },
+  {
+   "id": "french_fries",
+   "file": "stickers/french_fries.svg",
+   "name": "French fries"
+  },
+  {
+   "id": "spaghetti",
+   "file": "stickers/spaghetti.svg",
+   "name": "Spaghetti"
+  },
+  {
+   "id": "croissant",
+   "file": "stickers/croissant.svg",
+   "name": "Croissant"
+  },
+  {
+   "id": "bread",
+   "file": "stickers/bread.svg",
+   "name": "Bread"
+  },
+  {
+   "id": "cheese_wedge",
+   "file": "stickers/cheese_wedge.svg",
+   "name": "Cheese wedge"
+  },
+  {
+   "id": "cookie",
+   "file": "stickers/cookie.svg",
+   "name": "Cookie"
+  },
+  {
+   "id": "doughnut",
+   "file": "stickers/doughnut.svg",
+   "name": "Doughnut"
+  },
+  {
+   "id": "birthday_cake",
+   "file": "stickers/birthday_cake.svg",
+   "name": "Birthday cake"
+  },
+  {
+   "id": "shortcake",
+   "file": "stickers/shortcake.svg",
+   "name": "Shortcake"
+  },
+  {
+   "id": "cupcake",
+   "file": "stickers/cupcake.svg",
+   "name": "Cupcake"
+  },
+  {
+   "id": "lollipop",
+   "file": "stickers/lollipop.svg",
+   "name": "Lollipop"
+  },
+  {
+   "id": "candy",
+   "file": "stickers/candy.svg",
+   "name": "Candy"
+  },
+  {
+   "id": "chocolate_bar",
+   "file": "stickers/chocolate_bar.svg",
+   "name": "Chocolate bar"
+  },
+  {
+   "id": "ice_cream",
+   "file": "stickers/ice_cream.svg",
+   "name": "Ice cream"
+  },
+  {
+   "id": "soft_ice_cream",
+   "file": "stickers/soft_ice_cream.svg",
+   "name": "Soft ice cream"
+  },
+  {
+   "id": "popcorn",
+   "file": "stickers/popcorn.svg",
+   "name": "Popcorn"
+  },
+  {
+   "id": "glass_of_milk",
+   "file": "stickers/glass_of_milk.svg",
+   "name": "Glass of milk"
+  },
+  {
+   "id": "teapot",
+   "file": "stickers/teapot.svg",
+   "name": "Teapot"
+  }
+ ]
+}

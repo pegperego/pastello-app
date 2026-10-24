@@ -7,6 +7,8 @@ import '../../../app/tokens.dart';
 import '../../../core/settings/app_settings.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../stickers/application/stickers_providers.dart';
+import '../../stickers/presentation/sticker_panel.dart';
 import '../application/editor_controller.dart';
 import '../domain/editor_tool.dart';
 import '../domain/palette.dart';
@@ -92,6 +94,25 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     if (color != null) ref.read(editorProvider.notifier).selectColor(color);
   }
 
+  /// Selects the Stickers tool and opens the panel; choosing a sticker arms
+  /// it for the next tap on the sheet (F-11).
+  Future<void> _openStickers(AppLocalizations l10n) async {
+    final controller = ref.read(editorProvider.notifier)
+      ..selectTool(EditorTool.stickers);
+    final packs = await ref.read(stickerPacksProvider.future);
+    if (!mounted) return;
+    final choice = await showStickerPanel(
+      context,
+      packs: packs,
+      languageCode: Localizations.localeOf(context).languageCode,
+      title: l10n.chooseSticker,
+      selectedPackId: ref.read(editorProvider).sticker?.packId,
+    );
+    if (choice != null) {
+      controller.chooseSticker(StickerChoice(choice.$1, choice.$2));
+    }
+  }
+
   void _toggleRotationLock(bool locked) {
     final orientation = MediaQuery.orientationOf(context);
     final lock = locked
@@ -110,6 +131,15 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     final state = ref.watch(editorProvider);
     final settings = ref.watch(settingsProvider).value ?? const AppSettings();
     final controller = ref.read(editorProvider.notifier);
+
+    // Sticker artwork loads once in the background; until then stickers are
+    // drawn as placeholders.
+    final artwork = ref.watch(stickerArtworkProvider).value;
+    if (artwork != null && !identical(_renderer.stickers, artwork)) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _renderer.stickers = artwork,
+      );
+    }
 
     // Keep the renderer in sync with the drawing and the floating elements
     // (the text being typed, the element being moved).
@@ -164,7 +194,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
           label: toolLabel(l10n, tool),
           color: state.color,
           selected: tool == state.tool,
-          onPressed: () => controller.selectTool(tool),
+          onPressed: tool == EditorTool.stickers
+              ? () => _openStickers(l10n)
+              : () => controller.selectTool(tool),
         ),
     ];
 
@@ -340,6 +372,11 @@ extension on _EditorPageState {
       onTransform: controller.previewTransform,
       onTransformEnd: controller.commitTransform,
       actions: [
+        SelectionAction(
+          icon: Icons.content_copy_rounded,
+          tooltip: l10n.duplicateElement,
+          onPressed: controller.duplicateSelected,
+        ),
         if (selected is TextElement) ...[
           SelectionAction(
             icon: Icons.edit_rounded,

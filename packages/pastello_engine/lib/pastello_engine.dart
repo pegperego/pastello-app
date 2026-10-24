@@ -11,6 +11,7 @@ export 'src/document/element_transform.dart';
 export 'src/document/element_id.dart';
 export 'src/document/serialization.dart';
 export 'src/document/sheet_point.dart';
+export 'src/document/sticker_element.dart';
 export 'src/document/stroke_element.dart';
 export 'src/document/stroke_tool.dart';
 export 'src/document/text_element.dart';

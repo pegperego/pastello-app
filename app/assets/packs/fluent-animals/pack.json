@@ -1,0 +1,201 @@
+{
+ "id": "fluent-animals",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Animali",
+  "en": "Animals"
+ },
+ "icon": "dog_face",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "dog_face",
+   "file": "stickers/dog_face.svg",
+   "name": "Dog face"
+  },
+  {
+   "id": "cat_face",
+   "file": "stickers/cat_face.svg",
+   "name": "Cat face"
+  },
+  {
+   "id": "mouse_face",
+   "file": "stickers/mouse_face.svg",
+   "name": "Mouse face"
+  },
+  {
+   "id": "hamster",
+   "file": "stickers/hamster.svg",
+   "name": "Hamster"
+  },
+  {
+   "id": "rabbit_face",
+   "file": "stickers/rabbit_face.svg",
+   "name": "Rabbit face"
+  },
+  {
+   "id": "fox",
+   "file": "stickers/fox.svg",
+   "name": "Fox"
+  },
+  {
+   "id": "bear",
+   "file": "stickers/bear.svg",
+   "name": "Bear"
+  },
+  {
+   "id": "panda",
+   "file": "stickers/panda.svg",
+   "name": "Panda"
+  },
+  {
+   "id": "koala",
+   "file": "stickers/koala.svg",
+   "name": "Koala"
+  },
+  {
+   "id": "tiger_face",
+   "file": "stickers/tiger_face.svg",
+   "name": "Tiger face"
+  },
+  {
+   "id": "lion",
+   "file": "stickers/lion.svg",
+   "name": "Lion"
+  },
+  {
+   "id": "cow_face",
+   "file": "stickers/cow_face.svg",
+   "name": "Cow face"
+  },
+  {
+   "id": "pig_face",
+   "file": "stickers/pig_face.svg",
+   "name": "Pig face"
+  },
+  {
+   "id": "frog",
+   "file": "stickers/frog.svg",
+   "name": "Frog"
+  },
+  {
+   "id": "monkey_face",
+   "file": "stickers/monkey_face.svg",
+   "name": "Monkey face"
+  },
+  {
+   "id": "chicken",
+   "file": "stickers/chicken.svg",
+   "name": "Chicken"
+  },
+  {
+   "id": "penguin",
+   "file": "stickers/penguin.svg",
+   "name": "Penguin"
+  },
+  {
+   "id": "bird",
+   "file": "stickers/bird.svg",
+   "name": "Bird"
+  },
+  {
+   "id": "baby_chick",
+   "file": "stickers/baby_chick.svg",
+   "name": "Baby chick"
+  },
+  {
+   "id": "owl",
+   "file": "stickers/owl.svg",
+   "name": "Owl"
+  },
+  {
+   "id": "unicorn",
+   "file": "stickers/unicorn.svg",
+   "name": "Unicorn"
+  },
+  {
+   "id": "horse_face",
+   "file": "stickers/horse_face.svg",
+   "name": "Horse face"
+  },
+  {
+   "id": "turtle",
+   "file": "stickers/turtle.svg",
+   "name": "Turtle"
+  },
+  {
+   "id": "snake",
+   "file": "stickers/snake.svg",
+   "name": "Snake"
+  },
+  {
+   "id": "dolphin",
+   "file": "stickers/dolphin.svg",
+   "name": "Dolphin"
+  },
+  {
+   "id": "whale",
+   "file": "stickers/whale.svg",
+   "name": "Whale"
+  },
+  {
+   "id": "tropical_fish",
+   "file": "stickers/tropical_fish.svg",
+   "name": "Tropical fish"
+  },
+  {
+   "id": "octopus",
+   "file": "stickers/octopus.svg",
+   "name": "Octopus"
+  },
+  {
+   "id": "butterfly",
+   "file": "stickers/butterfly.svg",
+   "name": "Butterfly"
+  },
+  {
+   "id": "lady_beetle",
+   "file": "stickers/lady_beetle.svg",
+   "name": "Lady beetle"
+  },
+  {
+   "id": "honeybee",
+   "file": "stickers/honeybee.svg",
+   "name": "Honeybee"
+  },
+  {
+   "id": "snail",
+   "file": "stickers/snail.svg",
+   "name": "Snail"
+  },
+  {
+   "id": "hedgehog",
+   "file": "stickers/hedgehog.svg",
+   "name": "Hedgehog"
+  },
+  {
+   "id": "elephant",
+   "file": "stickers/elephant.svg",
+   "name": "Elephant"
+  },
+  {
+   "id": "giraffe",
+   "file": "stickers/giraffe.svg",
+   "name": "Giraffe"
+  },
+  {
+   "id": "t_rex",
+   "file": "stickers/t_rex.svg",
+   "name": "T-rex"
+  },
+  {
+   "id": "sauropod",
+   "file": "stickers/sauropod.svg",
+   "name": "Sauropod"
+  }
+ ]
+}

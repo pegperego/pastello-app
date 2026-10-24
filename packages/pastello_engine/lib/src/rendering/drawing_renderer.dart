@@ -8,6 +8,7 @@ import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
 import '../document/stroke_tool.dart';
 import '../geometry/hit_test.dart';
+import '../document/sticker_element.dart';
 import 'live_stroke.dart';
 import 'paper_grain.dart';
 import 'stroke_painter.dart';
@@ -32,13 +33,26 @@ class DrawingRenderer extends ChangeNotifier {
   DrawingRenderer({
     required this.grain,
     this.background = const ui.Color(0xFFFFFFFF),
-  });
+    StickerArtwork? stickers,
+    // ignore: prefer_initializing_formals, the setter also rebuilds the cache.
+  }) : _stickers = stickers;
 
   /// Paper texture shared by every stroke.
   final PaperGrain grain;
 
   /// Color of the sheet.
   final ui.Color background;
+
+  StickerArtwork? _stickers;
+
+  /// Artwork of the stickers. Setting it repaints the drawing, so stickers
+  /// loaded after the drawing replace their placeholders.
+  StickerArtwork? get stickers => _stickers;
+  set stickers(StickerArtwork? value) {
+    if (identical(value, _stickers)) return;
+    _stickers = value;
+    _rebuild();
+  }
 
   /// How many new points of the live stroke trigger a freeze.
   static const int freezeBatch = 48;
@@ -107,7 +121,14 @@ class DrawingRenderer extends ChangeNotifier {
         previous != null &&
         _isAppend(previous, drawing) &&
         !hidden.contains(drawing.elements.last.id)) {
-      _update((canvas) => paintElement(canvas, drawing.elements.last, grain));
+      _update(
+        (canvas) => paintElement(
+          canvas,
+          drawing.elements.last,
+          grain,
+          stickers: _stickers,
+        ),
+      );
     } else {
       _rebuild();
     }
@@ -152,7 +173,7 @@ class DrawingRenderer extends ChangeNotifier {
     if (drawing == null || points.isEmpty) return;
     final area = polylineBounds(points).inflate(width);
     for (final element in _protectedIn(drawing, area)) {
-      paintElement(canvas, element, grain);
+      paintElement(canvas, element, grain, stickers: _stickers);
     }
   }
 
@@ -175,7 +196,7 @@ class DrawingRenderer extends ChangeNotifier {
 
   void _paintFloating(ui.Canvas canvas) {
     for (final element in _floating) {
-      paintElement(canvas, element, grain);
+      paintElement(canvas, element, grain, stickers: _stickers);
     }
   }
 
@@ -324,7 +345,9 @@ class DrawingRenderer extends ChangeNotifier {
 
   void _paintElements(ui.Canvas canvas, Drawing drawing) {
     for (final element in drawing.elements) {
-      if (!_hidden.contains(element.id)) paintElement(canvas, element, grain);
+      if (!_hidden.contains(element.id)) {
+        paintElement(canvas, element, grain, stickers: _stickers);
+      }
     }
   }
 

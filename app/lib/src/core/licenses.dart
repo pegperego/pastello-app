@@ -17,5 +17,9 @@ void registerBundledLicenses() {
         font,
       ], await rootBundle.loadString(file));
     }
+    // Stickers of the bundled content packs (F-11, ADR 0018).
+    yield LicenseEntryWithLineBreaks([
+      'Fluent Emoji (Microsoft)',
+    ], await rootBundle.loadString('assets/packs/LICENSE-fluent-emoji.txt'));
   });
 }

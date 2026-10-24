@@ -1,0 +1,166 @@
+{
+ "id": "fluent-nature",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Natura e meteo",
+  "en": "Nature and weather"
+ },
+ "icon": "cherry_blossom",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "sun",
+   "file": "stickers/sun.svg",
+   "name": "Sun"
+  },
+  {
+   "id": "sun_with_face",
+   "file": "stickers/sun_with_face.svg",
+   "name": "Sun with face"
+  },
+  {
+   "id": "crescent_moon",
+   "file": "stickers/crescent_moon.svg",
+   "name": "Crescent moon"
+  },
+  {
+   "id": "star",
+   "file": "stickers/star.svg",
+   "name": "Star"
+  },
+  {
+   "id": "glowing_star",
+   "file": "stickers/glowing_star.svg",
+   "name": "Glowing star"
+  },
+  {
+   "id": "cloud",
+   "file": "stickers/cloud.svg",
+   "name": "Cloud"
+  },
+  {
+   "id": "rainbow",
+   "file": "stickers/rainbow.svg",
+   "name": "Rainbow"
+  },
+  {
+   "id": "snowflake",
+   "file": "stickers/snowflake.svg",
+   "name": "Snowflake"
+  },
+  {
+   "id": "umbrella_with_rain_drops",
+   "file": "stickers/umbrella_with_rain_drops.svg",
+   "name": "Umbrella with rain drops"
+  },
+  {
+   "id": "high_voltage",
+   "file": "stickers/high_voltage.svg",
+   "name": "High voltage"
+  },
+  {
+   "id": "fire",
+   "file": "stickers/fire.svg",
+   "name": "Fire"
+  },
+  {
+   "id": "droplet",
+   "file": "stickers/droplet.svg",
+   "name": "Droplet"
+  },
+  {
+   "id": "sunflower",
+   "file": "stickers/sunflower.svg",
+   "name": "Sunflower"
+  },
+  {
+   "id": "tulip",
+   "file": "stickers/tulip.svg",
+   "name": "Tulip"
+  },
+  {
+   "id": "rose",
+   "file": "stickers/rose.svg",
+   "name": "Rose"
+  },
+  {
+   "id": "blossom",
+   "file": "stickers/blossom.svg",
+   "name": "Blossom"
+  },
+  {
+   "id": "cherry_blossom",
+   "file": "stickers/cherry_blossom.svg",
+   "name": "Cherry blossom"
+  },
+  {
+   "id": "four_leaf_clover",
+   "file": "stickers/four_leaf_clover.svg",
+   "name": "Four leaf clover"
+  },
+  {
+   "id": "herb",
+   "file": "stickers/herb.svg",
+   "name": "Herb"
+  },
+  {
+   "id": "deciduous_tree",
+   "file": "stickers/deciduous_tree.svg",
+   "name": "Deciduous tree"
+  },
+  {
+   "id": "evergreen_tree",
+   "file": "stickers/evergreen_tree.svg",
+   "name": "Evergreen tree"
+  },
+  {
+   "id": "palm_tree",
+   "file": "stickers/palm_tree.svg",
+   "name": "Palm tree"
+  },
+  {
+   "id": "cactus",
+   "file": "stickers/cactus.svg",
+   "name": "Cactus"
+  },
+  {
+   "id": "mushroom",
+   "file": "stickers/mushroom.svg",
+   "name": "Mushroom"
+  },
+  {
+   "id": "maple_leaf",
+   "file": "stickers/maple_leaf.svg",
+   "name": "Maple leaf"
+  },
+  {
+   "id": "fallen_leaf",
+   "file": "stickers/fallen_leaf.svg",
+   "name": "Fallen leaf"
+  },
+  {
+   "id": "snowman",
+   "file": "stickers/snowman.svg",
+   "name": "Snowman"
+  },
+  {
+   "id": "water_wave",
+   "file": "stickers/water_wave.svg",
+   "name": "Water wave"
+  },
+  {
+   "id": "volcano",
+   "file": "stickers/volcano.svg",
+   "name": "Volcano"
+  },
+  {
+   "id": "globe_showing_europe_africa",
+   "file": "stickers/globe_showing_europe_africa.svg",
+   "name": "Globe showing europe-africa"
+  }
+ ]
+}

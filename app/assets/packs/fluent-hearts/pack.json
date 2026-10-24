@@ -1,0 +1,141 @@
+{
+ "id": "fluent-hearts",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Cuori e stelle",
+  "en": "Hearts and stars"
+ },
+ "icon": "red_heart",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "red_heart",
+   "file": "stickers/red_heart.svg",
+   "name": "Red heart"
+  },
+  {
+   "id": "orange_heart",
+   "file": "stickers/orange_heart.svg",
+   "name": "Orange heart"
+  },
+  {
+   "id": "yellow_heart",
+   "file": "stickers/yellow_heart.svg",
+   "name": "Yellow heart"
+  },
+  {
+   "id": "green_heart",
+   "file": "stickers/green_heart.svg",
+   "name": "Green heart"
+  },
+  {
+   "id": "blue_heart",
+   "file": "stickers/blue_heart.svg",
+   "name": "Blue heart"
+  },
+  {
+   "id": "purple_heart",
+   "file": "stickers/purple_heart.svg",
+   "name": "Purple heart"
+  },
+  {
+   "id": "pink_heart",
+   "file": "stickers/pink_heart.svg",
+   "name": "Pink heart"
+  },
+  {
+   "id": "sparkling_heart",
+   "file": "stickers/sparkling_heart.svg",
+   "name": "Sparkling heart"
+  },
+  {
+   "id": "two_hearts",
+   "file": "stickers/two_hearts.svg",
+   "name": "Two hearts"
+  },
+  {
+   "id": "heart_with_ribbon",
+   "file": "stickers/heart_with_ribbon.svg",
+   "name": "Heart with ribbon"
+  },
+  {
+   "id": "sparkles",
+   "file": "stickers/sparkles.svg",
+   "name": "Sparkles"
+  },
+  {
+   "id": "dizzy",
+   "file": "stickers/dizzy.svg",
+   "name": "Dizzy"
+  },
+  {
+   "id": "shooting_star",
+   "file": "stickers/shooting_star.svg",
+   "name": "Shooting star"
+  },
+  {
+   "id": "crown",
+   "file": "stickers/crown.svg",
+   "name": "Crown"
+  },
+  {
+   "id": "gem_stone",
+   "file": "stickers/gem_stone.svg",
+   "name": "Gem stone"
+  },
+  {
+   "id": "ribbon",
+   "file": "stickers/ribbon.svg",
+   "name": "Ribbon"
+  },
+  {
+   "id": "hundred_points",
+   "file": "stickers/hundred_points.svg",
+   "name": "Hundred points"
+  },
+  {
+   "id": "musical_note",
+   "file": "stickers/musical_note.svg",
+   "name": "Musical note"
+  },
+  {
+   "id": "musical_notes",
+   "file": "stickers/musical_notes.svg",
+   "name": "Musical notes"
+  },
+  {
+   "id": "balloon",
+   "file": "stickers/balloon.svg",
+   "name": "Balloon"
+  },
+  {
+   "id": "party_popper",
+   "file": "stickers/party_popper.svg",
+   "name": "Party popper"
+  },
+  {
+   "id": "trophy",
+   "file": "stickers/trophy.svg",
+   "name": "Trophy"
+  },
+  {
+   "id": "1st_place_medal",
+   "file": "stickers/1st_place_medal.svg",
+   "name": "1st place medal"
+  },
+  {
+   "id": "speech_balloon",
+   "file": "stickers/speech_balloon.svg",
+   "name": "Speech balloon"
+  },
+  {
+   "id": "thought_balloon",
+   "file": "stickers/thought_balloon.svg",
+   "name": "Thought balloon"
+  }
+ ]
+}
