@@ -3,6 +3,7 @@ import 'dart:ui';
 import '../document/drawing.dart';
 import '../document/drawing_element.dart';
 import '../document/element_id.dart';
+import '../document/sheet_background.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
 import '../geometry/hit_test.dart';
@@ -156,6 +157,25 @@ class EraseCommand implements DrawingCommand {
         ? e.withoutErasure(erasures[e.id]!)
         : e,
   );
+}
+
+/// Changes the paper color or pattern (F-10). The drawing itself is not
+/// touched.
+class ChangeBackgroundCommand implements DrawingCommand {
+  /// Creates a command that turns [before] into [after].
+  const ChangeBackgroundCommand(this.before, this.after);
+
+  /// The background as it was.
+  final SheetBackground before;
+
+  /// The background as it becomes.
+  final SheetBackground after;
+
+  @override
+  Drawing apply(Drawing drawing) => drawing.withBackground(after);
+
+  @override
+  Drawing revert(Drawing drawing) => drawing.withBackground(before);
 }
 
 /// Several commands applied as one undo step: moving, duplicating or

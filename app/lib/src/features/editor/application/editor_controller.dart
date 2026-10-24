@@ -836,6 +836,16 @@ class EditorController extends Notifier<EditorState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Paper (F-10)
+
+  /// Changes the paper color or pattern; undoable, the drawing is kept.
+  void changeBackground(SheetBackground background) {
+    final drawing = state.drawing;
+    if (drawing == null || drawing.background == background) return;
+    _execute(ChangeBackgroundCommand(drawing.background, background));
+  }
+
+  // ---------------------------------------------------------------------------
   // History
 
   /// Undoes the last change.

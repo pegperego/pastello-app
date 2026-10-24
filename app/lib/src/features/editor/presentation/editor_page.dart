@@ -17,6 +17,7 @@ import 'editor_buttons.dart';
 import 'font_sheet.dart';
 import 'labels.dart';
 import 'more_colors_sheet.dart';
+import 'paper_panel.dart';
 import 'selection_overlay.dart';
 import 'shape_panel.dart';
 import 'sheet_view.dart';
@@ -368,6 +369,18 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                       onPressed: state.canRedo ? controller.redo : null,
                     ),
                     const Spacer(),
+                    ActionButton(
+                      icon: Icons.description_rounded,
+                      tooltip: l10n.paper,
+                      onPressed: state.drawing == null
+                          ? null
+                          : () => showPaperPanel(
+                              context,
+                              current: () =>
+                                  ref.read(editorProvider).drawing!.background,
+                              onChanged: controller.changeBackground,
+                            ),
+                    ),
                     ActionButton(
                       icon: locked
                           ? Icons.screen_lock_rotation_rounded

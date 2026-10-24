@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'drawing_element.dart';
+import 'sheet_background.dart';
 
 /// A drawing: a fixed-size sheet and an ordered list of elements.
 ///
@@ -8,10 +9,17 @@ import 'drawing_element.dart';
 /// produce new instances.
 class Drawing {
   /// Creates a drawing of [sheetSize] with the given [elements].
-  const Drawing({required this.sheetSize, this.elements = const []});
+  const Drawing({
+    required this.sheetSize,
+    this.elements = const [],
+    this.background = SheetBackground.white,
+  });
 
   /// Logical size of the sheet, in sheet units (decision D-05).
   final Size sheetSize;
+
+  /// Paper color and pattern (F-10).
+  final SheetBackground background;
 
   /// Elements from bottom to top.
   final List<DrawingElement> elements;
@@ -20,12 +28,16 @@ class Drawing {
   bool get isEmpty => elements.isEmpty;
 
   /// Returns a copy with [element] added on top.
-  Drawing withElementAdded(DrawingElement element) =>
-      Drawing(sheetSize: sheetSize, elements: [...elements, element]);
+  Drawing withElementAdded(DrawingElement element) => Drawing(
+    sheetSize: sheetSize,
+    background: background,
+    elements: [...elements, element],
+  );
 
   /// Returns a copy with the element whose id is [id] removed.
   Drawing withElementRemoved(String id) => Drawing(
     sheetSize: sheetSize,
+    background: background,
     elements: [
       for (final e in elements)
         if (e.id != id) e,
@@ -36,8 +48,13 @@ class Drawing {
   Drawing withElementsMapped(DrawingElement Function(DrawingElement) update) =>
       Drawing(
         sheetSize: sheetSize,
+        background: background,
         elements: [for (final e in elements) update(e)],
       );
+
+  /// Returns a copy with another [background].
+  Drawing withBackground(SheetBackground background) =>
+      Drawing(sheetSize: sheetSize, background: background, elements: elements);
 
   /// The element with [id], or `null`.
   DrawingElement? elementById(String id) =>
@@ -47,6 +64,7 @@ class Drawing {
   /// replaced by it, keeping its place in the z-order.
   Drawing withElementReplaced(DrawingElement element) => Drawing(
     sheetSize: sheetSize,
+    background: background,
     elements: [
       for (final e in elements)
         if (e.id == element.id) element else e,
@@ -56,6 +74,7 @@ class Drawing {
   /// Returns a copy with [element] inserted at [index] in the z-order.
   Drawing withElementInserted(int index, DrawingElement element) => Drawing(
     sheetSize: sheetSize,
+    background: background,
     elements: [...elements]..insert(index.clamp(0, elements.length), element),
   );
 
@@ -75,5 +94,5 @@ class Drawing {
 
   /// Returns a copy with the given [elements].
   Drawing withElements(List<DrawingElement> elements) =>
-      Drawing(sheetSize: sheetSize, elements: elements);
+      Drawing(sheetSize: sheetSize, background: background, elements: elements);
 }

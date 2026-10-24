@@ -5,7 +5,7 @@ import '../document/sticker_element.dart';
 import 'paper_grain.dart';
 import 'stroke_painter.dart';
 
-/// Renders [drawing] on its [background] into a picture [width] pixels wide,
+/// Renders [drawing] on its background into a picture [width] pixels wide,
 /// keeping the sheet's proportions.
 ///
 /// Used for gallery thumbnails and, later, for exporting images. Call
@@ -14,16 +14,12 @@ ui.Picture renderDrawing(
   Drawing drawing,
   PaperGrain grain, {
   required int width,
-  ui.Color background = const ui.Color(0xFFFFFFFF),
   StickerArtwork? stickers,
 }) {
   final scale = width / drawing.sheetSize.width;
   final recorder = ui.PictureRecorder();
   final canvas = ui.Canvas(recorder)..scale(scale);
-  canvas.drawRect(
-    ui.Offset.zero & drawing.sheetSize,
-    ui.Paint()..color = background,
-  );
+  drawing.background.paint(canvas, drawing.sheetSize);
   for (final element in drawing.elements) {
     paintElement(canvas, element, grain, stickers: stickers);
   }

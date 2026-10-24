@@ -35,3 +35,18 @@ const moreColors = <Color>[
   Color(0xFF6E6E6E), Color(0xFF444444), Color(0xFF00C2A8), Color(0xFFFF5E78),
   Color(0xFFC0E218), Color(0xFFFFB000),
 ];
+
+/// Paper colors for the sheet background (F-10): white, soft pastels and two
+/// dark papers for drawing "at night".
+const paperColors = <Color>[
+  Color(0xFFFFFFFF),
+  Color(0xFFFFF3B0),
+  Color(0xFFFFDDB8),
+  Color(0xFFFFC9CF),
+  Color(0xFFD6F5C2),
+  Color(0xFFCDEBFF),
+  Color(0xFFE6D3FF),
+  Color(0xFFEADBC8),
+  Color(0xFF1E2A78),
+  Color(0xFF1F1F1F),
+];
