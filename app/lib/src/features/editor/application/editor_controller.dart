@@ -68,6 +68,11 @@ class EditorState {
     this.shapeFilled = false,
     this.draft,
     this.shapeSnapped = false,
+    this.groupIds = const [],
+    this.groupBox,
+    this.groupFrame,
+    this.groupPreview = const [],
+    this.lasso,
     this.drawing,
     this.canUndo = false,
     this.canRedo = false,
@@ -110,6 +115,23 @@ class EditorState {
 
   /// Whether [draft] snapped to a perfect figure or angle.
   final bool shapeSnapped;
+
+  /// Elements selected together with the lasso (F-13), in z-order. Empty
+  /// when there is no group; a single element uses [selectedId] instead.
+  final List<String> groupIds;
+
+  /// Bounds of the group when it was selected or last changed.
+  final Rect? groupBox;
+
+  /// Current transform of the group's frame: starts at the center of
+  /// [groupBox] and follows the finger.
+  final ElementTransform? groupFrame;
+
+  /// The group's elements as they look while a finger moves them.
+  final List<DrawingElement> groupPreview;
+
+  /// The lasso being drawn, in sheet coordinates.
+  final List<Offset>? lasso;
 
   /// The drawing, or `null` until the sheet size is known.
   final Drawing? drawing;
@@ -155,7 +177,12 @@ class EditorState {
   }
 
   /// Elements painted on top of the drawing, outside the cache.
-  List<DrawingElement> get floating => [?editing, ?preview, ?draft];
+  List<DrawingElement> get floating => [
+    ?editing,
+    ?preview,
+    ?draft,
+    ...groupPreview,
+  ];
 
   EditorState copyWith({
     EditorTool? tool,
@@ -168,6 +195,11 @@ class EditorState {
     bool? shapeFilled,
     Object? draft = _keep,
     bool? shapeSnapped,
+    List<String>? groupIds,
+    Object? groupBox = _keep,
+    Object? groupFrame = _keep,
+    List<DrawingElement>? groupPreview,
+    Object? lasso = _keep,
     Object? selectedId = _keep,
     Object? editing = _keep,
     bool? editingIsNew,
@@ -183,6 +215,13 @@ class EditorState {
     shapeFilled: shapeFilled ?? this.shapeFilled,
     draft: identical(draft, _keep) ? this.draft : draft as ShapeElement?,
     shapeSnapped: shapeSnapped ?? this.shapeSnapped,
+    groupIds: groupIds ?? this.groupIds,
+    groupBox: identical(groupBox, _keep) ? this.groupBox : groupBox as Rect?,
+    groupFrame: identical(groupFrame, _keep)
+        ? this.groupFrame
+        : groupFrame as ElementTransform?,
+    groupPreview: groupPreview ?? this.groupPreview,
+    lasso: identical(lasso, _keep) ? this.lasso : lasso as List<Offset>?,
     drawing: drawing,
     canUndo: canUndo,
     canRedo: canRedo,
@@ -347,9 +386,9 @@ class EditorController extends Notifier<EditorState> {
   /// Selects [tool]. Leaving the text tool ends the text editing and the
   /// selection.
   void selectTool(EditorTool tool) {
-    if (!tool.selects) {
+    if (!tool.selects || tool != state.tool) {
       commitText();
-      state = state.copyWith(selectedId: null);
+      state = _withoutGroup().copyWith(selectedId: null, lasso: null);
     }
     state = state.copyWith(tool: tool);
     _saveSettings((s) => s.copyWith(tool: tool.name));
@@ -527,17 +566,130 @@ class EditorController extends Notifier<EditorState> {
     final hit = drawing.elementAt(
       point,
       slop: selectionSlop,
-      where: (e) => e is! StrokeElement,
+      where: (e) => state.tool == EditorTool.select || e is! StrokeElement,
     );
     if (hit != null) {
-      state = state.copyWith(selectedId: hit.id);
-    } else if (state.selectedId != null) {
-      state = state.copyWith(selectedId: null);
+      state = _withoutGroup().copyWith(selectedId: hit.id);
+    } else if (state.selectedId != null || state.groupIds.isNotEmpty) {
+      state = _withoutGroup().copyWith(selectedId: null);
     } else if (state.tool == EditorTool.text) {
       startText(point);
     } else if (state.tool == EditorTool.stickers) {
       placeSticker(point);
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Lasso and groups (F-13)
+
+  EditorState _withoutGroup() => state.copyWith(
+    groupIds: const [],
+    groupBox: null,
+    groupFrame: null,
+    groupPreview: const [],
+  );
+
+  /// Starts a lasso at [point].
+  void beginLasso(Offset point) {
+    if (state.tool != EditorTool.select || state.drawing == null) return;
+    state = _withoutGroup().copyWith(selectedId: null, lasso: [point]);
+  }
+
+  /// Extends the lasso to [point].
+  void updateLasso(Offset point) {
+    final lasso = state.lasso;
+    if (lasso == null) return;
+    state = state.copyWith(lasso: [...lasso, point]);
+  }
+
+  /// Closes the lasso and selects what it caught: one element, or a group.
+  void endLasso() {
+    final lasso = state.lasso;
+    final drawing = state.drawing;
+    state = state.copyWith(lasso: null);
+    if (lasso == null || drawing == null) return;
+    final ids = lassoSelection(drawing, lasso);
+    if (ids.length == 1) {
+      state = state.copyWith(selectedId: ids.single);
+    } else if (ids.length > 1) {
+      _selectGroup(drawing, ids);
+    }
+  }
+
+  void _selectGroup(Drawing drawing, List<String> ids) {
+    final box = groupBounds([for (final id in ids) drawing.elementById(id)!]);
+    state = state.copyWith(
+      selectedId: null,
+      groupIds: ids,
+      groupBox: box,
+      groupFrame: ElementTransform(translation: box.center),
+      groupPreview: const [],
+    );
+  }
+
+  List<DrawingElement> get _groupElements => [
+    for (final id in state.groupIds) ?state.drawing?.elementById(id),
+  ];
+
+  /// Shows the group moved, resized or rotated while a finger is on its
+  /// frame.
+  void previewGroup(ElementTransform frame) {
+    final box = state.groupBox;
+    if (box == null) return;
+    final clamped = frame.copyWith(
+      scale: frame.scale.clamp(minElementScale, maxElementScale),
+    );
+    final g = groupTransform(box, clamped);
+    state = state.copyWith(
+      groupFrame: clamped,
+      groupPreview: [
+        for (final e in _groupElements) e.withTransform(e.transform.then(g)),
+      ],
+    );
+    _show();
+  }
+
+  /// Commits the group's new position as one undo step.
+  void commitGroup() {
+    final moved = state.groupPreview;
+    if (moved.isEmpty) return;
+    final before = _groupElements;
+    final ids = state.groupIds;
+    state = state.copyWith(groupPreview: const []);
+    _execute(
+      BatchCommand([
+        for (var i = 0; i < before.length; i++)
+          UpdateElementCommand(before[i], moved[i]),
+      ]),
+    );
+    _selectGroup(state.drawing!, ids);
+  }
+
+  /// Duplicates the group, a little lower and to the right, and selects
+  /// the copies.
+  void duplicateGroup() {
+    final copies = [
+      for (final e in _groupElements)
+        e
+            .withId(newElementId())
+            .withTransform(
+              e.transform.then(
+                const ElementTransform(translation: duplicateOffset),
+              ),
+            ),
+    ];
+    if (copies.isEmpty) return;
+    _execute(BatchCommand([for (final c in copies) AddElementCommand(c)]));
+    _selectGroup(state.drawing!, [for (final c in copies) c.id]);
+  }
+
+  /// Deletes the whole group as one undo step.
+  void deleteGroup() {
+    final drawing = state.drawing;
+    if (drawing == null || state.groupIds.isEmpty) return;
+    final command = BatchCommand.deleteAll(drawing, state.groupIds);
+    state = _withoutGroup();
+    _execute(command);
   }
 
   /// Chooses the sticker placed by the next tap (F-11).
@@ -680,7 +832,7 @@ class EditorController extends Notifier<EditorState> {
   /// Clears the selection.
   void deselect() {
     commitText();
-    state = state.copyWith(selectedId: null);
+    state = _withoutGroup().copyWith(selectedId: null);
   }
 
   // ---------------------------------------------------------------------------
@@ -751,6 +903,16 @@ class EditorController extends Notifier<EditorState> {
       editing: state.editing,
       editingIsNew: state.editingIsNew,
       preview: state.preview,
+      draft: state.draft,
+      groupIds: keepSelection
+          ? [
+              for (final id in state.groupIds)
+                if (stack.drawing.elementById(id) != null) id,
+            ]
+          : const [],
+      groupBox: keepSelection ? state.groupBox : null,
+      groupFrame: keepSelection ? state.groupFrame : null,
+      groupPreview: state.groupPreview,
     );
   }
 

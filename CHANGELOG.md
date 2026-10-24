@@ -34,6 +34,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shapes: circle, square, triangle, star, heart, line and arrow, outlined or
   filled, drawn by dragging with the selected color and width; they snap to
   perfect circles, squares and 0°/45°/90° lines with a light haptic tick.
+- Select tool: draw a lasso around part of the drawing, strokes included,
+  then move, resize, rotate, duplicate or delete it in one undo step; a tap
+  on a stroke's line selects that stroke alone. Erased parts follow the
+  strokes they belong to. Tools now sit on two columns in landscape.
 
 ### Removed
 

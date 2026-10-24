@@ -204,15 +204,21 @@ class _EditorPageState extends ConsumerState<EditorPage> {
             onStrokeEnd: _onStrokeEnd,
             draws: state.tool.draws,
             onTap: controller.tapSheet,
-            onDragStart: state.tool == EditorTool.shapes
-                ? controller.beginShape
-                : null,
-            onDragUpdate: state.tool == EditorTool.shapes
-                ? controller.updateShape
-                : null,
-            onDragEnd: state.tool == EditorTool.shapes
-                ? controller.endShape
-                : null,
+            onDragStart: switch (state.tool) {
+              EditorTool.shapes => controller.beginShape,
+              EditorTool.select => controller.beginLasso,
+              _ => null,
+            },
+            onDragUpdate: switch (state.tool) {
+              EditorTool.shapes => controller.updateShape,
+              EditorTool.select => controller.updateLasso,
+              _ => null,
+            },
+            onDragEnd: switch (state.tool) {
+              EditorTool.shapes => controller.endShape,
+              EditorTool.select => controller.endLasso,
+              _ => null,
+            },
             overlayBuilder: (context, scale) =>
                 _selectionOverlay(l10n, state, scale),
           );
@@ -276,7 +282,11 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         MediaQuery.orientationOf(context) == Orientation.landscape;
     Widget body;
     if (landscape) {
-      final toolColumn = _ScrollColumn(width: 84, children: tools);
+      // Two columns, so that all the tools are visible without scrolling.
+      final toolColumn = _ScrollColumn(
+        width: 148,
+        children: [Wrap(children: tools)],
+      );
       final colorColumn = _ScrollColumn(
         width: 124,
         children: [
@@ -394,11 +404,41 @@ extension on _EditorPageState {
     EditorState state,
     double scale,
   ) {
+    final controller = ref.read(editorProvider.notifier);
+    final lasso = state.lasso;
+    if (lasso != null) {
+      return IgnorePointer(
+        child: CustomPaint(painter: LassoPainter(lasso, scale)),
+      );
+    }
+    final box = state.groupBox, frame = state.groupFrame;
+    if (state.groupIds.isNotEmpty && box != null && frame != null) {
+      return ElementSelectionOverlay(
+        element: GroupFrame(size: box.size, transform: frame),
+        scale: scale,
+        rotateLabel: l10n.rotate,
+        resizeLabel: l10n.resize,
+        onTransform: controller.previewGroup,
+        onTransformEnd: controller.commitGroup,
+        actions: [
+          SelectionAction(
+            icon: Icons.content_copy_rounded,
+            tooltip: l10n.duplicateElement,
+            onPressed: controller.duplicateGroup,
+          ),
+          SelectionAction(
+            icon: Icons.delete_rounded,
+            tooltip: l10n.deleteElement,
+            color: Tokens.raspberry,
+            onPressed: controller.deleteGroup,
+          ),
+        ],
+      );
+    }
     final selected = state.selected;
     if (!state.tool.selects || selected == null || state.editing != null) {
       return const SizedBox.shrink();
     }
-    final controller = ref.read(editorProvider.notifier);
     return ElementSelectionOverlay(
       element: selected,
       scale: scale,

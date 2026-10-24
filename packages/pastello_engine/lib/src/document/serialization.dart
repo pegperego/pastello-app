@@ -249,6 +249,10 @@ Map<String, Object?> commandToJson(DrawingCommand command) => switch (command) {
         key: _erasureToJson(value),
     },
   },
+  BatchCommand(:final commands) => {
+    'type': 'batch',
+    'commands': [for (final c in commands) commandToJson(c)],
+  },
   ClearCommand(:final removed) => {
     'type': 'clear',
     'removed': [for (final e in removed) elementToJson(e)],
@@ -286,6 +290,10 @@ DrawingCommand commandFromJson(Map<String, Object?> json) {
         for (final MapEntry(:key, :value) in _map(json['erasures']).entries)
           key: _erasureFromJson(_map(value)),
       });
+    case 'batch':
+      return BatchCommand([
+        for (final c in _list(json['commands'])) commandFromJson(_map(c)),
+      ]);
     case 'clear':
       return ClearCommand([
         for (final e in _list(json['removed'])) elementFromJson(_map(e)),

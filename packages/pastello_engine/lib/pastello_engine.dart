@@ -17,6 +17,7 @@ export 'src/document/stroke_element.dart';
 export 'src/document/stroke_tool.dart';
 export 'src/document/text_element.dart';
 export 'src/geometry/hit_test.dart';
+export 'src/geometry/lasso.dart';
 export 'src/geometry/simplify.dart';
 export 'src/geometry/stroke_outline.dart';
 export 'src/rendering/drawing_renderer.dart';

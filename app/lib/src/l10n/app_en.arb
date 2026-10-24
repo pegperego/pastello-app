@@ -256,5 +256,9 @@
   "shapeArrow": "Arrow",
   "@shapeArrow": {
     "description": "Shape name."
+  },
+  "toolSelect": "Select",
+  "@toolSelect": {
+    "description": "Tool name: lasso selection."
   }
 }

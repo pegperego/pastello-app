@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
 import '../../../app/tokens.dart';
+import '../application/editor_controller.dart'
+    show maxElementScale, minElementScale;
 
 /// The frame around the selected element (F-07): drag inside to move, drag
 /// the corner to resize, drag the round handle to rotate. One finger only.
@@ -45,8 +47,30 @@ class _ElementSelectionOverlayState extends State<ElementSelectionOverlay> {
 
   ElementTransform get _transform => widget.element.transform;
 
+  /// Center of the element's box, in its local coordinates: the point the
+  /// element is resized and rotated around. For texts, stickers and shapes
+  /// it is the local origin; strokes keep sheet coordinates, so their
+  /// center is wherever they were drawn.
+  Offset get _pivotLocal => widget.element.localBounds.center;
+
   /// Center of the element, in overlay coordinates.
-  Offset get _center => _transform.translation * widget.scale;
+  Offset get _center => _transform.apply(_pivotLocal) * widget.scale;
+
+  /// [start] with a new [scale] or [rotation], moved so that the element's
+  /// center stays where it is.
+  ElementTransform _aroundCenter(
+    ElementTransform start, {
+    double? scale,
+    double? rotation,
+  }) {
+    final pivot = start.apply(_pivotLocal);
+    final next = start.copyWith(
+      translation: Offset.zero,
+      scale: scale?.clamp(minElementScale, maxElementScale),
+      rotation: rotation,
+    );
+    return next.copyWith(translation: pivot - next.apply(_pivotLocal));
+  }
 
   Offset _toOverlay(Offset global) =>
       (context.findRenderObject()! as RenderBox).globalToLocal(global);
@@ -68,7 +92,7 @@ class _ElementSelectionOverlayState extends State<ElementSelectionOverlay> {
     final from = (_startPointer! - _center).distance;
     final to = (_toOverlay(details.globalPosition) - _center).distance;
     if (from < 1) return;
-    widget.onTransform(start.copyWith(scale: start.scale * to / from));
+    widget.onTransform(_aroundCenter(start, scale: start.scale * to / from));
   }
 
   void _rotate(DragUpdateDetails details) {
@@ -76,7 +100,10 @@ class _ElementSelectionOverlayState extends State<ElementSelectionOverlay> {
     final from = _startPointer! - _center;
     final to = _toOverlay(details.globalPosition) - _center;
     widget.onTransform(
-      start.copyWith(rotation: start.rotation + to.direction - from.direction),
+      _aroundCenter(
+        start,
+        rotation: start.rotation + to.direction - from.direction,
+      ),
     );
   }
 
@@ -231,4 +258,61 @@ class SelectionAction extends StatelessWidget {
       icon: Icon(icon),
     ),
   );
+}
+
+/// The frame of a lasso group, as an element the selection overlay can
+/// move, resize and rotate: a box of [size] centered on the frame's
+/// transform.
+class GroupFrame extends DrawingElement {
+  const GroupFrame({required this.size, required super.transform})
+    : super(id: 'group');
+
+  final Size size;
+
+  @override
+  Rect get localBounds => Rect.fromCenter(
+    center: Offset.zero,
+    width: size.width,
+    height: size.height,
+  );
+
+  @override
+  bool get erasable => false;
+
+  @override
+  GroupFrame withId(String id) => this;
+
+  @override
+  GroupFrame withTransform(ElementTransform transform) =>
+      GroupFrame(size: size, transform: transform);
+}
+
+/// The lasso while it is drawn: a dashed line from the first point to the
+/// finger, closed back to the start.
+class LassoPainter extends CustomPainter {
+  LassoPainter(this.points, this.scale);
+
+  final List<Offset> points;
+  final double scale;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (points.length < 2) return;
+    final path = Path()..addPolygon([for (final p in points) p * scale], true);
+    final paint = Paint()
+      ..color = Tokens.sky
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(path, Paint()..color = Tokens.sky.withValues(alpha: 0.08));
+    for (final metric in path.computeMetrics()) {
+      for (var d = 0.0; d < metric.length; d += 16) {
+        canvas.drawPath(metric.extractPath(d, d + 9), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(LassoPainter oldDelegate) =>
+      oldDelegate.points != points || oldDelegate.scale != scale;
 }
