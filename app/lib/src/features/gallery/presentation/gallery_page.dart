@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../app/tokens.dart';
 import '../../../core/clock.dart';
+import '../../../core/feedback/feedback.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../drawings/application/drawings_providers.dart';
 import '../../drawings/domain/drawing_summary.dart';
@@ -95,6 +96,7 @@ class GalleryPage extends ConsumerWidget {
                 // be restored (F-09).
                 onPressed: () {
                   Navigator.of(context).pop();
+                  ref.read(feedbackProvider).sound(AppSound.whoosh);
                   drawings.moveToTrash(summary.id);
                 },
               ),

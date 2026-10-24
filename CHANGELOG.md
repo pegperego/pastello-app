@@ -49,6 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Save to the tablet's gallery, print (fitted on an A4 page) and share,
   from the gallery options and from the editor; sharing needs the parental
   gate. Images use the screen's native resolution.
+- Short sounds (a "pop" for stickers, a "whoosh" for deleting, a "ding"
+  for saving and printing), synthesized by the project and released as CC0;
+  never while drawing. Light vibration on tool changes and shape snapping.
+  Both can be turned off in the parents' page. The chosen tool jumps a
+  little; animations follow Android's "remove animations".
 
 ### Removed
 

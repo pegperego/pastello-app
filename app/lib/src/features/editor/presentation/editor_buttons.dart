@@ -51,9 +51,21 @@ class ToolButton extends StatelessWidget {
                 dimension: 64,
                 child: Padding(
                   padding: const EdgeInsets.all(8),
-                  child: SvgPicture.asset(
-                    tool.iconAsset,
-                    theme: SvgTheme(currentColor: color),
+                  // The chosen tool "jumps" a little (G-08), unless the
+                  // system asks to remove animations.
+                  child: TweenAnimationBuilder<double>(
+                    key: ValueKey(selected),
+                    tween: Tween(begin: selected ? 1.18 : 1, end: 1),
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 250),
+                    curve: Curves.easeOutBack,
+                    builder: (context, scale, child) =>
+                        Transform.scale(scale: scale, child: child),
+                    child: SvgPicture.asset(
+                      tool.iconAsset,
+                      theme: SvgTheme(currentColor: color),
+                    ),
                   ),
                 ),
               ),

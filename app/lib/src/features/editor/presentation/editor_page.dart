@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
 import '../../../app/tokens.dart';
+import '../../../core/feedback/feedback.dart';
 import '../../../core/settings/app_settings.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -179,8 +179,24 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       previous,
       snapped,
     ) {
-      if (snapped && previous == false && settings.haptics) {
-        HapticFeedback.selectionClick();
+      if (snapped && previous == false) ref.read(feedbackProvider).tick();
+    });
+
+    // Sounds for what lands on or leaves the sheet (F-15).
+    ref.listen(editorProvider, (previous, next) {
+      if (previous == null || previous.revision == next.revision) return;
+      final before = previous.drawing?.elements.length ?? 0;
+      final after = next.drawing?.elements.length ?? 0;
+      final feedback = ref.read(feedbackProvider);
+      if (after > before && next.drawing!.elements.last is StickerElement) {
+        feedback.sound(AppSound.pop);
+      } else if (after < before && next.canUndo) {
+        feedback.sound(AppSound.whoosh);
+      }
+    });
+    ref.listen(editorProvider.select((s) => s.tool), (previous, tool) {
+      if (previous != null && previous != tool) {
+        ref.read(feedbackProvider).tick();
       }
     });
 
