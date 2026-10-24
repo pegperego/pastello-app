@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/settings/settings_providers.dart';
+import '../features/stickers/application/stickers_providers.dart';
 import '../features/gallery/presentation/gallery_page.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'theme.dart';
@@ -19,6 +20,9 @@ class PastelloApp extends ConsumerWidget {
       settingsProvider.select((settings) => settings.value?.rotationLock),
       (_, lock) => ref.read(orientationSetterProvider)(orientationsFor(lock)),
     );
+    // Sticker artwork is prepared in the background from the start, so it
+    // is ready when the first sheet opens.
+    ref.listen(stickerArtworkProvider, (_, _) {});
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,

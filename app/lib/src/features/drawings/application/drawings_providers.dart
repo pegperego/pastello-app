@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
+import '../../stickers/application/stickers_providers.dart';
 import '../data/drawing_repository.dart';
 import '../domain/drawing_summary.dart';
 
@@ -18,13 +19,25 @@ const thumbnailWidth = 480;
 /// Turns a drawing into a PNG thumbnail. Replaced in widget tests, where
 /// encoding images needs the real event loop.
 final thumbnailRendererProvider = Provider<Future<Uint8List> Function(Drawing)>(
-  (ref) => renderThumbnail,
+  (ref) =>
+      (drawing) => renderThumbnail(
+        drawing,
+        stickers: ref.read(stickerArtworkProvider).value,
+      ),
 );
 
 /// Renders [drawing] as a PNG [thumbnailWidth] pixels wide.
-Future<Uint8List> renderThumbnail(Drawing drawing) async {
+Future<Uint8List> renderThumbnail(
+  Drawing drawing, {
+  StickerArtwork? stickers,
+}) async {
   final grain = PaperGrain.generate();
-  final picture = renderDrawing(drawing, grain, width: thumbnailWidth);
+  final picture = renderDrawing(
+    drawing,
+    grain,
+    width: thumbnailWidth,
+    stickers: stickers,
+  );
   final image = await picture.toImage(
     thumbnailWidth,
     renderedHeight(drawing, thumbnailWidth),

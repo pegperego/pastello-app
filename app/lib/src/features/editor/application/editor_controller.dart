@@ -29,6 +29,27 @@ const double maxElementScale = 8;
 /// Marks a field left unchanged by [EditorState.copyWith].
 const Object _keep = Object();
 
+/// The sticker placed by the next tap with the Stickers tool (F-11).
+@immutable
+class StickerChoice {
+  const StickerChoice(this.packId, this.itemId);
+
+  final String packId;
+  final String itemId;
+
+  @override
+  bool operator ==(Object other) =>
+      other is StickerChoice &&
+      other.packId == packId &&
+      other.itemId == itemId;
+
+  @override
+  int get hashCode => Object.hash(packId, itemId);
+}
+
+/// Offset of a duplicated element from the original, in sheet units.
+const Offset duplicateOffset = Offset(28, 28);
+
 /// What the editor shows. Immutable; the controller emits a new one for
 /// every change.
 @immutable
@@ -39,6 +60,7 @@ class EditorState {
     required this.widths,
     this.extraColor,
     this.textFont = TextFont.andika,
+    this.sticker,
     this.drawing,
     this.canUndo = false,
     this.canRedo = false,
@@ -66,6 +88,9 @@ class EditorState {
 
   /// Font of the next new text (F-08).
   final TextFont textFont;
+
+  /// Sticker placed by the next tap with the Stickers tool.
+  final StickerChoice? sticker;
 
   /// The drawing, or `null` until the sheet size is known.
   final Drawing? drawing;
@@ -119,6 +144,7 @@ class EditorState {
     Map<EditorTool, WidthPreset>? widths,
     Color? extraColor,
     TextFont? textFont,
+    StickerChoice? sticker,
     Object? selectedId = _keep,
     Object? editing = _keep,
     bool? editingIsNew,
@@ -129,6 +155,7 @@ class EditorState {
     widths: widths ?? this.widths,
     extraColor: extraColor ?? this.extraColor,
     textFont: textFont ?? this.textFont,
+    sticker: sticker ?? this.sticker,
     drawing: drawing,
     canUndo: canUndo,
     canRedo: canRedo,
@@ -245,6 +272,7 @@ class EditorController extends Notifier<EditorState> {
     widths: state.widths,
     extraColor: state.extraColor,
     textFont: state.textFont,
+    sticker: state.sticker,
     loading: loading,
   );
 
@@ -382,8 +410,9 @@ class EditorController extends Notifier<EditorState> {
   // ---------------------------------------------------------------------------
   // Texts and selection (F-07)
 
-  /// A tap on the sheet with a tool that selects: selects the text under the
-  /// finger, otherwise deselects or starts a new text there.
+  /// A tap on the sheet with a tool that selects: selects the text or
+  /// sticker under the finger, otherwise deselects, starts a new text or
+  /// places the chosen sticker there.
   void tapSheet(Offset point) {
     final drawing = state.drawing;
     if (drawing == null || !state.tool.selects) return;
@@ -391,18 +420,55 @@ class EditorController extends Notifier<EditorState> {
       commitText();
       return;
     }
+    // Strokes are only selectable with the Select tool (ADR 0004).
     final hit = drawing.elementAt(
       point,
       slop: selectionSlop,
-      where: (e) => e is TextElement,
+      where: (e) => e is! StrokeElement,
     );
     if (hit != null) {
       state = state.copyWith(selectedId: hit.id);
     } else if (state.selectedId != null) {
       state = state.copyWith(selectedId: null);
-    } else {
+    } else if (state.tool == EditorTool.text) {
       startText(point);
+    } else if (state.tool == EditorTool.stickers) {
+      placeSticker(point);
     }
+  }
+
+  /// Chooses the sticker placed by the next tap (F-11).
+  void chooseSticker(StickerChoice choice) {
+    state = state.copyWith(sticker: choice, selectedId: null);
+  }
+
+  /// Places the chosen sticker centered on [point] and selects it.
+  void placeSticker(Offset point) {
+    final choice = state.sticker;
+    if (choice == null || _stack == null) return;
+    final sticker = StickerElement(
+      id: newElementId(),
+      packId: choice.packId,
+      elementId: choice.itemId,
+      transform: ElementTransform(translation: point),
+    );
+    state = state.copyWith(selectedId: sticker.id);
+    _execute(AddElementCommand(sticker));
+  }
+
+  /// Duplicates the selected element, a little lower and to the right, and
+  /// selects the copy.
+  void duplicateSelected() {
+    final selected = state.selected;
+    if (selected == null || state.editing != null || _stack == null) return;
+    final t = selected.transform;
+    final copy = selected
+        .withId(newElementId())
+        .withTransform(
+          t.copyWith(translation: t.translation + duplicateOffset),
+        );
+    state = state.copyWith(selectedId: copy.id);
+    _execute(AddElementCommand(copy));
   }
 
   /// Starts typing a new text centered on [point].
@@ -565,6 +631,7 @@ class EditorController extends Notifier<EditorState> {
       widths: state.widths,
       extraColor: state.extraColor,
       textFont: state.textFont,
+      sticker: state.sticker,
       drawing: stack.drawing,
       canUndo: stack.canUndo,
       canRedo: stack.canRedo,

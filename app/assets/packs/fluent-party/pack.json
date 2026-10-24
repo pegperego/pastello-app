@@ -1,0 +1,81 @@
+{
+ "id": "fluent-party",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Feste",
+  "en": "Party"
+ },
+ "icon": "confetti_ball",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "confetti_ball",
+   "file": "stickers/confetti_ball.svg",
+   "name": "Confetti ball"
+  },
+  {
+   "id": "christmas_tree",
+   "file": "stickers/christmas_tree.svg",
+   "name": "Christmas tree"
+  },
+  {
+   "id": "santa_claus",
+   "file": "stickers/santa_claus.svg",
+   "name": "Santa claus"
+  },
+  {
+   "id": "woman_fairy",
+   "file": "stickers/woman_fairy.svg",
+   "name": "Woman fairy"
+  },
+  {
+   "id": "woman_superhero",
+   "file": "stickers/woman_superhero.svg",
+   "name": "Woman superhero"
+  },
+  {
+   "id": "fireworks",
+   "file": "stickers/fireworks.svg",
+   "name": "Fireworks"
+  },
+  {
+   "id": "sparkler",
+   "file": "stickers/sparkler.svg",
+   "name": "Sparkler"
+  },
+  {
+   "id": "magic_wand",
+   "file": "stickers/magic_wand.svg",
+   "name": "Magic wand"
+  },
+  {
+   "id": "mirror_ball",
+   "file": "stickers/mirror_ball.svg",
+   "name": "Mirror ball"
+  },
+  {
+   "id": "tanabata_tree",
+   "file": "stickers/tanabata_tree.svg",
+   "name": "Tanabata tree"
+  },
+  {
+   "id": "rabbit",
+   "file": "stickers/rabbit.svg",
+   "name": "Rabbit"
+  },
+  {
+   "id": "love_letter",
+   "file": "stickers/love_letter.svg",
+   "name": "Love letter"
+  },
+  {
+   "id": "bouquet",
+   "file": "stickers/bouquet.svg",
+   "name": "Bouquet"
+  }
+ ]
+}

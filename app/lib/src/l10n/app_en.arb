@@ -200,5 +200,17 @@
   "fontSample": "Hello",
   "@fontSample": {
     "description": "Word used to preview each font."
+  },
+  "toolStickers": "Stickers",
+  "@toolStickers": {
+    "description": "Tool name."
+  },
+  "duplicateElement": "Duplicate",
+  "@duplicateElement": {
+    "description": "Copies the selected element."
+  },
+  "chooseSticker": "Choose a sticker",
+  "@chooseSticker": {
+    "description": "Title of the sticker panel."
   }
 }

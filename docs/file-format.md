@@ -22,7 +22,7 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "revision": 12,
   "sheet": { "width": 1114, "height": 663 },
   "elements": [
@@ -74,6 +74,20 @@ element is described in local coordinates, scaled by `scale`, rotated by
 
 The local origin of a text is the center of its box.
 
+### Sticker
+
+```json
+{ "type": "sticker", "id": "c1f0…", "pack": "fluent-animals", "item": "dog_face", "size": 160 }
+```
+
+| Field | Meaning |
+|---|---|
+| `pack`, `item` | Which sticker, in which content pack ([ADR 0018](adr/0018-content-packs.md)). The artwork is not copied into the drawing. |
+| `size` | Side of the sticker's square, in sheet units, before the transform's scale. |
+
+A sticker whose pack is not installed is drawn as a "?" placeholder; the
+reference is kept, so it reappears when the pack is installed.
+
 ### Stroke
 
 | Field | Meaning |
@@ -89,7 +103,7 @@ The local origin of a text is the center of its box.
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "revision": 12,
   "undo": [ { "type": "add", "stroke": { … } } ],
   "redo": []
@@ -120,6 +134,7 @@ Files in the trash also have `deletedAt`; they are purged 30 days later.
 |---|---|
 | 1 | Strokes and erasures. |
 | 2 | Texts, element transforms, `update` and `delete` commands. Version 1 files are read as they are. |
+| 3 | Stickers. Older files are read as they are. |
 
 ## Changing the format
 

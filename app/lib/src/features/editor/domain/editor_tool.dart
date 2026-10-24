@@ -9,7 +9,8 @@ enum EditorTool {
   crayon(StrokeTool.crayon, WidthPreset.medium),
   rainbow(StrokeTool.rainbow, WidthPreset.medium),
   eraser(null, WidthPreset.thick),
-  text(null, WidthPreset.medium);
+  text(null, WidthPreset.medium),
+  stickers(null, WidthPreset.medium);
 
   const EditorTool(this.strokeTool, this.defaultWidth);
 
@@ -17,20 +18,20 @@ enum EditorTool {
   final StrokeTool? strokeTool;
 
   /// Whether a finger on the sheet draws (or erases) with this tool.
-  bool get draws => this != text;
+  bool get draws => !selects;
 
   /// Whether the width presets apply to this tool.
-  bool get usesWidth => this != text;
+  bool get usesWidth => !selects;
 
-  /// Whether touching texts (and later stickers and shapes) selects them
+  /// Whether touching texts, stickers (and later shapes) selects them
   /// (F-07): with drawing tools a touch always draws.
-  bool get selects => this == text;
+  bool get selects => this == text || this == stickers;
 
   /// Width on first use (F-06); then each tool remembers its own.
   final WidthPreset defaultWidth;
 
   /// Whether the tool paints with the selected color.
-  bool get usesColor => this != eraser && this != rainbow;
+  bool get usesColor => this != eraser && this != rainbow && this != stickers;
 
   /// SVG icon; parts painted with `currentColor` take the selected color.
   String get iconAsset => 'assets/icons/tools/$name.svg';

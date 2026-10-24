@@ -35,6 +35,8 @@ Future<void> typeNewText(WidgetTester tester, String value) async {
 }
 
 void main() {
+  setUpAll(loadTestPacks);
+
   testWidgets('write a text, then edit it', (tester) async {
     final c = await openTextTool(tester);
     // No widths for the text tool.
@@ -121,5 +123,32 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Pennarello'));
     await tester.pump();
     expect(find.byType(ElementSelectionOverlay), findsNothing);
+  });
+
+  testWidgets('choose a sticker in the panel and place it', (tester) async {
+    final c = await openTextTool(tester);
+    await tester.tap(find.bySemanticsLabel('Adesivi'));
+    await pumpFrames(tester);
+    expect(find.text('Scegli un adesivo'), findsOneWidget);
+    // One tab per category.
+    expect(find.byType(Tab), findsNWidgets(8));
+    await tester.tap(find.bySemanticsLabel('Cibo'));
+    await pumpFrames(tester);
+    await tester.tap(find.bySemanticsLabel('Pizza'));
+    await pumpFrames(tester);
+    expect(find.text('Scegli un adesivo'), findsNothing);
+
+    await tester.tapAt(tester.getCenter(find.byType(SheetView)));
+    await tester.pump();
+    final sticker = c
+        .read(editorProvider)
+        .drawing!
+        .elements
+        .whereType<StickerElement>()
+        .single;
+    expect(sticker.elementId, 'pizza');
+    expect(find.byTooltip('Duplica'), findsOneWidget);
+    // No text actions for a sticker.
+    expect(find.byTooltip('Carattere'), findsNothing);
   });
 }

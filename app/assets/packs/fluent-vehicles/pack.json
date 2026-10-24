@@ -1,0 +1,141 @@
+{
+ "id": "fluent-vehicles",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Mezzi",
+  "en": "Vehicles"
+ },
+ "icon": "automobile",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "automobile",
+   "file": "stickers/automobile.svg",
+   "name": "Automobile"
+  },
+  {
+   "id": "taxi",
+   "file": "stickers/taxi.svg",
+   "name": "Taxi"
+  },
+  {
+   "id": "bus",
+   "file": "stickers/bus.svg",
+   "name": "Bus"
+  },
+  {
+   "id": "fire_engine",
+   "file": "stickers/fire_engine.svg",
+   "name": "Fire engine"
+  },
+  {
+   "id": "police_car",
+   "file": "stickers/police_car.svg",
+   "name": "Police car"
+  },
+  {
+   "id": "ambulance",
+   "file": "stickers/ambulance.svg",
+   "name": "Ambulance"
+  },
+  {
+   "id": "racing_car",
+   "file": "stickers/racing_car.svg",
+   "name": "Racing car"
+  },
+  {
+   "id": "tractor",
+   "file": "stickers/tractor.svg",
+   "name": "Tractor"
+  },
+  {
+   "id": "bicycle",
+   "file": "stickers/bicycle.svg",
+   "name": "Bicycle"
+  },
+  {
+   "id": "kick_scooter",
+   "file": "stickers/kick_scooter.svg",
+   "name": "Kick scooter"
+  },
+  {
+   "id": "motor_scooter",
+   "file": "stickers/motor_scooter.svg",
+   "name": "Motor scooter"
+  },
+  {
+   "id": "locomotive",
+   "file": "stickers/locomotive.svg",
+   "name": "Locomotive"
+  },
+  {
+   "id": "high_speed_train",
+   "file": "stickers/high_speed_train.svg",
+   "name": "High-speed train"
+  },
+  {
+   "id": "tram",
+   "file": "stickers/tram.svg",
+   "name": "Tram"
+  },
+  {
+   "id": "airplane",
+   "file": "stickers/airplane.svg",
+   "name": "Airplane"
+  },
+  {
+   "id": "helicopter",
+   "file": "stickers/helicopter.svg",
+   "name": "Helicopter"
+  },
+  {
+   "id": "rocket",
+   "file": "stickers/rocket.svg",
+   "name": "Rocket"
+  },
+  {
+   "id": "flying_saucer",
+   "file": "stickers/flying_saucer.svg",
+   "name": "Flying saucer"
+  },
+  {
+   "id": "sailboat",
+   "file": "stickers/sailboat.svg",
+   "name": "Sailboat"
+  },
+  {
+   "id": "ship",
+   "file": "stickers/ship.svg",
+   "name": "Ship"
+  },
+  {
+   "id": "speedboat",
+   "file": "stickers/speedboat.svg",
+   "name": "Speedboat"
+  },
+  {
+   "id": "delivery_truck",
+   "file": "stickers/delivery_truck.svg",
+   "name": "Delivery truck"
+  },
+  {
+   "id": "construction",
+   "file": "stickers/construction.svg",
+   "name": "Construction"
+  },
+  {
+   "id": "fuel_pump",
+   "file": "stickers/fuel_pump.svg",
+   "name": "Fuel pump"
+  },
+  {
+   "id": "anchor",
+   "file": "stickers/anchor.svg",
+   "name": "Anchor"
+  }
+ ]
+}

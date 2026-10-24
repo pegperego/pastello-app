@@ -1,0 +1,161 @@
+{
+ "id": "fluent-school",
+ "version": 1,
+ "kind": "stickers",
+ "title": {
+  "it": "Scuola e giochi",
+  "en": "School and toys"
+ },
+ "icon": "backpack",
+ "author": "Microsoft Fluent Emoji",
+ "license": "MIT",
+ "licenseFile": "../LICENSE-fluent-emoji.txt",
+ "source": "https://github.com/microsoft/fluentui-emoji",
+ "items": [
+  {
+   "id": "pencil",
+   "file": "stickers/pencil.svg",
+   "name": "Pencil"
+  },
+  {
+   "id": "crayon",
+   "file": "stickers/crayon.svg",
+   "name": "Crayon"
+  },
+  {
+   "id": "paintbrush",
+   "file": "stickers/paintbrush.svg",
+   "name": "Paintbrush"
+  },
+  {
+   "id": "artist_palette",
+   "file": "stickers/artist_palette.svg",
+   "name": "Artist palette"
+  },
+  {
+   "id": "scissors",
+   "file": "stickers/scissors.svg",
+   "name": "Scissors"
+  },
+  {
+   "id": "straight_ruler",
+   "file": "stickers/straight_ruler.svg",
+   "name": "Straight ruler"
+  },
+  {
+   "id": "triangular_ruler",
+   "file": "stickers/triangular_ruler.svg",
+   "name": "Triangular ruler"
+  },
+  {
+   "id": "books",
+   "file": "stickers/books.svg",
+   "name": "Books"
+  },
+  {
+   "id": "open_book",
+   "file": "stickers/open_book.svg",
+   "name": "Open book"
+  },
+  {
+   "id": "notebook",
+   "file": "stickers/notebook.svg",
+   "name": "Notebook"
+  },
+  {
+   "id": "backpack",
+   "file": "stickers/backpack.svg",
+   "name": "Backpack"
+  },
+  {
+   "id": "graduation_cap",
+   "file": "stickers/graduation_cap.svg",
+   "name": "Graduation cap"
+  },
+  {
+   "id": "globe_with_meridians",
+   "file": "stickers/globe_with_meridians.svg",
+   "name": "Globe with meridians"
+  },
+  {
+   "id": "abacus",
+   "file": "stickers/abacus.svg",
+   "name": "Abacus"
+  },
+  {
+   "id": "light_bulb",
+   "file": "stickers/light_bulb.svg",
+   "name": "Light bulb"
+  },
+  {
+   "id": "magnifying_glass_tilted_left",
+   "file": "stickers/magnifying_glass_tilted_left.svg",
+   "name": "Magnifying glass tilted left"
+  },
+  {
+   "id": "alarm_clock",
+   "file": "stickers/alarm_clock.svg",
+   "name": "Alarm clock"
+  },
+  {
+   "id": "teddy_bear",
+   "file": "stickers/teddy_bear.svg",
+   "name": "Teddy bear"
+  },
+  {
+   "id": "kite",
+   "file": "stickers/kite.svg",
+   "name": "Kite"
+  },
+  {
+   "id": "puzzle_piece",
+   "file": "stickers/puzzle_piece.svg",
+   "name": "Puzzle piece"
+  },
+  {
+   "id": "soccer_ball",
+   "file": "stickers/soccer_ball.svg",
+   "name": "Soccer ball"
+  },
+  {
+   "id": "basketball",
+   "file": "stickers/basketball.svg",
+   "name": "Basketball"
+  },
+  {
+   "id": "tennis",
+   "file": "stickers/tennis.svg",
+   "name": "Tennis"
+  },
+  {
+   "id": "yo_yo",
+   "file": "stickers/yo_yo.svg",
+   "name": "Yo-yo"
+  },
+  {
+   "id": "video_game",
+   "file": "stickers/video_game.svg",
+   "name": "Video game"
+  },
+  {
+   "id": "guitar",
+   "file": "stickers/guitar.svg",
+   "name": "Guitar"
+  },
+  {
+   "id": "drum",
+   "file": "stickers/drum.svg",
+   "name": "Drum"
+  },
+  {
+   "id": "camera",
+   "file": "stickers/camera.svg",
+   "name": "Camera"
+  },
+  {
+   "id": "wrapped_gift",
+   "file": "stickers/wrapped_gift.svg",
+   "name": "Wrapped gift"
+  }
+ ]
+}
