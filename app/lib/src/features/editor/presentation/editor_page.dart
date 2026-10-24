@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +10,7 @@ import '../../../app/tokens.dart';
 import '../../../core/settings/app_settings.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../export/application/export_actions.dart';
 import '../../stickers/application/stickers_providers.dart';
 import '../../stickers/presentation/sticker_panel.dart';
 import '../application/editor_controller.dart';
@@ -128,6 +131,19 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       color: state.color,
     );
     if (choice != null) controller.chooseShape(choice.$1, filled: choice.$2);
+  }
+
+  /// Saves, prints or shares the current drawing; `null` (disabled) for an
+  /// empty sheet. A text being typed is committed first.
+  VoidCallback? _exportAction(EditorState state, ExportAction action) {
+    final drawing = state.drawing;
+    if (drawing == null || drawing.isEmpty) return null;
+    return () {
+      final controller = ref.read(editorProvider.notifier)..commitText();
+      final current = ref.read(editorProvider).drawing ?? drawing;
+      unawaited(controller.flush());
+      runExport(context, ref, current, action);
+    };
   }
 
   void _toggleRotationLock(bool locked) {
@@ -391,12 +407,32 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                       active: locked,
                       onPressed: () => _toggleRotationLock(locked),
                     ),
+                    ActionButton(
+                      icon: Icons.print_rounded,
+                      tooltip: l10n.print,
+                      onPressed: _exportAction(state, ExportAction.print),
+                    ),
                     _MoreMenu(
                       tooltip: l10n.more,
-                      clearLabel: l10n.clearSheet,
-                      onClear: (state.drawing?.isEmpty ?? true)
-                          ? null
-                          : controller.clear,
+                      items: [
+                        (
+                          Icons.photo_library_rounded,
+                          l10n.saveToGallery,
+                          _exportAction(state, ExportAction.save),
+                        ),
+                        (
+                          Icons.share_rounded,
+                          l10n.share,
+                          _exportAction(state, ExportAction.share),
+                        ),
+                        (
+                          Icons.layers_clear_rounded,
+                          l10n.clearSheet,
+                          (state.drawing?.isEmpty ?? true)
+                              ? null
+                              : controller.clear,
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 8),
                   ],
@@ -498,25 +534,23 @@ extension on _EditorPageState {
 }
 
 class _MoreMenu extends StatelessWidget {
-  const _MoreMenu({
-    required this.tooltip,
-    required this.clearLabel,
-    required this.onClear,
-  });
+  const _MoreMenu({required this.tooltip, required this.items});
 
   final String tooltip;
-  final String clearLabel;
-  final VoidCallback? onClear;
+
+  /// Icon, label and action of each entry; a `null` action disables it.
+  final List<(IconData, String, VoidCallback?)> items;
 
   @override
   Widget build(BuildContext context) {
     return MenuAnchor(
       menuChildren: [
-        MenuItemButton(
-          leadingIcon: const Icon(Icons.layers_clear_rounded),
-          onPressed: onClear,
-          child: Text(clearLabel, style: const TextStyle(fontSize: 18)),
-        ),
+        for (final (icon, label, onPressed) in items)
+          MenuItemButton(
+            leadingIcon: Icon(icon),
+            onPressed: onPressed,
+            child: Text(label, style: const TextStyle(fontSize: 18)),
+          ),
       ],
       builder: (context, menu, _) => ActionButton(
         icon: Icons.more_horiz_rounded,

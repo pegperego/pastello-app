@@ -12,6 +12,7 @@ import 'breathing_plus.dart';
 import 'drawing_tile.dart';
 import 'relative_date.dart';
 import 'trash_page.dart';
+import '../../export/application/export_actions.dart';
 import '../../parents/presentation/parental_gate.dart';
 import '../../parents/presentation/parents_page.dart';
 
@@ -31,12 +32,24 @@ class GalleryPage extends ConsumerWidget {
     await ref.read(drawingsProvider.notifier).refresh();
   }
 
+  Future<void> _export(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+    ExportAction action,
+  ) async {
+    final saved = await ref.read(drawingRepositoryProvider).load(id);
+    if (saved == null || !context.mounted) return;
+    await runExport(context, ref, saved.drawing, action);
+  }
+
   Future<void> _showOptions(
     BuildContext context,
     WidgetRef ref,
     DrawingSummary summary,
   ) async {
     final l10n = AppLocalizations.of(context);
+    final galleryContext = context;
     final drawings = ref.read(drawingsProvider.notifier);
     await showModalBottomSheet<void>(
       context: context,
@@ -57,6 +70,23 @@ class GalleryPage extends ConsumerWidget {
                   drawings.duplicate(summary.id);
                 },
               ),
+              for (final (icon, label, action) in [
+                (
+                  Icons.photo_library_rounded,
+                  l10n.saveToGallery,
+                  ExportAction.save,
+                ),
+                (Icons.print_rounded, l10n.print, ExportAction.print),
+                (Icons.share_rounded, l10n.share, ExportAction.share),
+              ])
+                _BigAction(
+                  icon: icon,
+                  label: label,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _export(galleryContext, ref, summary.id, action);
+                  },
+                ),
               _BigAction(
                 icon: Icons.delete_rounded,
                 label: l10n.delete,

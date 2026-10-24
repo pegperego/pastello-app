@@ -46,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   version and device info to copy into a bug report; links to the source
   code, issues and the privacy policy; credits and licenses.
 - Privacy policy (English and Italian) in docs/privacy-policy.md.
+- Save to the tablet's gallery, print (fitted on an A4 page) and share,
+  from the gallery options and from the editor; sharing needs the parental
+  gate. Images use the screen's native resolution.
 
 ### Removed
 

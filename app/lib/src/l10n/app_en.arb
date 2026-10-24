@@ -390,5 +390,25 @@
   "credits": "Credits and licenses",
   "@credits": {
     "description": "Opens the licenses page."
+  },
+  "saveToGallery": "Save to the gallery",
+  "@saveToGallery": {
+    "description": "Saves the drawing as an image in the tablet's gallery."
+  },
+  "print": "Print",
+  "@print": {
+    "description": "Prints the drawing."
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Shares the drawing (behind the parental gate)."
+  },
+  "savedToGallery": "Saved in the gallery",
+  "@savedToGallery": {
+    "description": "Confirmation after saving."
+  },
+  "exportFailed": "Something went wrong, try again",
+  "@exportFailed": {
+    "description": "Shown when saving, printing or sharing fails."
   }
 }
