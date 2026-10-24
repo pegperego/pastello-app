@@ -26,17 +26,19 @@ final stickerArtworkProvider = FutureProvider<StickerArtwork>((ref) async {
   final pictures = <(String, String), ui.Picture>{};
   for (final pack in packs) {
     for (final item in pack.items) {
-      final info = await vg.loadPicture(
-        SvgAssetLoader(item.asset, assetBundle: bundle),
-        null,
-      );
-      // Normalize every sticker to the same square.
+      // Read the SVG text here and hand only the string to the loader: it
+      // parses in a background isolate, and an asset bundle cannot be sent
+      // to another isolate.
+      final svg = await bundle.loadString(item.asset);
+      final info = await vg.loadPicture(SvgStringLoader(svg), null);
+      // Normalize every sticker to the same square. The source picture is
+      // released only after recording, since the new one refers to it.
       final recorder = ui.PictureRecorder();
       ui.Canvas(recorder)
         ..scale(PackArtwork.pictureSize / info.size.width)
         ..drawPicture(info.picture);
-      info.picture.dispose();
       pictures[(pack.id, item.id)] = recorder.endRecording();
+      info.picture.dispose();
     }
   }
   final artwork = PackArtwork(pictures);
