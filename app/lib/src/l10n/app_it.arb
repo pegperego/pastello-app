@@ -49,5 +49,16 @@
   "fontSample": "Ciao",
   "toolStickers": "Adesivi",
   "duplicateElement": "Duplica",
-  "chooseSticker": "Scegli un adesivo"
+  "chooseSticker": "Scegli un adesivo",
+  "toolShapes": "Forme",
+  "chooseShape": "Scegli una forma",
+  "shapeOutline": "Contorno",
+  "shapeFilled": "Piena",
+  "shapeEllipse": "Cerchio",
+  "shapeRectangle": "Quadrato",
+  "shapeTriangle": "Triangolo",
+  "shapeStar": "Stella",
+  "shapeHeart": "Cuore",
+  "shapeLine": "Linea",
+  "shapeArrow": "Freccia"
 }

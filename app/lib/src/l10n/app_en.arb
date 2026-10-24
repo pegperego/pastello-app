@@ -212,5 +212,49 @@
   "chooseSticker": "Choose a sticker",
   "@chooseSticker": {
     "description": "Title of the sticker panel."
+  },
+  "toolShapes": "Shapes",
+  "@toolShapes": {
+    "description": "Tool name."
+  },
+  "chooseShape": "Choose a shape",
+  "@chooseShape": {
+    "description": "Title of the shapes panel."
+  },
+  "shapeOutline": "Outline",
+  "@shapeOutline": {
+    "description": "Shapes are drawn as outlines."
+  },
+  "shapeFilled": "Filled",
+  "@shapeFilled": {
+    "description": "Shapes are filled with the color."
+  },
+  "shapeEllipse": "Circle",
+  "@shapeEllipse": {
+    "description": "Shape name."
+  },
+  "shapeRectangle": "Square",
+  "@shapeRectangle": {
+    "description": "Shape name."
+  },
+  "shapeTriangle": "Triangle",
+  "@shapeTriangle": {
+    "description": "Shape name."
+  },
+  "shapeStar": "Star",
+  "@shapeStar": {
+    "description": "Shape name."
+  },
+  "shapeHeart": "Heart",
+  "@shapeHeart": {
+    "description": "Shape name."
+  },
+  "shapeLine": "Line",
+  "@shapeLine": {
+    "description": "Shape name."
+  },
+  "shapeArrow": "Arrow",
+  "@shapeArrow": {
+    "description": "Shape name."
   }
 }

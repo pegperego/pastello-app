@@ -5,6 +5,7 @@ import 'package:flutter/painting.dart'
 
 import '../document/drawing_element.dart';
 import '../document/sheet_point.dart';
+import '../document/shape_element.dart';
 import '../document/sticker_element.dart';
 import '../document/stroke_element.dart';
 import '../document/text_element.dart';
@@ -45,6 +46,8 @@ void paintElement(
       element.paintLocal(canvas);
     case StickerElement():
       paintSticker(canvas, element, stickers);
+    case ShapeElement():
+      element.paintLocal(canvas);
   }
   if (!t.isIdentity) canvas.restore();
 }

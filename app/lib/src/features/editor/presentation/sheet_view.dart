@@ -22,6 +22,9 @@ class SheetView extends StatefulWidget {
     required this.onStrokeEnd,
     this.draws = true,
     this.onTap,
+    this.onDragStart,
+    this.onDragUpdate,
+    this.onDragEnd,
     this.overlayBuilder,
   });
 
@@ -41,6 +44,12 @@ class SheetView extends StatefulWidget {
 
   /// Called with the sheet point of a tap, when [draws] is false.
   final ValueChanged<Offset>? onTap;
+
+  /// Drag callbacks with sheet points, when [draws] is false (to draw
+  /// shapes).
+  final ValueChanged<Offset>? onDragStart;
+  final ValueChanged<Offset>? onDragUpdate;
+  final VoidCallback? onDragEnd;
 
   /// Builds widgets above the sheet, positioned in sheet units × scale.
   final Widget Function(BuildContext context, double scale)? overlayBuilder;
@@ -129,6 +138,19 @@ class _SheetViewState extends State<SheetView> {
                             : (details) => widget.onTap?.call(
                                 details.localPosition / _scale,
                               ),
+                        onPanStart: widget.draws || widget.onDragStart == null
+                            ? null
+                            : (details) => widget.onDragStart!(
+                                details.localPosition / _scale,
+                              ),
+                        onPanUpdate: widget.draws || widget.onDragUpdate == null
+                            ? null
+                            : (details) => widget.onDragUpdate!(
+                                details.localPosition / _scale,
+                              ),
+                        onPanEnd: widget.draws || widget.onDragEnd == null
+                            ? null
+                            : (_) => widget.onDragEnd!(),
                         child: Listener(
                           onPointerDown: _down,
                           onPointerMove: _move,

@@ -5,6 +5,7 @@ import 'drawing.dart';
 import 'drawing_element.dart';
 import 'element_transform.dart';
 import 'sheet_point.dart';
+import 'shape_element.dart';
 import 'sticker_element.dart';
 import 'stroke_element.dart';
 import 'stroke_tool.dart';
@@ -14,7 +15,7 @@ import 'text_element.dart';
 ///
 /// Bump it when the format changes and add a step to [migrateDrawingJson].
 /// The format is documented in `docs/file-format.md`.
-const int drawingSchemaVersion = 3;
+const int drawingSchemaVersion = 4;
 
 /// Thrown when a file cannot be read: it is malformed, or it was written by a
 /// newer version of the app.
@@ -66,8 +67,8 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
       'this app reads up to $drawingSchemaVersion)',
     );
   }
-  // Version 2 added texts and element transforms, version 3 stickers: older
-  // files are valid newer files, nothing to convert.
+  // Version 2 added texts and element transforms, version 3 stickers,
+  // version 4 shapes: older files are valid newer files, nothing to convert.
   return json;
 }
 
@@ -76,6 +77,7 @@ Map<String, Object?> elementToJson(DrawingElement element) => switch (element) {
   StrokeElement() => strokeToJson(element),
   TextElement() => textToJson(element),
   StickerElement() => stickerToJson(element),
+  ShapeElement() => shapeToJson(element),
   _ => throw ArgumentError('Cannot serialize ${element.runtimeType}'),
 };
 
@@ -85,6 +87,7 @@ DrawingElement elementFromJson(Map<String, Object?> json) =>
       'stroke' => strokeFromJson(json),
       'text' => textFromJson(json),
       'sticker' => stickerFromJson(json),
+      'shape' => shapeFromJson(json),
       final type => throw DrawingFormatException('Unknown element type $type'),
     };
 
@@ -132,6 +135,35 @@ StickerElement stickerFromJson(Map<String, Object?> json) => StickerElement(
   size: _double(json['size']),
   transform: _transformFromJson(json['transform']),
 );
+
+/// Encodes a shape.
+Map<String, Object?> shapeToJson(ShapeElement shape) => {
+  'type': 'shape',
+  'id': shape.id,
+  'kind': shape.kind.name,
+  'extent': [_round(shape.extent.dx), _round(shape.extent.dy)],
+  'color': shape.color.toARGB32(),
+  'strokeWidth': _round(shape.strokeWidth),
+  if (shape.filled) 'filled': true,
+  ..._transformToJson(shape.transform),
+};
+
+/// Decodes a shape written by [shapeToJson].
+ShapeElement shapeFromJson(Map<String, Object?> json) {
+  final kindName = json['kind'];
+  final kind = ShapeKind.values.where((k) => k.name == kindName).firstOrNull;
+  if (kind == null) throw DrawingFormatException('Unknown shape $kindName');
+  final extent = _list(json['extent']);
+  return ShapeElement(
+    id: _string(json['id']),
+    kind: kind,
+    extent: Offset(_double(extent[0]), _double(extent[1])),
+    color: Color(_int(json['color'])),
+    strokeWidth: _double(json['strokeWidth']),
+    filled: json['filled'] == true,
+    transform: _transformFromJson(json['transform']),
+  );
+}
 
 Map<String, Object?> _transformToJson(ElementTransform t) => t.isIdentity
     ? const {}

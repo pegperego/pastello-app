@@ -50,6 +50,9 @@ class StickerChoice {
 /// Offset of a duplicated element from the original, in sheet units.
 const Offset duplicateOffset = Offset(28, 28);
 
+/// Below this size, in sheet units, a drag does not create a shape.
+const double minShapeSize = 8;
+
 /// What the editor shows. Immutable; the controller emits a new one for
 /// every change.
 @immutable
@@ -61,6 +64,10 @@ class EditorState {
     this.extraColor,
     this.textFont = TextFont.andika,
     this.sticker,
+    this.shapeKind = ShapeKind.ellipse,
+    this.shapeFilled = false,
+    this.draft,
+    this.shapeSnapped = false,
     this.drawing,
     this.canUndo = false,
     this.canRedo = false,
@@ -91,6 +98,18 @@ class EditorState {
 
   /// Sticker placed by the next tap with the Stickers tool.
   final StickerChoice? sticker;
+
+  /// Shape drawn by the next drag with the Shapes tool (F-12).
+  final ShapeKind shapeKind;
+
+  /// Whether new shapes are filled.
+  final bool shapeFilled;
+
+  /// The shape being drawn by a finger, not yet in the drawing.
+  final ShapeElement? draft;
+
+  /// Whether [draft] snapped to a perfect figure or angle.
+  final bool shapeSnapped;
 
   /// The drawing, or `null` until the sheet size is known.
   final Drawing? drawing;
@@ -136,7 +155,7 @@ class EditorState {
   }
 
   /// Elements painted on top of the drawing, outside the cache.
-  List<DrawingElement> get floating => [?editing, ?preview];
+  List<DrawingElement> get floating => [?editing, ?preview, ?draft];
 
   EditorState copyWith({
     EditorTool? tool,
@@ -145,6 +164,10 @@ class EditorState {
     Color? extraColor,
     TextFont? textFont,
     StickerChoice? sticker,
+    ShapeKind? shapeKind,
+    bool? shapeFilled,
+    Object? draft = _keep,
+    bool? shapeSnapped,
     Object? selectedId = _keep,
     Object? editing = _keep,
     bool? editingIsNew,
@@ -156,6 +179,10 @@ class EditorState {
     extraColor: extraColor ?? this.extraColor,
     textFont: textFont ?? this.textFont,
     sticker: sticker ?? this.sticker,
+    shapeKind: shapeKind ?? this.shapeKind,
+    shapeFilled: shapeFilled ?? this.shapeFilled,
+    draft: identical(draft, _keep) ? this.draft : draft as ShapeElement?,
+    shapeSnapped: shapeSnapped ?? this.shapeSnapped,
     drawing: drawing,
     canUndo: canUndo,
     canRedo: canRedo,
@@ -273,6 +300,8 @@ class EditorController extends Notifier<EditorState> {
     extraColor: state.extraColor,
     textFont: state.textFont,
     sticker: state.sticker,
+    shapeKind: state.shapeKind,
+    shapeFilled: state.shapeFilled,
     loading: loading,
   );
 
@@ -332,6 +361,7 @@ class EditorController extends Notifier<EditorState> {
     final isExtra = !drawingColors.contains(color);
     state = state.copyWith(color: color, extraColor: isExtra ? color : null);
     _restyleSelected((t) => t.copyWith(color: color));
+    _recolorSelectedShape(color);
     _saveSettings(
       (s) => s.copyWith(
         color: color.toARGB32(),
@@ -340,10 +370,19 @@ class EditorController extends Notifier<EditorState> {
     );
   }
 
-  /// Sets the width of the active tool.
+  /// Sets the width of the active tool; the selected shape takes it too.
   void selectWidth(WidthPreset width) {
     final widths = {...state.widths, state.tool: width};
     state = state.copyWith(widths: widths);
+    final selected = state.selected;
+    if (state.tool == EditorTool.shapes && selected is ShapeElement) {
+      _execute(
+        UpdateElementCommand(
+          selected,
+          selected.copyWith(strokeWidth: width.width),
+        ),
+      );
+    }
     _saveSettings(
       (s) => s.copyWith(
         widths: {
@@ -371,6 +410,70 @@ class EditorController extends Notifier<EditorState> {
     if (selected is TextElement) {
       _execute(UpdateElementCommand(selected, change(selected)));
     }
+  }
+
+  /// Gives the selected shape [color] (colors only apply to texts and
+  /// shapes; stickers keep their own).
+  void _recolorSelectedShape(Color color) {
+    final selected = state.selected;
+    if (selected is ShapeElement && state.editing == null) {
+      _execute(UpdateElementCommand(selected, selected.copyWith(color: color)));
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Shapes (F-12)
+
+  Offset? _shapeStart;
+
+  /// Chooses the shape drawn by the next drag, and whether it is filled.
+  void chooseShape(ShapeKind kind, {required bool filled}) {
+    state = state.copyWith(
+      shapeKind: kind,
+      shapeFilled: filled,
+      selectedId: null,
+    );
+  }
+
+  /// A finger starts drawing a shape at [point].
+  void beginShape(Offset point) {
+    if (state.tool != EditorTool.shapes || state.drawing == null) return;
+    _shapeStart = point;
+  }
+
+  /// The finger moved to [point]: the shape follows it.
+  void updateShape(Offset point) {
+    final start = _shapeStart;
+    if (start == null) return;
+    final (shape, snapped) = shapeFromDrag(
+      id: state.draft?.id ?? newElementId(),
+      kind: state.shapeKind,
+      start: start,
+      end: point,
+      color: state.color,
+      strokeWidth: state.width,
+      filled: state.shapeFilled,
+    );
+    state = state.copyWith(
+      draft: shape,
+      shapeSnapped: snapped,
+      selectedId: null,
+    );
+    _show();
+  }
+
+  /// The finger lifts: the shape is added and selected, unless it is too
+  /// small to be a shape.
+  void endShape() {
+    final draft = state.draft;
+    _shapeStart = null;
+    state = state.copyWith(draft: null, shapeSnapped: false);
+    if (draft == null || draft.extent.distance < minShapeSize) {
+      _show();
+      return;
+    }
+    state = state.copyWith(selectedId: draft.id);
+    _execute(AddElementCommand(draft));
   }
 
   // ---------------------------------------------------------------------------
@@ -632,6 +735,8 @@ class EditorController extends Notifier<EditorState> {
       extraColor: state.extraColor,
       textFont: state.textFont,
       sticker: state.sticker,
+      shapeKind: state.shapeKind,
+      shapeFilled: state.shapeFilled,
       drawing: stack.drawing,
       canUndo: stack.canUndo,
       canRedo: stack.canRedo,
