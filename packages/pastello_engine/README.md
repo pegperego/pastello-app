@@ -1,39 +1,41 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# pastello_engine
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+The drawing engine of [Pastello](../../README.md): document model, undoable
+commands, stroke geometry and rendering.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+It is pure Flutter rendering code, with no dependency on the app, the file
+system or platform plugins, and no third-party packages
+([ADR 0012](../../docs/adr/0012-workspace-app-and-engine.md),
+[ADR 0014](../../docs/adr/0014-dependency-policy.md)).
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## What's inside
 
-## Features
+| Folder | Content |
+|---|---|
+| `lib/src/document/` | `Drawing`, `StrokeElement`, `SheetPoint`, tools and widths |
+| `lib/src/commands/` | Reversible commands and the undo/redo `CommandStack` |
+| `lib/src/geometry/` | Stroke outline, point simplification, eraser hit testing |
+| `lib/src/rendering/` | Paper grain, per-tool painting, raster cache, `SheetPainter` |
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+## How rendering works
 
-## Getting started
+A frame must fill the sheet **once**: on Android, Flutter's Impeller backend
+re-renders every layer each frame, so GPU cost grows with each full-sheet
+pass ([ADR 0005](../../docs/adr/0005-in-house-drawing-engine.md)).
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+- Committed content and the background live in an opaque **cache** image,
+  updated incrementally when a stroke is added or erased.
+- The older part of the stroke in progress is periodically **frozen** into a
+  copy of the cache; only its tail is painted live.
+- The eraser paints the background along its path; erasures are stored on the
+  strokes they touch ([ADR 0006](../../docs/adr/0006-stroke-attached-eraser.md)).
 
-## Usage
+## Tests
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```sh
+flutter test                    # unit, widget and golden tests
+flutter test --update-goldens   # after an intentional rendering change
 ```
 
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Golden images live in `test/goldens/`. A dedicated test checks that a stroke
+painted in pieces while it is drawn matches the committed stroke.

@@ -5,7 +5,7 @@
 A simple, offline drawing app for kids on Android tablets: draw freehand, write
 text, add stickers and shapes, and keep every creation in a personal gallery.
 
-**Project status:** 🧭 analysis phase — there is no runnable app yet.
+**Project status:** 🛠️ the drawing engine is validated by a prototype; the v1 app is not started yet.
 
 ## Goals
 
@@ -37,6 +37,7 @@ The detailed scope is being defined during the analysis phase.
 |------|----------|---------|
 | `app/` | English | The Flutter app (coming after the analysis) |
 | `packages/pastello_engine/` | English | The drawing engine: document model, commands, rendering |
+| `prototype/` | English | Throwaway app used to validate the engine on a tablet (will be removed) |
 | `docs/` | English | Developer and user documentation, architecture decision records |
 | `analisi/` | Italian | Analysis notes and the resources used during the analysis |
 
