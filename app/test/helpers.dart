@@ -12,6 +12,7 @@ import 'package:pastello/src/features/drawings/application/drawings_providers.da
 import 'package:pastello/src/features/drawings/data/drawing_repository.dart';
 import 'package:pastello/src/features/drawings/domain/drawing_summary.dart';
 import 'package:pastello/src/features/drawings/domain/saved_drawing.dart';
+import 'package:pastello/src/features/export/application/export_service.dart';
 import 'package:pastello/src/features/parents/application/parents_providers.dart';
 import 'package:pastello/src/features/stickers/application/stickers_providers.dart';
 import 'package:pastello/src/features/stickers/data/bundled_packs.dart';
@@ -206,6 +207,31 @@ Future<void> loadTestPacks() async {
 /// Records the orientations requested by the rotation lock.
 final requestedOrientations = <List<DeviceOrientation>>[];
 
+/// Records exports instead of calling the platform.
+class FakeExportService implements ExportService {
+  final calls = <String>[];
+  bool fail = false;
+
+  Future<void> _record(String call) async {
+    if (fail) throw Exception('export failed');
+    calls.add(call);
+  }
+
+  @override
+  Future<void> saveToGallery(Uint8List png, String name) =>
+      _record('save $name');
+
+  @override
+  Future<void> share(Uint8List png, String name) => _record('share $name');
+
+  @override
+  Future<void> print(Uint8List png, Size sheetSize, String name) =>
+      _record('print $name');
+}
+
+/// The export service used by every widget test.
+final exports = FakeExportService();
+
 /// Records the links opened from the parents' page.
 final openedLinks = <Uri>[];
 
@@ -228,6 +254,8 @@ List<Override> testOverrides(
       android: '16',
     ),
   ),
+  exportServiceProvider.overrideWithValue(exports),
+  pngRendererProvider.overrideWithValue((_) async => transparentPng),
   linkOpenerProvider.overrideWithValue((uri) async {
     openedLinks.add(uri);
     return true;
@@ -250,6 +278,9 @@ Future<void> pumpApp(
 }) async {
   requestedOrientations.clear();
   openedLinks.clear();
+  exports
+    ..calls.clear()
+    ..fail = false;
   tester.platformDispatcher.localesTestValue = [locale];
   tester.platformDispatcher.accessibilityFeaturesTestValue = disableAnimations
       ? const FakeAccessibilityFeatures(disableAnimations: true)

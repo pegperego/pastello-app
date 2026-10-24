@@ -31,6 +31,7 @@ small community. Every dependency is code we do not control.
 | Save to gallery | `gal` | 2.3.3 | BSD-3-Clause |
 | Share | `share_plus` | 13.3.1 | BSD-3-Clause |
 | Print | `printing` | 5.15.1 | Apache-2.0 |
+| Printable page | `pdf` (added 2026-10-25, same author as `printing`) | 3.13.1 | Apache-2.0 |
 | Vector stickers | `flutter_svg` | 2.3.0 | MIT |
 | About page | `package_info_plus`, `device_info_plus` | 10.2.2 / 13.3.0 | BSD-3-Clause |
 | Links in the parents' page | `url_launcher` (added 2026-10-25) | 6.3.3 | BSD-3-Clause |

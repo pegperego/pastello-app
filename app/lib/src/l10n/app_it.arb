@@ -89,5 +89,10 @@
   "sourceCode": "Codice sorgente",
   "reportProblem": "Segnala un problema",
   "privacyPolicy": "Informativa privacy",
-  "credits": "Crediti e licenze"
+  "credits": "Crediti e licenze",
+  "saveToGallery": "Salva nella galleria",
+  "print": "Stampa",
+  "share": "Condividi",
+  "savedToGallery": "Salvato nella galleria",
+  "exportFailed": "Qualcosa non ha funzionato, riprova"
 }
