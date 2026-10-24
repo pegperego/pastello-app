@@ -6,6 +6,7 @@ import 'drawing_element.dart';
 import 'element_transform.dart';
 import 'sheet_point.dart';
 import 'shape_element.dart';
+import 'sheet_background.dart';
 import 'sticker_element.dart';
 import 'stroke_element.dart';
 import 'stroke_tool.dart';
@@ -15,7 +16,7 @@ import 'text_element.dart';
 ///
 /// Bump it when the format changes and add a step to [migrateDrawingJson].
 /// The format is documented in `docs/file-format.md`.
-const int drawingSchemaVersion = 4;
+const int drawingSchemaVersion = 5;
 
 /// Thrown when a file cannot be read: it is malformed, or it was written by a
 /// newer version of the app.
@@ -37,8 +38,28 @@ Map<String, Object?> drawingToJson(Drawing drawing) => {
     'width': _round(drawing.sheetSize.width),
     'height': _round(drawing.sheetSize.height),
   },
+  if (!drawing.background.isDefault)
+    'background': backgroundToJson(drawing.background),
   'elements': [for (final e in drawing.elements) elementToJson(e)],
 };
+
+/// Encodes a sheet background.
+Map<String, Object?> backgroundToJson(SheetBackground background) => {
+  'color': background.color.toARGB32(),
+  'pattern': background.pattern.name,
+};
+
+/// Decodes a background written by [backgroundToJson]; unknown patterns
+/// fall back to plain paper.
+SheetBackground backgroundFromJson(Map<String, Object?> json) {
+  final name = json['pattern'];
+  return SheetBackground(
+    color: Color(_int(json['color'])),
+    pattern:
+        BackgroundPattern.values.where((p) => p.name == name).firstOrNull ??
+        BackgroundPattern.none,
+  );
+}
 
 /// Decodes a drawing written by [drawingToJson], migrating older versions.
 Drawing drawingFromJson(Map<String, Object?> json) {
@@ -46,6 +67,9 @@ Drawing drawingFromJson(Map<String, Object?> json) {
   final sheet = _map(current['sheet']);
   return Drawing(
     sheetSize: Size(_double(sheet['width']), _double(sheet['height'])),
+    background: current['background'] == null
+        ? SheetBackground.white
+        : backgroundFromJson(_map(current['background'])),
     elements: [
       for (final e in _list(current['elements'])) elementFromJson(_map(e)),
     ],
@@ -68,7 +92,8 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
     );
   }
   // Version 2 added texts and element transforms, version 3 stickers,
-  // version 4 shapes: older files are valid newer files, nothing to convert.
+  // version 4 shapes, version 5 backgrounds: older files are valid newer
+  // files, nothing to convert.
   return json;
 }
 
@@ -249,6 +274,11 @@ Map<String, Object?> commandToJson(DrawingCommand command) => switch (command) {
         key: _erasureToJson(value),
     },
   },
+  ChangeBackgroundCommand(:final before, :final after) => {
+    'type': 'background',
+    'before': backgroundToJson(before),
+    'after': backgroundToJson(after),
+  },
   BatchCommand(:final commands) => {
     'type': 'batch',
     'commands': [for (final c in commands) commandToJson(c)],
@@ -290,6 +320,11 @@ DrawingCommand commandFromJson(Map<String, Object?> json) {
         for (final MapEntry(:key, :value) in _map(json['erasures']).entries)
           key: _erasureFromJson(_map(value)),
       });
+    case 'background':
+      return ChangeBackgroundCommand(
+        backgroundFromJson(_map(json['before'])),
+        backgroundFromJson(_map(json['after'])),
+      );
     case 'batch':
       return BatchCommand([
         for (final c in _list(json['commands'])) commandFromJson(_map(c)),

@@ -29,19 +29,15 @@ import 'stroke_painter.dart';
 /// - The eraser paints the background along its path instead of punching
 ///   holes in a layer: the result is the same and no extra layer is needed.
 class DrawingRenderer extends ChangeNotifier {
-  /// Creates a renderer that draws grain with [grain] on a [background].
+  /// Creates a renderer that draws grain with [grain].
   DrawingRenderer({
     required this.grain,
-    this.background = const ui.Color(0xFFFFFFFF),
     StickerArtwork? stickers,
     // ignore: prefer_initializing_formals, the setter also rebuilds the cache.
   }) : _stickers = stickers;
 
   /// Paper texture shared by every stroke.
   final PaperGrain grain;
-
-  /// Color of the sheet.
-  final ui.Color background;
 
   StickerArtwork? _stickers;
 
@@ -323,6 +319,10 @@ class DrawingRenderer extends ChangeNotifier {
   // Committed content
 
   bool _isAppend(Drawing previous, Drawing next) {
+    if (next.background != previous.background ||
+        next.sheetSize != previous.sheetSize) {
+      return false;
+    }
     if (next.elements.length != previous.elements.length + 1) return false;
     for (var i = 0; i < previous.elements.length; i++) {
       if (!identical(previous.elements[i], next.elements[i])) return false;
@@ -330,17 +330,63 @@ class DrawingRenderer extends ChangeNotifier {
     return true;
   }
 
-  void _paintBackground(ui.Canvas canvas, ui.Size sheetSize) {
-    canvas.drawRect(ui.Offset.zero & sheetSize, ui.Paint()..color = background);
+  void _paintBackground(ui.Canvas canvas, Drawing drawing) =>
+      drawing.background.paint(canvas, drawing.sheetSize);
+
+  // An image of the paper, used by the eraser to reveal it again.
+  ui.Image? _paper;
+  Object? _paperKey;
+
+  /// The paper of the current drawing at the current density, rendered
+  /// once and reused until the background, the sheet or the density change.
+  ui.Image? _paperImage() {
+    final drawing = _drawing;
+    if (drawing == null) return null;
+    final key = (drawing.background, drawing.sheetSize, _pixelScale);
+    if (key == _paperKey && _paper != null) return _paper;
+    final width = (drawing.sheetSize.width * _pixelScale).ceil();
+    final height = (drawing.sheetSize.height * _pixelScale).ceil();
+    if (width <= 0 || height <= 0) return null;
+    final recorder = ui.PictureRecorder();
+    final canvas = ui.Canvas(recorder)..scale(_pixelScale);
+    _paintBackground(canvas, drawing);
+    final picture = recorder.endRecording();
+    _paper?.dispose();
+    _paper = picture.toImageSync(width, height);
+    picture.dispose();
+    _paperKey = key;
+    return _paper;
   }
 
-  /// Paints the background along [points]: what the eraser leaves behind.
+  /// Paints the background along [points]: what the eraser leaves behind,
+  /// paper pattern included.
   void _paintBackgroundStroke(
     ui.Canvas canvas,
     List<SheetPoint> points,
     double width,
   ) {
-    paintEraser(canvas, points, width, color: background);
+    final paper = _paperImage();
+    if (paper == null) {
+      paintEraser(
+        canvas,
+        points,
+        width,
+        color: _drawing?.background.color ?? const ui.Color(0xFFFFFFFF),
+      );
+      return;
+    }
+    final s = 1 / _pixelScale;
+    paintEraser(
+      canvas,
+      points,
+      width,
+      shader: ui.ImageShader(
+        paper,
+        ui.TileMode.clamp,
+        ui.TileMode.clamp,
+        Float64List.fromList([s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+      ),
+    );
   }
 
   void _paintElements(ui.Canvas canvas, Drawing drawing) {
@@ -354,7 +400,7 @@ class DrawingRenderer extends ChangeNotifier {
   /// Slow path, used to measure the benefit of the cache: everything is
   /// painted from scratch every frame.
   void _paintUncached(ui.Canvas canvas, Drawing drawing, LiveStroke live) {
-    _paintBackground(canvas, drawing.sheetSize);
+    _paintBackground(canvas, drawing);
     _paintElements(canvas, drawing);
     _paintFloating(canvas);
     if (live.points.isEmpty) return;
@@ -418,7 +464,7 @@ class DrawingRenderer extends ChangeNotifier {
     if (_cacheEnabled && width > 0 && height > 0) {
       final recorder = ui.PictureRecorder();
       final canvas = ui.Canvas(recorder)..scale(_pixelScale);
-      _paintBackground(canvas, drawing.sheetSize);
+      _paintBackground(canvas, drawing);
       _paintElements(canvas, drawing);
       _replaceCache(recorder.endRecording(), width, height);
     } else {
@@ -439,6 +485,7 @@ class DrawingRenderer extends ChangeNotifier {
 
   @override
   void dispose() {
+    _paper?.dispose();
     _working?.dispose();
     _cache?.dispose();
     super.dispose();

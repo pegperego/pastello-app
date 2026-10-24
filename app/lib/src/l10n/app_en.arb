@@ -260,5 +260,33 @@
   "toolSelect": "Select",
   "@toolSelect": {
     "description": "Tool name: lasso selection."
+  },
+  "paper": "Paper",
+  "@paper": {
+    "description": "Action bar button that opens the paper chooser."
+  },
+  "patternNone": "Plain",
+  "@patternNone": {
+    "description": "Paper pattern."
+  },
+  "patternLines": "Lines",
+  "@patternLines": {
+    "description": "Paper pattern."
+  },
+  "patternBigSquares": "Big squares",
+  "@patternBigSquares": {
+    "description": "Paper pattern."
+  },
+  "patternSmallSquares": "Small squares",
+  "@patternSmallSquares": {
+    "description": "Paper pattern."
+  },
+  "patternDots": "Dots",
+  "@patternDots": {
+    "description": "Paper pattern."
+  },
+  "paperColor": "Paper color",
+  "@paperColor": {
+    "description": "Section of the paper chooser."
   }
 }

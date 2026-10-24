@@ -35,3 +35,13 @@ String shapeLabel(AppLocalizations l10n, ShapeKind kind) => switch (kind) {
   ShapeKind.line => l10n.shapeLine,
   ShapeKind.arrow => l10n.shapeArrow,
 };
+
+/// Localized name of a paper pattern.
+String patternLabel(AppLocalizations l10n, BackgroundPattern pattern) =>
+    switch (pattern) {
+      BackgroundPattern.none => l10n.patternNone,
+      BackgroundPattern.lines => l10n.patternLines,
+      BackgroundPattern.bigSquares => l10n.patternBigSquares,
+      BackgroundPattern.smallSquares => l10n.patternSmallSquares,
+      BackgroundPattern.dots => l10n.patternDots,
+    };

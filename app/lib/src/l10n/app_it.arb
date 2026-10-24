@@ -61,5 +61,12 @@
   "shapeHeart": "Cuore",
   "shapeLine": "Linea",
   "shapeArrow": "Freccia",
-  "toolSelect": "Seleziona"
+  "toolSelect": "Seleziona",
+  "paper": "Tipo di foglio",
+  "patternNone": "Liscio",
+  "patternLines": "Righe",
+  "patternBigSquares": "Quadretti grandi",
+  "patternSmallSquares": "Quadretti piccoli",
+  "patternDots": "Puntini",
+  "paperColor": "Colore del foglio"
 }

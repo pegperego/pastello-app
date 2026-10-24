@@ -22,9 +22,10 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 
 ```json
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "revision": 12,
   "sheet": { "width": 1114, "height": 663 },
+  "background": { "color": 4294967295, "pattern": "lines" },
   "elements": [
     {
       "type": "stroke",
@@ -55,6 +56,7 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 | `schemaVersion` | Format version. Readers migrate older versions and refuse newer ones. |
 | `revision` | Increases at every save; `history.json` must carry the same value. |
 | `sheet` | Fixed sheet size in sheet units (not pixels). |
+| `background` | Paper `color` (ARGB) and `pattern`: `none`, `lines`, `bigSquares`, `smallSquares` or `dots`. Omitted for plain white paper. One printed centimeter is the sheet's long side divided by 29.7 (an A4 page). |
 | `elements` | Elements from bottom to top (z-order). |
 
 ### Transform
@@ -116,7 +118,7 @@ reference is kept, so it reappears when the pack is installed.
 
 ```json
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "revision": 12,
   "undo": [ { "type": "add", "stroke": { … } } ],
   "redo": []
@@ -128,7 +130,8 @@ moved, resized, rotated or edited), `delete` (`element`, `index` in the
 z-order), `erase` (`sheetErasure` as drawn, and `erasures`: the pass in each
 touched stroke's coordinates, by stroke id) and `clear` (`removed`: the
 elements that were on the sheet), `batch` (`commands`: several commands
-applied as one undo step, for lasso selections). Version 1 forms (`add` with `stroke`,
+applied as one undo step, for lasso selections), `background` (`before`,
+`after`). Version 1 forms (`add` with `stroke`,
 `erase` with `erasure` and `strokeIds`) are still read. At most 100 undo steps are
 kept. If `revision` does not match `drawing.json`, or the file cannot be read,
 the history is discarded and the drawing is opened without it
@@ -150,6 +153,7 @@ Files in the trash also have `deletedAt`; they are purged 30 days later.
 | 2 | Texts, element transforms, `update` and `delete` commands. Version 1 files are read as they are. |
 | 3 | Stickers. Older files are read as they are. |
 | 4 | Shapes. Older files are read as they are. |
+| 5 | Paper color and pattern. Older files are read as they are (white paper). |
 
 ## Changing the format
 

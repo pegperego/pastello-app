@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   then move, resize, rotate, duplicate or delete it in one undo step; a tap
   on a stroke's line selects that stroke alone. Erased parts follow the
   strokes they belong to. Tools now sit on two columns in landscape.
+- Paper: plain, lines, big squares, small squares or dots, on white, pastel
+  or dark paper, from the "Paper" button; undoable. The eraser brings the
+  lines and squares back.
 
 ### Removed
 
