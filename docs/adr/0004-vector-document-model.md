@@ -32,7 +32,9 @@ Drawing
 - **Every element has a transform.** Moving, scaling or rotating changes the
   transform, never the element's own geometry.
 - **Direct manipulation:** text, stickers and shapes can be moved, resized,
-  rotated and deleted by touching them.
+  rotated and deleted by touching them **when the active tool is Text,
+  Stickers, Shapes or Select**. With drawing tools, a touch always draws, even
+  on top of an element.
 - **Freehand strokes are not touch-selectable**, so that a touch on the sheet
   always means "draw".
 - A dedicated **Select tool** (lasso) lets the user select any elements,

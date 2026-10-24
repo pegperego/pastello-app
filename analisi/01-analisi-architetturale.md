@@ -237,7 +237,9 @@ Drawing
   o ingrandire qualcosa non riscrive i suoi punti, cambia solo la transform.
 - **Cosa si può toccare e spostare:**
   - **scritte, adesivi, forme:** sì, direttamente con il dito (sposta,
-    ingrandisci, ruota, elimina);
+    ingrandisci, ruota, elimina) **quando lo strumento attivo è testo,
+    adesivi, forme o Seleziona**; con gli strumenti di disegno il tocco
+    disegna sopra, come sulla carta (precisato in F-07);
   - **tratti a mano libera:** no con il tocco normale, restano "inchiostro sul
     foglio";
   - **strumento "Seleziona"** dedicato: si attiva dalla barra, si disegna un

@@ -5,6 +5,7 @@ English documentation for users and contributors.
 | Path | Content |
 |------|---------|
 | [`adr/`](adr/) | Architecture Decision Records: one file per significant technical decision |
+| [`design/`](design/) | Design guidelines: colors, typography, icons, accessibility |
 
 More guides (architecture overview, drawing file format, build and release)
 will be added once the analysis phase is complete. The original analysis notes

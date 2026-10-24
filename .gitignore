@@ -50,3 +50,6 @@ app.*.map.json
 
 # Golden test failures
 **/failures/
+
+# Playwright MCP output
+.playwright-mcp/

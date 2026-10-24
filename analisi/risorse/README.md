@@ -37,6 +37,9 @@ bambina**: il repository è pubblico.
 | Andika (font pensato per chi impara a leggere) | https://software.sil.org/andika/ | SIL OFL 1.1 |
 | Atkinson Hyperlegible | https://www.brailleinstitute.org/freefont/ | SIL OFL 1.1 |
 | Comic Neue | https://comicneue.com | SIL OFL 1.1 |
+| Fredoka | https://github.com/google/fonts/tree/main/ofl/fredoka | SIL OFL 1.1 |
+| Playwrite IT Moderna (corsivo scolastico italiano) | https://github.com/google/fonts/tree/main/ofl/playwriteitmoderna | SIL OFL 1.1 |
+| Fluent Emoji (adesivi, scelto in F-11) | https://github.com/microsoft/fluentui-emoji | MIT |
 | OpenMoji (emoji/adesivi) | https://openmoji.org | CC BY-SA 4.0 |
 
 ## App simili da osservare

@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pastello — Proposta di design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Fredoka:wght@400;500;600;700&family=Playwrite+IT+Moderna&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Token dell'interfaccia (proposta) ---------- */
+  :root {
+    --carta: #FFF8EE;      /* sfondo app */
+    --foglio: #FFFFFF;     /* il foglio da disegno */
+    --inchiostro: #2D2A32; /* testo principale */
+    --grafite: #6B6672;    /* testo secondario */
+    --bordo: #EADFCF;      /* bordi, separatori */
+    --corallo: #E8553A;    /* primario: "+", strumento attivo */
+    --corallo-chiaro: #FFE3DA;
+    --sole: #FFC53D;       /* accento, evidenze */
+    --sole-chiaro: #FFF1C9;
+    --cielo: #2C7BE5;      /* selezione, cornici, maniglie */
+    --cielo-chiaro: #DCEBFF;
+    --menta: #1E9E85;      /* conferma, successo */
+    --lampone: #D93D42;    /* elimina */
+    --ombra: 0 2px 0 rgba(45,42,50,.08), 0 6px 18px rgba(45,42,50,.08);
+    --raggio: 20px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-snap-type: y mandatory; }
+  body {
+    margin: 0; background: #E9E1D4; color: var(--inchiostro);
+    font-family: "Andika", system-ui, sans-serif; font-size: 18px; line-height: 1.45;
+  }
+  h1, h2, h3 { font-family: "Fredoka", system-ui, sans-serif; font-weight: 600; line-height: 1.15; margin: 0 0 .4em; }
+  h1 { font-size: 64px; }
+  h2 { font-size: 40px; }
+  h3 { font-size: 22px; }
+  p { margin: 0 0 .7em; }
+  code { font-family: ui-monospace, monospace; font-size: .85em; background: rgba(45,42,50,.06); padding: 1px 5px; border-radius: 5px; }
+
+  /* ---------- Slide ---------- */
+  .slide {
+    scroll-snap-align: start; min-height: 100vh; padding: 28px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .page {
+    width: min(1240px, 100%); aspect-ratio: 16 / 9; background: var(--carta);
+    border-radius: 28px; box-shadow: 0 10px 40px rgba(45,42,50,.18);
+    padding: 52px 64px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    /* trama leggera "carta" */
+    background-image: radial-gradient(rgba(140,110,70,.06) 1px, transparent 1px);
+    background-size: 6px 6px;
+  }
+  .num { position: absolute; right: 32px; bottom: 22px; font-family: Fredoka; color: var(--grafite); font-size: 15px; }
+  .kicker { font-family: Fredoka; font-weight: 500; color: var(--corallo); letter-spacing: .04em; text-transform: uppercase; font-size: 15px; margin-bottom: 6px; }
+  .lead { font-size: 21px; color: var(--grafite); max-width: 900px; }
+  .grow { flex: 1; min-height: 0; }
+  .row { display: flex; gap: 28px; }
+  .col { flex: 1; min-width: 0; }
+  .card { background: var(--foglio); border-radius: var(--raggio); box-shadow: var(--ombra); padding: 20px 22px; }
+  .tag { display: inline-block; font-family: Fredoka; font-size: 13px; font-weight: 500; padding: 3px 10px; border-radius: 99px; background: var(--sole-chiaro); color: #7A5A00; }
+  .tag.ok { background: #D7F3EC; color: #0E6B59; }
+  .scribble { position: absolute; pointer-events: none; }
+
+  /* ---------- Copertina ---------- */
+  .cover { justify-content: center; }
+  .cover h1 { font-size: 92px; margin-bottom: 4px; }
+  .cover .sub { font-size: 26px; color: var(--grafite); }
+
+  /* ---------- Principi ---------- */
+  .principles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-top: 18px; }
+  .principles .card { text-align: center; padding: 26px 16px; }
+  .principles .ico { font-size: 44px; line-height: 1; margin-bottom: 10px; }
+  .principles h3 { font-size: 20px; }
+  .principles p { font-size: 16px; color: var(--grafite); margin: 0; }
+
+  /* ---------- Palette ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .sw { border-radius: 18px; overflow: hidden; background: var(--foglio); box-shadow: var(--ombra); }
+  .sw .chip { height: 92px; display: flex; align-items: flex-end; padding: 10px 12px; font-family: Fredoka; font-weight: 500; font-size: 15px; }
+  .sw .meta { padding: 10px 12px 12px; font-size: 14px; }
+  .sw .meta b { font-family: Fredoka; font-weight: 600; font-size: 16px; display: block; }
+  .sw .meta span { color: var(--grafite); }
+
+  .dots { display: flex; flex-wrap: wrap; gap: 14px; }
+  .dot { width: 64px; height: 64px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(45,42,50,.12); position: relative; }
+  .dotlabel { text-align: center; font-size: 13px; color: var(--grafite); margin-top: 6px; }
+  .dotwrap { width: 72px; display: flex; flex-direction: column; align-items: center; }
+  .grid40 { display: grid; grid-template-columns: repeat(10, 34px); gap: 8px; }
+  .grid40 div { width: 34px; height: 34px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(45,42,50,.12); }
+
+  /* ---------- Tipografia ---------- */
+  .typo .card { padding: 18px 22px; }
+  .typo .sample { font-size: 32px; line-height: 1.2; margin: 4px 0 6px; }
+
+  /* ---------- Icone app ---------- */
+  .icons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 8px; }
+  .icons .card { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .icons .big { width: 180px; height: 180px; border-radius: 40px; overflow: hidden; box-shadow: 0 4px 14px rgba(45,42,50,.18); }
+  .icons .smalls { display: flex; gap: 14px; align-items: center; margin: 16px 0 10px; }
+  .icons .smalls .c { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; box-shadow: 0 2px 6px rgba(45,42,50,.2); }
+  .icons .smalls .s { width: 56px; height: 56px; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 6px rgba(45,42,50,.2); }
+  .icons .smalls .xs { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; box-shadow: 0 1px 4px rgba(45,42,50,.2); }
+  .icons h3 { margin-top: 4px; }
+  .icons p { font-size: 15px; color: var(--grafite); margin: 0; }
+
+  /* ---------- Icone strumenti ---------- */
+  .tools { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .tool { background: var(--foglio); border-radius: 18px; box-shadow: var(--ombra); padding: 14px 8px 10px; text-align: center; font-size: 14px; color: var(--grafite); }
+  .tool svg { width: 64px; height: 64px; display: block; margin: 0 auto 6px; color: var(--tip, currentColor); }
+  .tool.active { background: var(--corallo-chiaro); box-shadow: inset 0 0 0 3px var(--corallo), var(--ombra); color: var(--inchiostro); }
+  .tint-row { display: flex; gap: 10px; align-items: center; }
+  .tint-row svg { width: 54px; height: 54px; }
+
+  /* ---------- Mockup editor ---------- */
+  .tablet { flex: 1; min-height: 0; background: #1F1D24; border-radius: 30px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); display: flex; }
+  .screen { flex: 1; background: var(--carta); border-radius: 18px; overflow: hidden; display: grid; grid-template-rows: 56px 1fr; grid-template-columns: 76px 1fr 76px; }
+  .topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-bottom: 1.5px solid var(--bordo); }
+  .tb { width: 44px; height: 44px; border-radius: 14px; background: var(--foglio); box-shadow: var(--ombra); display: grid; place-items: center; }
+  .tb svg { width: 26px; height: 26px; }
+  .tb.wide { width: auto; padding: 0 14px; gap: 6px; display: flex; font-family: Fredoka; font-weight: 500; font-size: 15px; }
+  .tb.on { background: var(--sole-chiaro); box-shadow: inset 0 0 0 2px var(--sole); }
+  .spacer { flex: 1; }
+  .side { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; overflow: hidden; }
+  .side .t { width: 54px; height: 41px; border-radius: 14px; display: grid; place-items: center; }
+  .side .t svg { width: 32px; height: 32px; }
+  .side .t.active { background: var(--corallo-chiaro); box-shadow: inset 0 0 0 3px var(--corallo); }
+  .side .c { width: 32px; height: 32px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(45,42,50,.12); flex: none; }
+  .side .c.active { box-shadow: 0 0 0 3px var(--carta), 0 0 0 6px var(--inchiostro); }
+  .side .w { display: grid; place-items: center; width: 44px; height: 26px; flex: none; }
+  .side .w i { display: block; border-radius: 50%; background: var(--cielo); }
+  .side .w.active { background: var(--cielo-chiaro); border-radius: 10px; }
+  .side hr { width: 40px; border: 0; border-top: 1.5px solid var(--bordo); margin: 2px 0; }
+  .canvaswrap { display: grid; place-items: center; padding: 14px; min-height: 0; }
+  .sheet { width: 100%; height: 100%; background: var(--foglio); border-radius: 8px; box-shadow: 0 2px 10px rgba(45,42,50,.12); position: relative; overflow: hidden; }
+
+  /* ---------- Galleria ---------- */
+  .gal { flex: 1; background: var(--carta); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
+  .galbar { height: 64px; display: flex; align-items: center; padding: 0 22px; gap: 12px; border-bottom: 1.5px solid var(--bordo); }
+  .galbar .logo { font-family: Fredoka; font-weight: 600; font-size: 28px; display: flex; align-items: center; gap: 10px; }
+  .galgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 22px; }
+  .thumb { background: var(--foglio); border-radius: 16px; box-shadow: var(--ombra); aspect-ratio: 16/10; position: relative; overflow: hidden; }
+  .thumb .more { position: absolute; right: 8px; bottom: 8px; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.95); box-shadow: var(--ombra); display: grid; place-items: center; font-weight: 700; font-size: 20px; }
+  .thumblabel { text-align: center; font-family: Fredoka; font-size: 15px; color: var(--grafite); margin-top: 6px; }
+  .plus { background: var(--corallo); border-radius: 16px; aspect-ratio: 16/10; display: grid; place-items: center; box-shadow: 0 4px 0 #B83E26, var(--ombra); animation: respira 2.4s ease-in-out infinite; }
+  .plus svg { width: 64px; height: 64px; }
+  @keyframes respira { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+  /* ---------- Cancello genitori ---------- */
+  .gate { background: var(--foglio); border-radius: 22px; box-shadow: var(--ombra); padding: 22px; width: 330px; text-align: center; }
+  .gate .q { font-family: Fredoka; font-size: 40px; font-weight: 600; margin: 4px 0 10px; }
+  .gate .ans { height: 52px; border-radius: 14px; border: 2px solid var(--bordo); font-family: Fredoka; font-size: 28px; display: grid; place-items: center; margin-bottom: 12px; }
+  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .keys div { height: 46px; border-radius: 12px; background: var(--carta); font-family: Fredoka; font-size: 22px; font-weight: 500; display: grid; place-items: center; }
+  .keys .ok { background: var(--menta); color: #fff; }
+
+  /* ---------- Selezione ---------- */
+  .selbox { position: absolute; border: 2.5px dashed var(--cielo); border-radius: 6px; }
+  .handle { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: var(--foglio); border: 3px solid var(--cielo); }
+  .selactions { position: absolute; display: flex; gap: 6px; }
+  .selactions div { width: 40px; height: 40px; border-radius: 12px; background: var(--foglio); box-shadow: var(--ombra); display: grid; place-items: center; }
+  .selactions svg { width: 24px; height: 24px; }
+
+  /* ---------- Domande ---------- */
+  .qs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 22px; }
+  .qs .card { padding: 16px 20px; }
+  .qs h3 { font-size: 19px; margin-bottom: 4px; }
+  .qs p { font-size: 16px; margin: 0; color: var(--grafite); }
+  .qs b { color: var(--inchiostro); }
+
+  table.t { border-collapse: collapse; width: 100%; font-size: 16px; }
+  table.t td, table.t th { text-align: left; padding: 8px 10px; border-bottom: 1.5px solid var(--bordo); vertical-align: top; }
+  table.t th { font-family: Fredoka; font-weight: 500; color: var(--grafite); font-size: 14px; }
+
+  @media print {
+    body { background: #fff; }
+    .slide { min-height: auto; padding: 0; break-after: page; }
+    .page { box-shadow: none; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Simboli SVG riutilizzabili. Le parti colorate usano currentColor:
+     nell'app la punta dello strumento prende il colore selezionato. -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- Matita -->
+    <symbol id="i-matita" viewBox="0 0 64 64">
+      <g transform="rotate(45 32 32)">
+        <rect x="25" y="14" width="14" height="34" rx="2" fill="#FFC53D" stroke="#2D2A32" stroke-width="2.5"/>
+        <line x1="32" y1="14" x2="32" y2="48" stroke="#E0A21F" stroke-width="2"/>
+        <rect x="25" y="46" width="14" height="7" rx="2" fill="#FF9EB5" stroke="#2D2A32" stroke-width="2.5"/>
+        <path d="M25 14 L32 2 L39 14 Z" fill="#F4D3A6" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M29.2 6.8 L32 2 L34.8 6.8 Z" fill="currentColor" stroke="#2D2A32" stroke-width="1.5" stroke-linejoin="round"/>
+      </g>
+    </symbol>
+    <!-- Pennarello -->
+    <symbol id="i-pennarello" viewBox="0 0 64 64">
+      <g transform="rotate(45 32 32)">
+        <rect x="24" y="22" width="16" height="32" rx="5" fill="#F3F0EA" stroke="#2D2A32" stroke-width="2.5"/>
+        <rect x="24" y="40" width="16" height="6" fill="currentColor" stroke="#2D2A32" stroke-width="2"/>
+        <path d="M26 22 L28 12 L36 12 L38 22 Z" fill="#CFC8BD" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M29 12 L30 5 Q32 3 34 5 L35 12 Z" fill="currentColor" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+      </g>
+    </symbol>
+    <!-- Pennello -->
+    <symbol id="i-pennello" viewBox="0 0 64 64">
+      <g transform="rotate(45 32 32)">
+        <rect x="28" y="26" width="8" height="32" rx="4" fill="#B5763C" stroke="#2D2A32" stroke-width="2.5"/>
+        <rect x="26" y="18" width="12" height="10" rx="2" fill="#CFC8BD" stroke="#2D2A32" stroke-width="2.5"/>
+        <path d="M26 18 Q24 9 32 2 Q40 9 38 18 Z" fill="currentColor" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+      </g>
+    </symbol>
+    <!-- Pastello a cera -->
+    <symbol id="i-pastello" viewBox="0 0 64 64">
+      <g transform="rotate(45 32 32)">
+        <rect x="24" y="16" width="16" height="40" rx="4" fill="currentColor" stroke="#2D2A32" stroke-width="2.5"/>
+        <rect x="24" y="24" width="16" height="24" fill="#FFFFFF" fill-opacity=".55" stroke="#2D2A32" stroke-width="2"/>
+        <path d="M27 30 Q32 33 37 30 M27 36 Q32 39 37 36 M27 42 Q32 45 37 42" stroke="#2D2A32" stroke-width="1.6" fill="none" opacity=".5"/>
+        <path d="M24 16 L27 6 L37 6 L40 16 Z" fill="currentColor" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+      </g>
+    </symbol>
+    <!-- Arcobaleno -->
+    <symbol id="i-arcobaleno" viewBox="0 0 64 64">
+      <path d="M8 46 A24 24 0 0 1 56 46" fill="none" stroke="#E63946" stroke-width="6" stroke-linecap="round"/>
+      <path d="M14 46 A18 18 0 0 1 50 46" fill="none" stroke="#FFB627" stroke-width="6" stroke-linecap="round"/>
+      <path d="M20 46 A12 12 0 0 1 44 46" fill="none" stroke="#4CB944" stroke-width="6" stroke-linecap="round"/>
+      <path d="M26 46 A6 6 0 0 1 38 46" fill="none" stroke="#3A86FF" stroke-width="6" stroke-linecap="round"/>
+    </symbol>
+    <!-- Gomma -->
+    <symbol id="i-gomma" viewBox="0 0 64 64">
+      <g transform="rotate(-35 32 32)">
+        <rect x="12" y="22" width="40" height="22" rx="5" fill="#FF9EB5" stroke="#2D2A32" stroke-width="2.5"/>
+        <rect x="12" y="22" width="15" height="22" rx="5" fill="#7FB8FF" stroke="#2D2A32" stroke-width="2.5"/>
+      </g>
+      <path d="M10 56 H40" stroke="#2D2A32" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="2 6"/>
+    </symbol>
+    <!-- Testo -->
+    <symbol id="i-testo" viewBox="0 0 64 64">
+      <text x="32" y="45" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="34" fill="currentColor" stroke="#2D2A32" stroke-width="1.5" paint-order="stroke">Aa</text>
+    </symbol>
+    <!-- Adesivi -->
+    <symbol id="i-adesivi" viewBox="0 0 64 64">
+      <path d="M32 6 L39.6 22.4 L57 24.3 L44 36.2 L47.7 53.6 L32 44.6 L16.3 53.6 L20 36.2 L7 24.3 L24.4 22.4 Z" fill="#FFC53D" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="27" cy="31" r="2.4" fill="#2D2A32"/><circle cx="37" cy="31" r="2.4" fill="#2D2A32"/>
+      <path d="M27 37 Q32 41 37 37" stroke="#2D2A32" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <!-- Forme -->
+    <symbol id="i-forme" viewBox="0 0 64 64">
+      <rect x="8" y="26" width="26" height="26" rx="4" fill="#7FB8FF" stroke="#2D2A32" stroke-width="2.5"/>
+      <circle cx="42" cy="24" r="14" fill="#FF9EB5" stroke="#2D2A32" stroke-width="2.5"/>
+      <path d="M44 56 L52 42 L60 56 Z" fill="#8BD346" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+    <!-- Seleziona -->
+    <symbol id="i-seleziona" viewBox="0 0 64 64">
+      <path d="M14 30 C10 14 40 6 50 18 C60 30 46 48 30 46 C22 45 18 40 16 36" fill="none" stroke="#2C7BE5" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="6 6"/>
+      <path d="M18 38 L12 56 L20 52 L26 60 L30 58 L24 50 L32 48 Z" fill="#FFFFFF" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Azioni (stile: tratto spesso arrotondato) -->
+    <symbol id="a-casa" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" fill="none" stroke="#2D2A32" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+    <symbol id="a-annulla" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4.5 12H15a5 5 0 0 1 0 10h-2" fill="none" stroke="#2D2A32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -3)"/></symbol>
+    <symbol id="a-ripeti" viewBox="0 0 24 24"><g transform="matrix(-1 0 0 1 24 -3)"><path d="M9 7 4 12l5 5M4.5 12H15a5 5 0 0 1 0 10h-2" fill="none" stroke="#2D2A32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g></symbol>
+    <symbol id="a-foglio" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="#2D2A32" stroke-width="2.2"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#2C7BE5" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="a-lucchetto" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="#FFC53D" stroke="#2D2A32" stroke-width="2.2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#2D2A32" stroke-width="2.2"/></symbol>
+    <symbol id="a-stampa" viewBox="0 0 24 24"><path d="M7 9V3h10v6" fill="none" stroke="#2D2A32" stroke-width="2.2" stroke-linejoin="round"/><rect x="3" y="9" width="18" height="8" rx="2" fill="none" stroke="#2D2A32" stroke-width="2.2"/><rect x="7" y="14" width="10" height="7" rx="1" fill="#fff" stroke="#2D2A32" stroke-width="2.2"/></symbol>
+    <symbol id="a-altro" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.2" fill="#2D2A32"/><circle cx="12" cy="12" r="2.2" fill="#2D2A32"/><circle cx="19" cy="12" r="2.2" fill="#2D2A32"/></symbol>
+    <symbol id="a-cestino" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" fill="none" stroke="#2D2A32" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="a-genitori" viewBox="0 0 24 24"><circle cx="8" cy="7" r="3" fill="none" stroke="#2D2A32" stroke-width="2.2"/><circle cx="17" cy="10" r="2.3" fill="none" stroke="#2D2A32" stroke-width="2.2"/><path d="M2.5 20c0-4 2.5-6.5 5.5-6.5s5.5 2.5 5.5 6.5M13.5 20c.3-3 1.6-5 3.5-5s3.3 2 3.5 5" fill="none" stroke="#2D2A32" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="a-ruota" viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.1-5" fill="none" stroke="#2C7BE5" stroke-width="2.6" stroke-linecap="round"/><path d="M17 2.5v5h-5" fill="none" stroke="#2C7BE5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="a-duplica" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5" fill="#DCEBFF" stroke="#2D2A32" stroke-width="2.2"/><path d="M16 5V4.5A1.5 1.5 0 0 0 14.5 3h-10A1.5 1.5 0 0 0 3 4.5v10A1.5 1.5 0 0 0 4.5 16H5" fill="none" stroke="#2D2A32" stroke-width="2.2"/></symbol>
+    <symbol id="a-elimina" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" fill="none" stroke="#D93D42" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="a-piu" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></symbol>
+
+    <!-- Icona app A: pastello + scarabocchio arcobaleno -->
+    <symbol id="logo-a" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#FFF1C9"/>
+      <path d="M18 74 C30 58 40 84 54 66 S78 54 90 66" fill="none" stroke="#E63946" stroke-width="7" stroke-linecap="round"/>
+      <path d="M18 84 C30 68 40 94 54 76 S78 64 90 76" fill="none" stroke="#FFB627" stroke-width="7" stroke-linecap="round"/>
+      <path d="M18 94 C30 78 40 104 54 86 S78 74 90 86" fill="none" stroke="#3A86FF" stroke-width="7" stroke-linecap="round"/>
+      <g transform="rotate(40 56 44)">
+        <rect x="45" y="20" width="22" height="50" rx="5" fill="#E8553A" stroke="#2D2A32" stroke-width="3"/>
+        <rect x="45" y="30" width="22" height="28" fill="#FFFFFF" fill-opacity=".6" stroke="#2D2A32" stroke-width="2.5"/>
+        <path d="M49 37 Q56 41 63 37 M49 45 Q56 49 63 45 M49 53 Q56 57 63 53" stroke="#2D2A32" stroke-width="2" fill="none" opacity=".45"/>
+        <path d="M45 20 L49 7 L63 7 L67 20 Z" fill="#E8553A" stroke="#2D2A32" stroke-width="3" stroke-linejoin="round"/>
+      </g>
+    </symbol>
+    <!-- Icona app B: "P" a pastello -->
+    <symbol id="logo-b" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#E8553A"/>
+      <path d="M38 84 V26 H58 C76 26 80 56 58 56 H40" fill="none" stroke="#FFF8EE" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M38 84 V26 H58 C76 26 80 56 58 56 H40" fill="none" stroke="#FFC53D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 7" opacity=".9"/>
+      <circle cx="80" cy="80" r="7" fill="#FFC53D"/><circle cx="80" cy="80" r="3" fill="#FFF8EE"/>
+    </symbol>
+    <!-- Icona app C: pastello-mascotte -->
+    <symbol id="logo-c" viewBox="0 0 108 108">
+      <rect width="108" height="108" fill="#DCEBFF"/>
+      <circle cx="84" cy="24" r="10" fill="#FFC53D"/>
+      <path d="M10 92 Q54 80 98 92 V108 H10 Z" fill="#8BD346"/>
+      <g>
+        <rect x="38" y="34" width="32" height="56" rx="8" fill="#E8553A" stroke="#2D2A32" stroke-width="3"/>
+        <rect x="38" y="62" width="32" height="18" fill="#FFFFFF" fill-opacity=".6" stroke="#2D2A32" stroke-width="2.5"/>
+        <path d="M38 34 L44 16 L64 16 L70 34 Z" fill="#E8553A" stroke="#2D2A32" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="48" cy="46" r="3.4" fill="#2D2A32"/><circle cx="60" cy="46" r="3.4" fill="#2D2A32"/>
+        <circle cx="49" cy="45" r="1.1" fill="#fff"/><circle cx="61" cy="45" r="1.1" fill="#fff"/>
+        <path d="M47 53 Q54 59 61 53" stroke="#2D2A32" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <circle cx="43" cy="53" r="2.6" fill="#FF9EB5"/><circle cx="65" cy="53" r="2.6" fill="#FF9EB5"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- 1 · Copertina -->
+<section class="slide"><div class="page cover">
+  <svg class="scribble" style="right:40px;top:40px;width:420px;height:420px" viewBox="0 0 108 108"><use href="#logo-c"/></svg>
+  <div class="kicker">Sessione di design · 24 ottobre 2026</div>
+  <h1>Pastello</h1>
+  <p class="sub">Proposta di palette, icona e stile grafico</p>
+  <p class="lead" style="margin-top:28px;max-width:560px">Da validare prima del prototipo tecnico. Ogni scelta ha un codice <b>G-xx</b> e alla fine c'è l'elenco delle domande.</p>
+  <span class="num">1</span>
+</div></section>
+
+<!-- 2 · Principi -->
+<section class="slide"><div class="page">
+  <div class="kicker">Direzione</div>
+  <h2>Carta e pastelli</h2>
+  <p class="lead">L'interfaccia è un tavolo da disegno caldo e tranquillo: i colori forti stanno nel disegno, non nei bottoni.</p>
+  <div class="principles">
+    <div class="card"><div class="ico">🖍️</div><h3>Il disegno è la star</h3><p>Interfaccia chiara e calma, il colore vivo lo mette lei.</p></div>
+    <div class="card"><div class="ico">👆</div><h3>Grande e tondo</h3><p>Pulsanti ≥ 56 dp, angoli morbidi, niente elementi minuscoli.</p></div>
+    <div class="card"><div class="ico">🖼️</div><h3>Icone, non parole</h3><p>Ogni strumento si riconosce dal disegno; il testo è per i genitori.</p></div>
+    <div class="card"><div class="ico">🎯</div><h3>Stato evidente</h3><p>Strumento e colore attivi si vedono da lontano.</p></div>
+    <div class="card"><div class="ico">🧸</div><h3>Giocoso, non chiassoso</h3><p>Piccole animazioni e suoni, mai distrazioni o premi finti.</p></div>
+  </div>
+  <span class="num">2</span>
+</div></section>
+
+<!-- 3 · Palette interfaccia -->
+<section class="slide"><div class="page">
+  <div class="kicker">G-01 · Palette dell'interfaccia</div>
+  <h2>Colori dell'app</h2>
+  <p class="lead">Pochi colori con un ruolo preciso. Sfondo "carta" crema invece del bianco puro: riposa la vista e fa risaltare il foglio bianco.</p>
+  <div class="swatches" style="margin-top:6px">
+    <div class="sw"><div class="chip" style="background:#FFF8EE;box-shadow:inset 0 -1px 0 #EADFCF">Aa</div><div class="meta"><b>Carta</b><span>#FFF8EE · sfondo app</span></div></div>
+    <div class="sw"><div class="chip" style="background:#FFFFFF;box-shadow:inset 0 -1px 0 #EADFCF">Aa</div><div class="meta"><b>Foglio</b><span>#FFFFFF · area di disegno</span></div></div>
+    <div class="sw"><div class="chip" style="background:#2D2A32;color:#FFF8EE">Aa</div><div class="meta"><b>Inchiostro</b><span>#2D2A32 · testo, contorni icone</span></div></div>
+    <div class="sw"><div class="chip" style="background:#6B6672;color:#FFF8EE">Aa</div><div class="meta"><b>Grafite</b><span>#6B6672 · testo secondario</span></div></div>
+    <div class="sw"><div class="chip" style="background:#EADFCF">Aa</div><div class="meta"><b>Bordo</b><span>#EADFCF · separatori</span></div></div>
+    <div class="sw"><div class="chip" style="background:#E8553A;color:#fff">Aa</div><div class="meta"><b>Corallo</b><span>#E8553A · primario: "+", strumento attivo</span></div></div>
+    <div class="sw"><div class="chip" style="background:#FFC53D">Aa</div><div class="meta"><b>Sole</b><span>#FFC53D · accento, interruttori accesi</span></div></div>
+    <div class="sw"><div class="chip" style="background:#2C7BE5;color:#fff">Aa</div><div class="meta"><b>Cielo</b><span>#2C7BE5 · selezione, maniglie</span></div></div>
+    <div class="sw"><div class="chip" style="background:#1E9E85;color:#fff">Aa</div><div class="meta"><b>Menta</b><span>#1E9E85 · conferma</span></div></div>
+    <div class="sw"><div class="chip" style="background:#D93D42;color:#fff">Aa</div><div class="meta"><b>Lampone</b><span>#D93D42 · elimina</span></div></div>
+  </div>
+  <p style="margin-top:16px;font-size:15px;color:var(--grafite)">Solo tema chiaro nella v1 (il foglio è bianco, un tema scuro attorno lo farebbe "abbagliare").</p>
+  <span class="num">3</span>
+</div></section>
+
+<!-- 4 · Palette disegno -->
+<section class="slide"><div class="page">
+  <div class="kicker">G-02 · Colori per disegnare (F-05)</div>
+  <h2>I 12 pastelli della scatola</h2>
+  <p class="lead">Saturi ma non "fluo", ben distinguibili tra loro anche per chi confonde rosso e verde (si distinguono anche per luminosità).</p>
+  <div class="row grow" style="margin-top:8px">
+    <div class="col">
+      <div class="dots">
+        <div class="dotwrap"><div class="dot" style="background:#E63946"></div><div class="dotlabel">rosso</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#FF8C42"></div><div class="dotlabel">arancione</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#FFD23F"></div><div class="dotlabel">giallo</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#8BD346"></div><div class="dotlabel">verde chiaro</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#2A9D3F"></div><div class="dotlabel">verde scuro</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#4CC9F0"></div><div class="dotlabel">azzurro</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#1D4ED8"></div><div class="dotlabel">blu</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#8E44AD"></div><div class="dotlabel">viola</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#FF7EB6"></div><div class="dotlabel">rosa</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#8B5A2B"></div><div class="dotlabel">marrone</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#1F1F1F"></div><div class="dotlabel">nero</div></div>
+        <div class="dotwrap"><div class="dot" style="background:#FFFFFF"></div><div class="dotlabel">bianco</div></div>
+      </div>
+      <p style="margin-top:18px;font-size:16px;color:var(--grafite)">Codici: rosso <code>#E63946</code> · arancione <code>#FF8C42</code> · giallo <code>#FFD23F</code> · verde chiaro <code>#8BD346</code> · verde scuro <code>#2A9D3F</code> · azzurro <code>#4CC9F0</code> · blu <code>#1D4ED8</code> · viola <code>#8E44AD</code> · rosa <code>#FF7EB6</code> · marrone <code>#8B5A2B</code> · nero <code>#1F1F1F</code> · bianco <code>#FFFFFF</code></p>
+    </div>
+    <div class="card" style="flex:none">
+      <h3>🎨 "Altri colori" (40)</h3>
+      <div class="grid40">
+        <!-- toni pelle -->
+        <div style="background:#FDE3CF"></div><div style="background:#F6CBA4"></div><div style="background:#E8B07F"></div><div style="background:#C98B5A"></div><div style="background:#9C6640"></div><div style="background:#6E4428"></div><div style="background:#4A2C1A"></div><div style="background:#F2D5C4"></div><div style="background:#DDB99A"></div><div style="background:#B98663"></div>
+        <!-- pastello -->
+        <div style="background:#FFC9CF"></div><div style="background:#FFDDB8"></div><div style="background:#FFF3B0"></div><div style="background:#D6F5C2"></div><div style="background:#C2EDE3"></div><div style="background:#CDEBFF"></div><div style="background:#D3D9FF"></div><div style="background:#E6D3FF"></div><div style="background:#FFD1EC"></div><div style="background:#EADBC8"></div>
+        <!-- scuri -->
+        <div style="background:#9B1D2A"></div><div style="background:#B4521D"></div><div style="background:#B98B00"></div><div style="background:#4F7A1F"></div><div style="background:#14532D"></div><div style="background:#0E7490"></div><div style="background:#1E2A78"></div><div style="background:#4C1D6E"></div><div style="background:#A3135F"></div><div style="background:#4E342E"></div>
+        <!-- grigi e speciali -->
+        <div style="background:#FFFFFF"></div><div style="background:#E5E5E5"></div><div style="background:#C4C4C4"></div><div style="background:#9A9A9A"></div><div style="background:#6E6E6E"></div><div style="background:#444444"></div><div style="background:#00C2A8"></div><div style="background:#FF5E78"></div><div style="background:#C0E218"></div><div style="background:#FFB000"></div>
+      </div>
+      <p style="font-size:14px;color:var(--grafite);margin:10px 0 0">Righe: pelle · pastello · scuri · grigi e vivaci</p>
+    </div>
+  </div>
+  <span class="num">4</span>
+</div></section>
+
+<!-- 5 · Tipografia -->
+<section class="slide"><div class="page typo">
+  <div class="kicker">G-03 · Tipografia</div>
+  <h2>Caratteri</h2>
+  <p class="lead">L'interfaccia usa due dei quattro caratteri già inclusi per le scritte (F-08): nessun peso in più nell'app.</p>
+  <div class="row" style="margin-top:8px">
+    <div class="col card"><span class="tag">Interfaccia · titoli</span><div class="sample" style="font-family:Fredoka;font-weight:600">I miei disegni</div><p style="font-size:15px;color:var(--grafite);margin:0">Fredoka — tondo e amichevole, per titoli e pulsanti</p></div>
+    <div class="col card"><span class="tag">Interfaccia · testo</span><div class="sample" style="font-family:Andika;font-size:30px">Svuota il cestino</div><p style="font-size:15px;color:var(--grafite);margin:0">Andika — chiarissimo, per testi e pagina genitori</p></div>
+  </div>
+  <h3 style="margin-top:22px">Caratteri per le scritte sul foglio (F-08)</h3>
+  <div class="row">
+    <div class="col card"><div class="sample" style="font-family:Andika">Ciao nonna!</div><span class="tag ok">Andika · stampato</span></div>
+    <div class="col card"><div class="sample" style="font-family:'Playwrite IT Moderna';font-size:30px;line-height:1.6">Ciao nonna!</div><span class="tag ok">Playwrite IT · corsivo</span></div>
+    <div class="col card"><div class="sample" style="font-family:Fredoka;font-weight:600">Ciao nonna!</div><span class="tag ok">Fredoka · tondo</span></div>
+    <div class="col card"><div class="sample" style="font-family:'Comic Neue';font-weight:700">Ciao nonna!</div><span class="tag ok">Comic Neue · fumetto</span></div>
+  </div>
+  <span class="num">5</span>
+</div></section>
+
+<!-- 6 · Icona app -->
+<section class="slide"><div class="page">
+  <div class="kicker">G-04 · Icona dell'app</div>
+  <h2>Tre proposte</h2>
+  <p class="lead">Android ritaglia l'icona in forme diverse (cerchio, quadrato arrotondato): il soggetto sta al centro, nella zona sicura.</p>
+  <div class="icons grow">
+    <div class="card">
+      <svg class="big" viewBox="0 0 108 108"><use href="#logo-a"/></svg>
+      <div class="smalls">
+        <svg class="c" viewBox="0 0 108 108"><use href="#logo-a"/></svg>
+        <svg class="s" viewBox="0 0 108 108"><use href="#logo-a"/></svg>
+        <svg class="xs" viewBox="0 0 108 108"><use href="#logo-a"/></svg>
+      </div>
+      <h3>A · Pastello arcobaleno</h3>
+      <p>Il pastello a cera e il suo tratto arcobaleno: racconta subito cosa fa l'app e richiama lo strumento preferito.</p>
+    </div>
+    <div class="card">
+      <svg class="big" viewBox="0 0 108 108"><use href="#logo-b"/></svg>
+      <div class="smalls">
+        <svg class="c" viewBox="0 0 108 108"><use href="#logo-b"/></svg>
+        <svg class="s" viewBox="0 0 108 108"><use href="#logo-b"/></svg>
+        <svg class="xs" viewBox="0 0 108 108"><use href="#logo-b"/></svg>
+      </div>
+      <h3>B · La "P"</h3>
+      <p>Lettera disegnata con un tratto spesso. Molto riconoscibile e pulita, ma meno "da bambini".</p>
+    </div>
+    <div class="card">
+      <svg class="big" viewBox="0 0 108 108"><use href="#logo-c"/></svg>
+      <div class="smalls">
+        <svg class="c" viewBox="0 0 108 108"><use href="#logo-c"/></svg>
+        <svg class="s" viewBox="0 0 108 108"><use href="#logo-c"/></svg>
+        <svg class="xs" viewBox="0 0 108 108"><use href="#logo-c"/></svg>
+      </div>
+      <h3>C · Pastello mascotte</h3>
+      <p>Un pastello con la faccina: potrebbe diventare il personaggio dell'app (galleria vuota, cancello genitori...).</p>
+    </div>
+  </div>
+  <span class="num">6</span>
+</div></section>
+
+<!-- 7 · Icone strumenti -->
+<section class="slide"><div class="page">
+  <div class="kicker">G-05 · Icone</div>
+  <h2>Strumenti illustrati, azioni semplici</h2>
+  <p class="lead">Gli <b>strumenti</b> sono piccoli disegni colorati con contorno scuro; la <b>punta prende il colore selezionato</b>. Le <b>azioni</b> sono icone a tratto spesso e arrotondato.</p>
+  <div class="row grow" style="margin-top:6px">
+    <div class="col">
+      <div class="tools" style="--tip:#1D4ED8">
+        <div class="tool"><svg><use href="#i-matita"/></svg>matita</div>
+        <div class="tool"><svg><use href="#i-pennarello"/></svg>pennarello</div>
+        <div class="tool"><svg><use href="#i-pennello"/></svg>pennello</div>
+        <div class="tool active"><svg><use href="#i-pastello"/></svg>pastello</div>
+        <div class="tool"><svg><use href="#i-arcobaleno"/></svg>arcobaleno</div>
+        <div class="tool"><svg><use href="#i-gomma"/></svg>gomma</div>
+        <div class="tool"><svg><use href="#i-testo"/></svg>testo</div>
+        <div class="tool"><svg><use href="#i-adesivi"/></svg>adesivi</div>
+        <div class="tool"><svg><use href="#i-forme"/></svg>forme</div>
+        <div class="tool"><svg><use href="#i-seleziona"/></svg>seleziona</div>
+      </div>
+    </div>
+    <div class="card" style="flex:none;width:330px">
+      <h3>La punta cambia colore</h3>
+      <div class="tint-row" style="color:#E63946"><svg><use href="#i-pastello"/></svg><svg style="color:#FFD23F"><use href="#i-pastello"/></svg><svg style="color:#2A9D3F"><use href="#i-pastello"/></svg><svg style="color:#8E44AD"><use href="#i-pastello"/></svg></div>
+      <div class="tint-row" style="color:#FF7EB6;margin-top:4px"><svg><use href="#i-pennarello"/></svg><svg style="color:#4CC9F0"><use href="#i-pennello"/></svg><svg style="color:#8B5A2B"><use href="#i-matita"/></svg><svg style="color:#FF8C42"><use href="#i-testo"/></svg></div>
+      <h3 style="margin-top:14px">Azioni</h3>
+      <div class="tint-row" style="flex-wrap:wrap;gap:12px">
+        <div class="tb"><svg><use href="#a-casa"/></svg></div>
+        <div class="tb"><svg><use href="#a-annulla"/></svg></div>
+        <div class="tb"><svg><use href="#a-ripeti"/></svg></div>
+        <div class="tb"><svg><use href="#a-foglio"/></svg></div>
+        <div class="tb"><svg><use href="#a-lucchetto"/></svg></div>
+        <div class="tb"><svg><use href="#a-stampa"/></svg></div>
+        <div class="tb"><svg><use href="#a-altro"/></svg></div>
+        <div class="tb"><svg><use href="#a-cestino"/></svg></div>
+        <div class="tb"><svg><use href="#a-genitori"/></svg></div>
+      </div>
+      <p style="font-size:14px;color:var(--grafite);margin:12px 0 0">Bozze: nella v1 tutte le icone vengono ridisegnate in SVG con lo stesso stile, nessuna libreria di icone.</p>
+    </div>
+  </div>
+  <span class="num">7</span>
+</div></section>
+
+<!-- 8 · Mockup editor -->
+<section class="slide"><div class="page" style="padding:34px 44px">
+  <div class="kicker">G-06 · Editor (F-03)</div>
+  <h2 style="font-size:32px;margin-bottom:12px">Come apparirebbe l'editor</h2>
+  <div class="tablet">
+    <div class="screen">
+      <div class="topbar">
+        <div class="tb"><svg><use href="#a-casa"/></svg></div>
+        <div style="width:8px"></div>
+        <div class="tb"><svg><use href="#a-annulla"/></svg></div>
+        <div class="tb"><svg><use href="#a-ripeti"/></svg></div>
+        <div class="spacer"></div>
+        <div class="tb wide"><svg style="width:22px;height:22px"><use href="#a-foglio"/></svg>Foglio</div>
+        <div class="tb on"><svg><use href="#a-lucchetto"/></svg></div>
+        <div class="tb"><svg><use href="#a-stampa"/></svg></div>
+        <div class="tb"><svg><use href="#a-altro"/></svg></div>
+      </div>
+      <div class="side" style="color:#E63946">
+        <div class="t"><svg><use href="#i-matita"/></svg></div>
+        <div class="t"><svg><use href="#i-pennarello"/></svg></div>
+        <div class="t"><svg><use href="#i-pennello"/></svg></div>
+        <div class="t active"><svg><use href="#i-pastello"/></svg></div>
+        <div class="t"><svg><use href="#i-arcobaleno"/></svg></div>
+        <div class="t"><svg><use href="#i-gomma"/></svg></div>
+        <div class="t"><svg><use href="#i-testo"/></svg></div>
+        <div class="t"><svg><use href="#i-adesivi"/></svg></div>
+        <div class="t"><svg><use href="#i-forme"/></svg></div>
+        <div class="t"><svg><use href="#i-seleziona"/></svg></div>
+      </div>
+      <div class="canvaswrap">
+        <div class="sheet">
+          <svg viewBox="0 0 800 460" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="xMidYMid slice">
+            <!-- prato -->
+            <path d="M0 380 Q200 350 400 372 T800 360 V460 H0 Z" fill="#8BD346" opacity=".9"/>
+            <!-- sole -->
+            <circle cx="680" cy="90" r="46" fill="#FFD23F"/>
+            <g stroke="#FFD23F" stroke-width="10" stroke-linecap="round"><path d="M680 20v-14M680 174v-14M610 90h-14M764 90h-14M630 40l-10-10M740 150l10 10M730 40l10-10M630 140l-10 10"/></g>
+            <!-- casa -->
+            <rect x="140" y="230" width="170" height="140" fill="none" stroke="#E63946" stroke-width="12" stroke-linejoin="round"/>
+            <path d="M120 236 L225 150 L330 236" fill="none" stroke="#8B5A2B" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="205" y="300" width="40" height="70" fill="#1D4ED8"/>
+            <!-- arcobaleno a tratto -->
+            <path d="M400 330 C430 230 560 210 600 320" fill="none" stroke="url(#rb)" stroke-width="16" stroke-linecap="round"/>
+            <defs><linearGradient id="rb" x1="0" x2="1"><stop offset="0" stop-color="#E63946"/><stop offset=".25" stop-color="#FF8C42"/><stop offset=".5" stop-color="#FFD23F"/><stop offset=".75" stop-color="#4CB944"/><stop offset="1" stop-color="#3A86FF"/></linearGradient></defs>
+            <!-- scritta -->
+            <text x="400" y="110" text-anchor="middle" font-family="Playwrite IT Moderna, cursive" font-size="34" fill="#8E44AD">Ciao nonna!</text>
+          </svg>
+          <!-- adesivo selezionato -->
+          <div style="position:absolute;left:62%;top:52%;font-size:54px;line-height:1">🐶</div>
+          <div class="selbox" style="left:calc(62% - 10px);top:calc(52% - 10px);width:82px;height:80px"></div>
+          <div class="handle" style="left:calc(62% + 61px);top:calc(52% + 59px)"></div>
+          <div style="position:absolute;left:calc(62% + 20px);top:calc(52% - 44px);width:26px;height:26px"><svg style="width:26px;height:26px"><use href="#a-ruota"/></svg></div>
+          <div class="selactions" style="left:calc(62% - 18px);top:calc(52% + 80px)">
+            <div><svg><use href="#a-duplica"/></svg></div>
+            <div><svg><use href="#a-elimina"/></svg></div>
+          </div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="c active" style="background:#E63946"></div>
+        <div class="c" style="background:#FF8C42"></div>
+        <div class="c" style="background:#FFD23F"></div>
+        <div class="c" style="background:#8BD346"></div>
+        <div class="c" style="background:#2A9D3F"></div>
+        <div class="c" style="background:#4CC9F0"></div>
+        <div class="c" style="background:#1D4ED8"></div>
+        <div class="c" style="background:#8E44AD"></div>
+        <hr>
+        <div class="w"><i style="width:6px;height:6px;background:#E63946"></i></div>
+        <div class="w active"><i style="width:12px;height:12px;background:#E63946"></i></div>
+        <div class="w"><i style="width:18px;height:18px;background:#E63946"></i></div>
+      </div>
+    </div>
+  </div>
+  <span class="num">8</span>
+</div></section>
+
+<!-- 9 · Galleria e cancello -->
+<section class="slide"><div class="page" style="padding:34px 44px">
+  <div class="kicker">G-07 · Galleria e cancello genitori (F-09, D-08)</div>
+  <h2 style="font-size:32px;margin-bottom:12px">Galleria</h2>
+  <div class="row grow">
+    <div class="tablet" style="flex:1.6">
+      <div class="gal">
+        <div class="galbar">
+          <div class="logo"><svg style="width:40px;height:40px;border-radius:12px" viewBox="0 0 108 108"><use href="#logo-c"/></svg>Pastello</div>
+          <div class="spacer"></div>
+          <div class="tb"><svg><use href="#a-cestino"/></svg></div>
+          <div class="tb"><svg><use href="#a-genitori"/></svg></div>
+        </div>
+        <div class="galgrid">
+          <div><div class="plus"><svg><use href="#a-piu"/></svg></div><div class="thumblabel">nuovo</div></div>
+          <div><div class="thumb"><svg viewBox="0 0 160 100" style="width:100%;height:100%"><path d="M0 80 Q80 70 160 78 V100 H0Z" fill="#8BD346"/><circle cx="130" cy="22" r="12" fill="#FFD23F"/><rect x="30" y="45" width="40" height="34" fill="none" stroke="#E63946" stroke-width="4"/><path d="M24 47 L50 26 L76 47" fill="none" stroke="#8B5A2B" stroke-width="4"/></svg><div class="more">⋯</div></div><div class="thumblabel">oggi</div></div>
+          <div><div class="thumb"><svg viewBox="0 0 160 100" style="width:100%;height:100%"><rect width="160" height="100" fill="#1F1F1F"/><circle cx="40" cy="30" r="14" fill="#FFF3B0"/><g fill="#FFD23F"><circle cx="100" cy="20" r="2.5"/><circle cx="130" cy="44" r="2"/><circle cx="80" cy="60" r="2"/><circle cx="140" cy="16" r="2"/></g><path d="M20 90 C60 60 100 100 150 70" stroke="#4CC9F0" stroke-width="4" fill="none"/></svg><div class="more">⋯</div></div><div class="thumblabel">ieri</div></div>
+          <div><div class="thumb"><svg viewBox="0 0 160 100" style="width:100%;height:100%"><g stroke-width="0"><path d="M0 0 H160 V100 H0Z" fill="#FFF"/></g><g stroke="#CDEBFF" stroke-width="1"><path d="M0 20H160M0 40H160M0 60H160M0 80H160"/></g><text x="80" y="58" text-anchor="middle" font-family="Fredoka" font-weight="600" font-size="24" fill="#FF7EB6">Mamma ♥</text></svg><div class="more">⋯</div></div><div class="thumblabel">12 ott</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+      <div class="gate">
+        <div style="font-family:Fredoka;color:var(--grafite)">Solo per grandi 👪</div>
+        <div class="q">34 + 47 = ?</div>
+        <div class="ans">8_</div>
+        <div class="keys"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>⌫</div><div>0</div><div class="ok">✓</div></div>
+      </div>
+      <p style="font-size:14px;color:var(--grafite);margin:0;text-align:center">Il "+" respira (animazione leggera)</p>
+    </div>
+  </div>
+  <span class="num">9</span>
+</div></section>
+
+<!-- 10 · Movimento e accessibilità -->
+<section class="slide"><div class="page">
+  <div class="kicker">G-08 · Movimento, suoni, accessibilità</div>
+  <h2>Sensazioni</h2>
+  <div class="row grow" style="margin-top:10px">
+    <div class="col card">
+      <h3>Animazioni</h3>
+      <table class="t">
+        <tr><td>Cambio strumento</td><td>lo strumento "salta" leggermente verso il foglio</td></tr>
+        <tr><td>Adesivo appoggiato</td><td>piccolo rimbalzo + "pop"</td></tr>
+        <tr><td>Nel cestino</td><td>si rimpicciolisce verso 🗑️ + "fruscio"</td></tr>
+        <tr><td>Galleria vuota</td><td>il "+" respira</td></tr>
+        <tr><td>Durata</td><td>150–300 ms, mai bloccanti</td></tr>
+      </table>
+      <p style="font-size:15px;color:var(--grafite);margin-top:10px">Se Android ha "riduci animazioni" attivo, l'app lo rispetta.</p>
+    </div>
+    <div class="col card">
+      <h3>Accessibilità</h3>
+      <table class="t">
+        <tr><td>Contrasto testo</td><td>Inchiostro su Carta <b>13,4 : 1</b>, Grafite su Carta <b>5,3 : 1</b> (WCAG AA ✓)</td></tr>
+        <tr><td>Bianco su Corallo</td><td><b>3,6 : 1</b>: solo icone e testo grande (≥ 24 px)</td></tr>
+        <tr><td>Target touch</td><td>≥ 56 dp (strumenti 64 dp)</td></tr>
+        <tr><td>Stato attivo</td><td>mai solo colore: anche cornice spessa</td></tr>
+        <tr><td>Lettori di schermo</td><td>ogni pulsante ha un'etichetta (it/en)</td></tr>
+      </table>
+    </div>
+  </div>
+  <span class="num">10</span>
+</div></section>
+
+<!-- 11 · Domande -->
+<section class="slide"><div class="page">
+  <div class="kicker">Da decidere</div>
+  <h2>Le tue scelte</h2>
+  <div class="qs grow" style="margin-top:10px">
+    <div class="card"><h3>G-01 · Palette dell'interfaccia</h3><p>Carta crema + Corallo primario + Sole, Cielo, Menta, Lampone. Solo tema chiaro. <b>Ok o vuoi un altro colore primario?</b></p></div>
+    <div class="card"><h3>G-02 · 12 colori per disegnare</h3><p>Tonalità di slide 4 e griglia di 40 con toni pelle. <b>Ok o cambieresti qualche colore?</b></p></div>
+    <div class="card"><h3>G-03 · Caratteri dell'interfaccia</h3><p>Fredoka per titoli e pulsanti, Andika per i testi. <b>Ok?</b></p></div>
+    <div class="card"><h3>G-04 · Icona</h3><p>A pastello arcobaleno · B lettera "P" · C mascotte. <b>Proposta: C</b>, che diventa anche il personaggio dell'app. Da far scegliere a lei? 🙂</p></div>
+    <div class="card"><h3>G-05 · Stile icone</h3><p>Strumenti illustrati con punta del colore selezionato, azioni a tratto spesso, tutte disegnate da noi. <b>Ok?</b></p></div>
+    <div class="card"><h3>G-06…08 · Editor, galleria, sensazioni</h3><p>Come nei mockup: cornici spesse per lo stato attivo, animazioni brevi. <b>Qualcosa da cambiare?</b></p></div>
+  </div>
+  <span class="num">11</span>
+</div></section>
+
+<script>
+  // Navigazione con le frecce / PagSu-PagGiù tra le slide.
+  const slides = [...document.querySelectorAll('.slide')];
+  addEventListener('keydown', (e) => {
+    const dir = { ArrowDown: 1, ArrowRight: 1, PageDown: 1, ' ': 1, ArrowUp: -1, ArrowLeft: -1, PageUp: -1 }[e.key];
+    if (!dir) return;
+    e.preventDefault();
+    const cur = slides.findIndex((s) => s.getBoundingClientRect().top > -innerHeight / 2);
+    const next = slides[Math.min(slides.length - 1, Math.max(0, cur + dir))];
+    next.scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>

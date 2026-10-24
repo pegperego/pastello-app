@@ -5,8 +5,9 @@ La documentazione per i contributori, in inglese, è in [`../docs/`](../docs/).
 
 | File | Contenuto | Stato |
 |---|---|---|
-| [`01-analisi-architetturale.md`](01-analisi-architetturale.md) | Vincoli, requisiti non funzionali, decisioni tecniche, rischi | Bozza |
-| [`02-analisi-funzionale.md`](02-analisi-funzionale.md) | Utenti, storie, priorità, interfaccia | Da avviare |
+| [`01-analisi-architetturale.md`](01-analisi-architetturale.md) | Vincoli, requisiti non funzionali, decisioni tecniche, rischi | Approvata |
+| [`02-analisi-funzionale.md`](02-analisi-funzionale.md) | Utenti, decisioni funzionali, priorità | Approvata |
+| [`03-design.md`](03-design.md) | Palette, caratteri, icona, stile grafico | Approvato |
 | [`risorse/`](risorse/) | Link, riferimenti, wireframe, foto, materiale usato nell'analisi | In corso |
 
 ## Flusso di lavoro
