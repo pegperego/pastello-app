@@ -36,8 +36,30 @@ them will not be merged.
 
 ## Development setup
 
-> The Flutter project has not been created yet. This section will be completed
-> once the analysis phase is over.
+1. Install [Flutter](https://docs.flutter.dev/get-started/install) **3.44.0**
+   (the version used by CI, see `.github/workflows/ci.yml`).
+2. Clone the repository and fetch the dependencies of the whole workspace:
+
+   ```sh
+   flutter pub get
+   ```
+
+3. Run the same checks as CI:
+
+   ```sh
+   dart format packages prototype
+   flutter analyze packages prototype
+   (cd packages/pastello_engine && flutter test --coverage)
+   tool/check_coverage.sh packages/pastello_engine/coverage/lcov.info 90
+   ```
+
+4. Try the drawing prototype in the browser with
+   `cd prototype && flutter run -d chrome`, or on a device in profile mode
+   (see [`prototype/README.md`](prototype/README.md)).
+
+Golden images (`test/goldens/`) are generated on Linux, like in CI. After an
+intentional rendering change, regenerate them with
+`flutter test --update-goldens` and review the images in your pull request.
 
 ## Coding guidelines
 
