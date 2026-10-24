@@ -12,6 +12,8 @@ import 'breathing_plus.dart';
 import 'drawing_tile.dart';
 import 'relative_date.dart';
 import 'trash_page.dart';
+import '../../parents/presentation/parental_gate.dart';
+import '../../parents/presentation/parents_page.dart';
 
 /// The home screen: a big "+" and the child's drawings, newest first
 /// (F-01, F-09).
@@ -89,6 +91,31 @@ class GalleryPage extends ConsumerWidget {
               child: Row(
                 children: [
                   Expanded(child: Text(l10n.appTitle, style: fredoka(30))),
+                  IconButton(
+                    tooltip: l10n.parents,
+                    iconSize: 28,
+                    constraints: const BoxConstraints.tightFor(
+                      width: Tokens.minTouchTarget,
+                      height: Tokens.minTouchTarget,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Tokens.sheet,
+                      foregroundColor: Tokens.ink,
+                      side: const BorderSide(color: Tokens.border),
+                    ),
+                    // Grown-ups only: the gate is asked every time (F-14).
+                    onPressed: () async {
+                      if (await showParentalGate(context) && context.mounted) {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const ParentsPage(),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.family_restroom_rounded),
+                  ),
+                  const SizedBox(width: 8),
                   IconButton(
                     tooltip: l10n.trash,
                     iconSize: 28,

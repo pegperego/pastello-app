@@ -555,6 +555,7 @@ pastello/
 | Stampa (AD-10) | `printing` | 5.15.1 | Apache-2.0 |
 | Adesivi vettoriali | `flutter_svg` | 2.3.0 | MIT |
 | Pagina Informazioni (AD-02) | `package_info_plus`, `device_info_plus` | 10.2.2 / 13.3.0 | BSD-3 |
+| Link della pagina genitori (aggiunta 2026-10-25) | `url_launcher` | 6.3.3 | BSD-3 |
 | Lint (solo sviluppo) | `flutter_lints` | 6.0.0 | BSD-3 |
 
 - **Scartate di proposito:**

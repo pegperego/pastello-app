@@ -163,7 +163,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       previous,
       snapped,
     ) {
-      if (snapped && previous == false) HapticFeedback.selectionClick();
+      if (snapped && previous == false && settings.haptics) {
+        HapticFeedback.selectionClick();
+      }
     });
 
     // Keep the renderer in sync with the drawing and the floating elements

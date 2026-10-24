@@ -35,6 +35,13 @@ class PastelloApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      // The parents' page can force a language; null follows the system.
+      locale: switch (ref.watch(
+        settingsProvider.select((s) => s.value?.language),
+      )) {
+        final String code => Locale(code),
+        null => null,
+      },
       home: const GalleryPage(),
     );
   }

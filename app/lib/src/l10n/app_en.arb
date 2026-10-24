@@ -288,5 +288,107 @@
   "paperColor": "Paper color",
   "@paperColor": {
     "description": "Section of the paper chooser."
+  },
+  "parents": "For grown-ups",
+  "@parents": {
+    "description": "Gallery button that opens the parents' page, and its title."
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Section title."
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Setting."
+  },
+  "languageSystem": "Same as the tablet",
+  "@languageSystem": {
+    "description": "Language option: follow the system."
+  },
+  "leftHanded": "Left-handed",
+  "@leftHanded": {
+    "description": "Setting: swaps tools and colors in the editor."
+  },
+  "leftHandedHint": "Tools on the right, colors on the left.",
+  "@leftHandedHint": {
+    "description": "Explanation of the left-handed setting."
+  },
+  "sounds": "Sounds",
+  "@sounds": {
+    "description": "Setting."
+  },
+  "haptics": "Vibration",
+  "@haptics": {
+    "description": "Setting."
+  },
+  "trashCount": "{count, plural, =0{The trash is empty} =1{1 drawing in the trash} other{{count} drawings in the trash}}",
+  "@trashCount": {
+    "description": "Trash summary in the parents' page.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinningTitle": "Keep the child in Pastello",
+  "@pinningTitle": {
+    "description": "Section title: Android screen pinning."
+  },
+  "pinningSteps": "1. Open Settings → Security & privacy → More security settings → App pinning, and turn it on (the name can change between tablets).\n2. Open Pastello, open the recent apps view, tap Pastello's icon and choose \"Pin\".\n3. To unpin, hold Back and Overview together, then enter the tablet's PIN.",
+  "@pinningSteps": {
+    "description": "Screen pinning guide (ADR 0017)."
+  },
+  "about": "About",
+  "@about": {
+    "description": "Section title."
+  },
+  "appVersion": "Version {version}",
+  "@appVersion": {
+    "description": "App version.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceInfo": "{device}, Android {android}",
+  "@deviceInfo": {
+    "description": "Device model and Android version.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      },
+      "android": {
+        "type": "String"
+      }
+    }
+  },
+  "copyInfo": "Copy info for a bug report",
+  "@copyInfo": {
+    "description": "Copies version and device to the clipboard."
+  },
+  "copied": "Copied",
+  "@copied": {
+    "description": "Confirmation after copying."
+  },
+  "links": "Links",
+  "@links": {
+    "description": "Section title: the only external links of the app."
+  },
+  "sourceCode": "Source code",
+  "@sourceCode": {
+    "description": "Link to the GitHub repository."
+  },
+  "reportProblem": "Report a problem",
+  "@reportProblem": {
+    "description": "Link to GitHub issues."
+  },
+  "privacyPolicy": "Privacy policy",
+  "@privacyPolicy": {
+    "description": "Link to the privacy policy."
+  },
+  "credits": "Credits and licenses",
+  "@credits": {
+    "description": "Opens the licenses page."
   }
 }

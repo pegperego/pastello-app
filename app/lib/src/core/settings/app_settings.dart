@@ -16,6 +16,9 @@ class AppSettings {
     this.widths = const {},
     this.leftHanded = false,
     this.rotationLock,
+    this.language,
+    this.sounds = true,
+    this.haptics = true,
   });
 
   /// Restores settings from JSON, ignoring anything unknown or malformed.
@@ -36,6 +39,11 @@ class AppSettings {
       rotationLock: LockedOrientation.values
           .where((o) => o.name == lock)
           .firstOrNull,
+      language: const ['it', 'en'].contains(json['language'])
+          ? json['language']! as String
+          : null,
+      sounds: json['sounds'] != false,
+      haptics: json['haptics'] != false,
     );
   }
 
@@ -57,6 +65,16 @@ class AppSettings {
   /// Orientation locked by the user, or `null` to follow the device.
   final LockedOrientation? rotationLock;
 
+  /// Language forced in the parents' page (`it` or `en`), or `null` to
+  /// follow the system (ADR 0013).
+  final String? language;
+
+  /// Whether the short sounds are played (F-15).
+  final bool sounds;
+
+  /// Whether light vibrations are used (F-15).
+  final bool haptics;
+
   /// Returns a copy with the given fields replaced.
   ///
   /// [rotationLock] uses a function so that it can be set back to `null`.
@@ -67,6 +85,9 @@ class AppSettings {
     Map<String, String>? widths,
     bool? leftHanded,
     LockedOrientation? Function()? rotationLock,
+    String? Function()? language,
+    bool? sounds,
+    bool? haptics,
   }) => AppSettings(
     tool: tool ?? this.tool,
     color: color ?? this.color,
@@ -74,6 +95,9 @@ class AppSettings {
     widths: widths ?? this.widths,
     leftHanded: leftHanded ?? this.leftHanded,
     rotationLock: rotationLock != null ? rotationLock() : this.rotationLock,
+    language: language != null ? language() : this.language,
+    sounds: sounds ?? this.sounds,
+    haptics: haptics ?? this.haptics,
   );
 
   /// JSON representation, see [AppSettings.fromJson].
@@ -84,5 +108,8 @@ class AppSettings {
     'widths': widths,
     'leftHanded': leftHanded,
     'rotationLock': ?rotationLock?.name,
+    'language': ?language,
+    'sounds': sounds,
+    'haptics': haptics,
   };
 }

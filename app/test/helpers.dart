@@ -12,6 +12,7 @@ import 'package:pastello/src/features/drawings/application/drawings_providers.da
 import 'package:pastello/src/features/drawings/data/drawing_repository.dart';
 import 'package:pastello/src/features/drawings/domain/drawing_summary.dart';
 import 'package:pastello/src/features/drawings/domain/saved_drawing.dart';
+import 'package:pastello/src/features/parents/application/parents_providers.dart';
 import 'package:pastello/src/features/stickers/application/stickers_providers.dart';
 import 'package:pastello/src/features/stickers/data/bundled_packs.dart';
 import 'package:pastello/src/features/stickers/domain/sticker_pack.dart';
@@ -205,6 +206,9 @@ Future<void> loadTestPacks() async {
 /// Records the orientations requested by the rotation lock.
 final requestedOrientations = <List<DeviceOrientation>>[];
 
+/// Records the links opened from the parents' page.
+final openedLinks = <Uri>[];
+
 /// Overrides every provider that touches the platform.
 List<Override> testOverrides(
   MemorySettingsRepository settings, [
@@ -217,6 +221,17 @@ List<Override> testOverrides(
   thumbnailRendererProvider.overrideWithValue((_) async => transparentPng),
   clockProvider.overrideWithValue(() => testNow),
   stickerPacksProvider.overrideWith((ref) async => testPacks),
+  appInfoProvider.overrideWith(
+    (ref) async => const AppInfo(
+      version: '0.1.0 (1)',
+      device: 'Xiaomi 2505DRP06E',
+      android: '16',
+    ),
+  ),
+  linkOpenerProvider.overrideWithValue((uri) async {
+    openedLinks.add(uri);
+    return true;
+  }),
   // Stickers render as placeholders: no SVG work in widget tests.
   stickerArtworkProvider.overrideWith((ref) async => PackArtwork(const {})),
   orientationSetterProvider.overrideWithValue((orientations) async {
@@ -234,6 +249,7 @@ Future<void> pumpApp(
   bool disableAnimations = false,
 }) async {
   requestedOrientations.clear();
+  openedLinks.clear();
   tester.platformDispatcher.localesTestValue = [locale];
   tester.platformDispatcher.accessibilityFeaturesTestValue = disableAnimations
       ? const FakeAccessibilityFeatures(disableAnimations: true)

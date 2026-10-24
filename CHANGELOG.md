@@ -41,6 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Paper: plain, lines, big squares, small squares or dots, on white, pastel
   or dark paper, from the "Paper" button; undoable. The eraser brings the
   lines and squares back.
+- Parents' page behind the parental gate: language, left-handed, sounds and
+  vibration settings; empty the trash; a guide to Android screen pinning;
+  version and device info to copy into a bug report; links to the source
+  code, issues and the privacy policy; credits and licenses.
+- Privacy policy (English and Italian) in docs/privacy-policy.md.
 
 ### Removed
 
