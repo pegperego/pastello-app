@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/app_icon.dart';
 import '../../../app/theme.dart';
 import '../../../app/tokens.dart';
 import '../../../core/clock.dart';
@@ -64,7 +65,7 @@ class GalleryPage extends ConsumerWidget {
             spacing: 16,
             children: [
               _BigAction(
-                icon: Icons.content_copy_rounded,
+                icon: const AppIcon(AppIcons.duplicate),
                 label: l10n.duplicate,
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -73,12 +74,16 @@ class GalleryPage extends ConsumerWidget {
               ),
               for (final (icon, label, action) in [
                 (
-                  Icons.photo_library_rounded,
+                  const Icon(Icons.photo_library_rounded),
                   l10n.saveToGallery,
                   ExportAction.save,
                 ),
-                (Icons.print_rounded, l10n.print, ExportAction.print),
-                (Icons.share_rounded, l10n.share, ExportAction.share),
+                (const AppIcon(AppIcons.print), l10n.print, ExportAction.print),
+                (
+                  const Icon(Icons.share_rounded),
+                  l10n.share,
+                  ExportAction.share,
+                ),
               ])
                 _BigAction(
                   icon: icon,
@@ -89,7 +94,7 @@ class GalleryPage extends ConsumerWidget {
                   },
                 ),
               _BigAction(
-                icon: Icons.delete_rounded,
+                icon: const AppIcon(AppIcons.delete),
                 label: l10n.delete,
                 color: Tokens.raspberry,
                 // No confirmation: the drawing goes to the trash and can
@@ -122,6 +127,8 @@ class GalleryPage extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(24, 12, 16, 8),
               child: Row(
                 children: [
+                  const Mascot(size: 44),
+                  const SizedBox(width: 12),
                   Expanded(child: Text(l10n.appTitle, style: fredoka(30))),
                   IconButton(
                     tooltip: l10n.parents,
@@ -145,7 +152,7 @@ class GalleryPage extends ConsumerWidget {
                         );
                       }
                     },
-                    icon: const Icon(Icons.family_restroom_rounded),
+                    icon: const AppIcon(AppIcons.parents),
                   ),
                   const SizedBox(width: 8),
                   IconButton(
@@ -165,7 +172,7 @@ class GalleryPage extends ConsumerWidget {
                         builder: (_) => const TrashPage(),
                       ),
                     ),
-                    icon: const Icon(Icons.delete_outline_rounded),
+                    icon: const AppIcon(AppIcons.trash),
                   ),
                 ],
               ),
@@ -229,7 +236,7 @@ class _BigAction extends StatelessWidget {
     this.color = Tokens.ink,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String label;
   final VoidCallback onPressed;
   final Color color;
@@ -244,7 +251,10 @@ class _BigAction extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: color),
+            IconTheme(
+              data: IconThemeData(size: 48, color: color),
+              child: icon,
+            ),
             const SizedBox(height: 6),
             Text(label, style: fredoka(18, weight: FontWeight.w500)),
           ],

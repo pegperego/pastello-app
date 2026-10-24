@@ -88,7 +88,7 @@ void main() {
 
     // Nothing to print on an empty sheet.
     final print = find.ancestor(
-      of: find.byIcon(Icons.print_rounded),
+      of: find.byTooltip('Stampa'),
       matching: find.byType(IconButton),
     );
     expect(tester.widget<IconButton>(print).onPressed, isNull);

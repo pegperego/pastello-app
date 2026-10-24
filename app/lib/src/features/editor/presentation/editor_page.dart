@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
+import '../../../app/app_icon.dart';
 import '../../../app/tokens.dart';
 import '../../../core/feedback/feedback.dart';
 import '../../../core/settings/app_settings.dart';
@@ -387,24 +388,24 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                   children: [
                     const SizedBox(width: 8),
                     ActionButton(
-                      icon: Icons.home_rounded,
+                      icon: const AppIcon(AppIcons.home),
                       tooltip: l10n.backToGallery,
                       onPressed: _leave,
                     ),
                     const SizedBox(width: 12),
                     ActionButton(
-                      icon: Icons.undo_rounded,
+                      icon: const AppIcon(AppIcons.undo),
                       tooltip: l10n.undo,
                       onPressed: state.canUndo ? controller.undo : null,
                     ),
                     ActionButton(
-                      icon: Icons.redo_rounded,
+                      icon: const AppIcon(AppIcons.redo),
                       tooltip: l10n.redo,
                       onPressed: state.canRedo ? controller.redo : null,
                     ),
                     const Spacer(),
                     ActionButton(
-                      icon: Icons.description_rounded,
+                      icon: const AppIcon(AppIcons.paper),
                       tooltip: l10n.paper,
                       onPressed: state.drawing == null
                           ? null
@@ -416,15 +417,13 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                             ),
                     ),
                     ActionButton(
-                      icon: locked
-                          ? Icons.screen_lock_rotation_rounded
-                          : Icons.screen_rotation_rounded,
+                      icon: const AppIcon(AppIcons.lock),
                       tooltip: locked ? l10n.unlockRotation : l10n.lockRotation,
                       active: locked,
                       onPressed: () => _toggleRotationLock(locked),
                     ),
                     ActionButton(
-                      icon: Icons.print_rounded,
+                      icon: const AppIcon(AppIcons.print),
                       tooltip: l10n.print,
                       onPressed: _exportAction(state, ExportAction.print),
                     ),
@@ -489,12 +488,12 @@ extension on _EditorPageState {
         onTransformEnd: controller.commitGroup,
         actions: [
           SelectionAction(
-            icon: Icons.content_copy_rounded,
+            icon: const AppIcon(AppIcons.duplicate),
             tooltip: l10n.duplicateElement,
             onPressed: controller.duplicateGroup,
           ),
           SelectionAction(
-            icon: Icons.delete_rounded,
+            icon: const AppIcon(AppIcons.delete),
             tooltip: l10n.deleteElement,
             color: Tokens.raspberry,
             onPressed: controller.deleteGroup,
@@ -515,18 +514,18 @@ extension on _EditorPageState {
       onTransformEnd: controller.commitTransform,
       actions: [
         SelectionAction(
-          icon: Icons.content_copy_rounded,
+          icon: const AppIcon(AppIcons.duplicate),
           tooltip: l10n.duplicateElement,
           onPressed: controller.duplicateSelected,
         ),
         if (selected is TextElement) ...[
           SelectionAction(
-            icon: Icons.edit_rounded,
+            icon: const Icon(Icons.edit_rounded),
             tooltip: l10n.editText,
             onPressed: controller.editSelected,
           ),
           SelectionAction(
-            icon: Icons.font_download_rounded,
+            icon: const Icon(Icons.font_download_rounded),
             tooltip: l10n.font,
             onPressed: () async {
               final font = await showFontSheet(
@@ -539,7 +538,7 @@ extension on _EditorPageState {
           ),
         ],
         SelectionAction(
-          icon: Icons.delete_rounded,
+          icon: const AppIcon(AppIcons.delete),
           tooltip: l10n.deleteElement,
           color: Tokens.raspberry,
           onPressed: controller.deleteSelected,
@@ -569,7 +568,7 @@ class _MoreMenu extends StatelessWidget {
           ),
       ],
       builder: (context, menu, _) => ActionButton(
-        icon: Icons.more_horiz_rounded,
+        icon: const AppIcon(AppIcons.more),
         tooltip: tooltip,
         onPressed: () => menu.isOpen ? menu.close() : menu.open(),
       ),

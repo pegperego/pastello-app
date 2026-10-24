@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pastello/src/app/app_icon.dart';
 import 'package:pastello/src/core/settings/app_settings.dart';
 import 'package:pastello/src/features/editor/presentation/editor_buttons.dart';
 import 'package:pastello/src/features/editor/presentation/sheet_view.dart';
@@ -25,8 +26,11 @@ Future<void> openEditor(
 
 /// The action button showing [icon]. Found by icon because disabled
 /// buttons have no tooltip.
-IconButton action(WidgetTester tester, IconData icon) => tester.widget(
-  find.ancestor(of: find.byIcon(icon), matching: find.byType(IconButton)),
+IconButton action(WidgetTester tester, AppIcons icon) => tester.widget(
+  find.ancestor(
+    of: find.byWidgetPredicate((w) => w is AppIcon && w.icon == icon),
+    matching: find.byType(IconButton),
+  ),
 );
 
 Future<void> drawStroke(WidgetTester tester, {double dy = 0}) async {
@@ -78,15 +82,15 @@ void main() {
 
   testWidgets('drawing, undo, redo and clearing the sheet', (tester) async {
     await openEditor(tester);
-    expect(action(tester, Icons.undo_rounded).onPressed, isNull);
+    expect(action(tester, AppIcons.undo).onPressed, isNull);
 
     await drawStroke(tester);
-    expect(action(tester, Icons.undo_rounded).onPressed, isNotNull);
+    expect(action(tester, AppIcons.undo).onPressed, isNotNull);
 
     await tester.tap(find.byTooltip('Annulla'));
     await tester.pump();
-    expect(action(tester, Icons.undo_rounded).onPressed, isNull);
-    expect(action(tester, Icons.redo_rounded).onPressed, isNotNull);
+    expect(action(tester, AppIcons.undo).onPressed, isNull);
+    expect(action(tester, AppIcons.redo).onPressed, isNotNull);
 
     await tester.tap(find.byTooltip('Ripeti'));
     await tester.pump();
@@ -105,8 +109,8 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Pulisci il foglio'));
     await tester.pump();
-    expect(action(tester, Icons.redo_rounded).onPressed, isNull);
-    expect(action(tester, Icons.undo_rounded).onPressed, isNotNull);
+    expect(action(tester, AppIcons.redo).onPressed, isNull);
+    expect(action(tester, AppIcons.undo).onPressed, isNotNull);
   });
 
   testWidgets('choosing tools, widths and more colors', (tester) async {

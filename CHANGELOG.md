@@ -54,6 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   never while drawing. Light vibration on tool changes and shape snapping.
   Both can be turned off in the parents' page. The chosen tool jumps a
   little; animations follow Android's "remove animations".
+- App icon: the smiling crayon as an Android adaptive icon (with a themed
+  monochrome layer), the mascot in the gallery and drawn action icons.
 
 ### Removed
 

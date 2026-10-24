@@ -193,7 +193,7 @@ class ActionButton extends StatelessWidget {
     this.active = false,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String tooltip;
   final VoidCallback? onPressed;
   final bool active;
@@ -222,7 +222,7 @@ class ActionButton extends StatelessWidget {
             ),
           ),
         ),
-        icon: Icon(icon),
+        icon: icon,
       ),
     );
   }
