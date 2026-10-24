@@ -116,6 +116,12 @@ void main() {
     expect(renderer.lastUpdateWasRebuild, isFalse);
   });
 
+  test('an empty sheet does not create a cache', () {
+    renderer.show(const Drawing(sheetSize: Size.zero));
+    expect(renderer.lastUpdateWasRebuild, isTrue);
+    renderer.pixelScale = 0.5;
+  });
+
   test('changing the pixel scale rebuilds the cache', () {
     renderer.show(sampleDrawing());
     renderer.pixelScale = 2;

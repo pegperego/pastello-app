@@ -124,9 +124,10 @@ class DrawingRenderer extends ChangeNotifier {
     final drawing = _drawing;
     if (drawing == null) return;
     final watch = Stopwatch()..start();
-    if (_cacheEnabled) {
-      final width = (drawing.sheetSize.width * _pixelScale).ceil();
-      final height = (drawing.sheetSize.height * _pixelScale).ceil();
+    final width = (drawing.sheetSize.width * _pixelScale).ceil();
+    final height = (drawing.sheetSize.height * _pixelScale).ceil();
+    // An empty sheet or a view that is not laid out yet cannot be cached.
+    if (_cacheEnabled && width > 0 && height > 0) {
       final recorder = ui.PictureRecorder();
       final canvas = ui.Canvas(recorder)..scale(_pixelScale);
       _paintAll(canvas, drawing);

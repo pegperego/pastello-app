@@ -82,8 +82,15 @@ class _SheetViewState extends State<SheetView> {
           constraints.maxWidth / sheet.width,
           constraints.maxHeight / sheet.height,
         ].reduce((a, b) => a < b ? a : b);
-        // Cache at device resolution for crisp strokes.
-        widget.renderer.pixelScale = _scale * dpr;
+        // Cache at device resolution for crisp strokes. Updated after the
+        // frame: changing it notifies listeners, which must not happen
+        // during build.
+        final pixelScale = _scale * dpr;
+        if (pixelScale != widget.renderer.pixelScale) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => widget.renderer.pixelScale = pixelScale,
+          );
+        }
         return Center(
           child: DecoratedBox(
             decoration: BoxDecoration(

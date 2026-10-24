@@ -75,6 +75,16 @@ class _PrototypePageState extends State<PrototypePage>
   void _execute(DrawingCommand command) {
     setState(() => _stack!.execute(command));
     _renderer.show(_stack!.drawing);
+    _logCache(command.runtimeType.toString());
+  }
+
+  void _logCache(String action) {
+    final ms = _renderer.lastCacheUpdate.inMicroseconds / 1000;
+    debugPrint(
+      'CACHE action=$action strokes=${_stack!.drawing.elements.length} '
+      '${_renderer.lastUpdateWasRebuild ? 'rebuild' : 'incremental'}='
+      '${ms.toStringAsFixed(1)}ms',
+    );
   }
 
   void _onStrokeStart() {
@@ -98,6 +108,7 @@ class _PrototypePageState extends State<PrototypePage>
       if (command != null) {
         setState(() => stack.execute(command));
         _renderer.showErased(stack.drawing, command.erasure);
+        _logCache('erase');
       }
     } else {
       _execute(
@@ -119,6 +130,7 @@ class _PrototypePageState extends State<PrototypePage>
     if (_stack!.undo()) {
       setState(() {});
       _renderer.show(_stack!.drawing);
+      _logCache('undo');
     }
   }
 
@@ -126,6 +138,7 @@ class _PrototypePageState extends State<PrototypePage>
     if (_stack!.redo()) {
       setState(() {});
       _renderer.show(_stack!.drawing);
+      _logCache('redo');
     }
   }
 
@@ -185,6 +198,7 @@ class _PrototypePageState extends State<PrototypePage>
       stack.execute(_ReplaceCommand(stack.drawing, drawing));
     });
     _renderer.show(stack.drawing);
+    _logCache('stress$count');
     _lastStressResult =
         '+$count tratti: generati in $generated ms, cache ricostruita in '
         '${_renderer.lastCacheUpdate.inMilliseconds} ms';
@@ -198,6 +212,9 @@ class _PrototypePageState extends State<PrototypePage>
       padding: const EdgeInsets.all(12),
       child: LayoutBuilder(
         builder: (context, constraints) {
+          // On Android the first frame can be laid out with a zero size:
+          // wait for real constraints before creating the sheet (D-05).
+          if (constraints.biggest.isEmpty) return const SizedBox.shrink();
           final stack = _stackFor(constraints.biggest);
           return Stack(
             children: [

@@ -36,6 +36,14 @@ class PerfStats extends ChangeNotifier {
     if (_timings.length > 120) _timings.removeRange(0, _timings.length - 120);
     build = _summary(_timings.map((t) => t.buildDuration));
     raster = _summary(_timings.map((t) => t.rasterDuration));
+    // Also logged, so measurements can be collected with `adb logcat`.
+    final recent = _summary(timings.map((t) => t.totalSpan));
+    debugPrint(
+      'PERF frames=${timings.length} '
+      'total_avg=${recent.avg.toStringAsFixed(1)} '
+      'total_max=${recent.max.toStringAsFixed(1)} '
+      'raster_max=${_summary(timings.map((t) => t.rasterDuration)).max.toStringAsFixed(1)}',
+    );
   }
 
   void _onTick(Duration elapsed) {

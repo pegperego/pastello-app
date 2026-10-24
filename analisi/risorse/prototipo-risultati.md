@@ -37,14 +37,41 @@ Osservazioni visive:
 
 ## 2. Prove sul Redmi Pad 2 (modalità profile)
 
-_Da fare._ Da misurare:
+Dispositivo: Redmi Pad 2 (`2505DRP06E`), Android 16, 8 GB RAM, SoC MT8781,
+2560×1600 a 90 Hz (budget per frame: **11,1 ms**), Impeller su Vulkan.
+Tratti simulati con `adb shell input swipe` (tratti lunghi ~1700 px in 0,8 s).
+Misure da `FrameTiming`: per ogni finestra di ~10 frame si registra il tempo
+di raster peggiore.
 
-- [ ] fluidità a 90 Hz con 0, 100, 500 tratti (build + raster < 11 ms);
-- [ ] tempo di ricostruzione della cache con 500 tratti (annulla):
-      se > 100 ms servono gli snapshot (AD-04, ottimizzazione 4);
+| Prova | Risultato |
+|---|---|
+| Aggiunta di un tratto alla cache (incrementale) | **0,2–0,3 ms** con 5 o 514 tratti |
+| Ricostruzione completa della cache, 500 tratti (+500) | **48 ms** |
+| Annulla con 514 tratti (ricostruzione) | **38–45 ms** (sotto la soglia di 100 ms: gli snapshot non servono per ora) |
+| Pennarello, 10 tratti lunghi su 510 tratti | raster peggiore medio 7,5 ms; 22 finestre su 82 con almeno un frame oltre 11,1 ms (picco 17 ms) |
+| Pastello, 10 tratti lunghi su 520 tratti | raster peggiore medio 9,7 ms; 28 finestre su 88 oltre budget (picco 17 ms) |
+| Pastello, 10 tratti lunghi su foglio vuoto | raster peggiore medio 9,6 ms; 20 finestre su 83 oltre budget (picco 17,5 ms) |
+
+Conclusioni:
+
+- ✅ **La cache funziona**: il numero di tratti già disegnati non influisce
+  sulla fluidità (foglio vuoto ≈ 520 tratti).
+- ✅ **Annulla** è abbastanza veloce anche con 500 tratti (~40 ms).
+- ⚠️ **Il costo viene dal tratto in corso**: ogni frame ridisegna l'intero
+  tratto che si sta tracciando (e, per il pastello, la sua grana). Con tratti
+  lunghi si sfora a tratti il budget di 90 Hz (picchi di 17 ms ≈ un frame
+  saltato ogni tanto).
+- **Ottimizzazione da fare:** "congelare" la parte già tracciata del tratto in
+  corso in un'immagine e ridisegnare dal vivo solo l'ultimo pezzo (estensione
+  dell'ottimizzazione 1 di AD-04). Il costo per frame diventerebbe costante
+  anche per tratti lunghissimi.
+
+Da verificare a mano:
+
 - [ ] ritardo percepito del tratto sotto il dito;
 - [ ] taratura dei 4 spessori (F-06);
-- [ ] aspetto di pastello a cera e arcobaleno a schermo reale.
+- [ ] aspetto di pastello a cera e arcobaleno a schermo reale;
+- [ ] palmo appoggiato mentre si disegna.
 
 ## 3. Prova con la bambina
 
