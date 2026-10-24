@@ -210,4 +210,67 @@ void main() {
     await tester.pump();
     expect(c.read(editorProvider).drawing!.isEmpty, isTrue);
   });
+
+  testWidgets('a single stroke: the frame sits on it and it turns in place', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 2.25;
+    tester.view.physicalSize = const Size(2560, 1600);
+    addTearDown(tester.view.reset);
+    await pumpApp(tester);
+    await tester.tap(find.bySemanticsLabel('Nuovo disegno'));
+    await pumpFrames(tester);
+    final c = ProviderScope.containerOf(
+      tester.element(find.byType(EditorPage)),
+    );
+
+    final sheet = tester.getRect(find.byType(SheetView));
+    final start = sheet.topLeft + Offset(sheet.width * 0.5, sheet.height * 0.6);
+    await tester.timedDragFrom(
+      start,
+      const Offset(200, 0),
+      const Duration(milliseconds: 200),
+    );
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Seleziona'));
+    await tester.pump();
+    await tester.tapAt(start + const Offset(100, 0));
+    await tester.pump();
+    final stroke = c.read(editorProvider).selected!;
+    expect(stroke, isA<StrokeElement>());
+
+    // The dashed frame is centered on the stroke, not on the sheet corner.
+    final frame = find.descendant(
+      of: find.byType(ElementSelectionOverlay),
+      matching: find.byType(CustomPaint),
+    );
+    final frameCenter = tester.getCenter(frame.first);
+    expect(
+      (frameCenter - (start + const Offset(100, 0))).distance,
+      lessThan(12),
+    );
+
+    // Rotating keeps the stroke's center in place.
+    final centerBefore = stroke.bounds.center;
+    await tester.timedDrag(
+      find.bySemanticsLabel('Ruota'),
+      const Offset(150, 60),
+      const Duration(milliseconds: 300),
+    );
+    await tester.pump();
+    final rotated = c.read(editorProvider).drawing!.elementById(stroke.id)!;
+    expect(rotated.transform.rotation, isNot(0));
+    expect((rotated.bounds.center - centerBefore).distance, lessThan(1));
+
+    // So does resizing.
+    await tester.timedDrag(
+      find.bySemanticsLabel('Ingrandisci o rimpicciolisci'),
+      const Offset(60, 30),
+      const Duration(milliseconds: 300),
+    );
+    await tester.pump();
+    final resized = c.read(editorProvider).drawing!.elementById(stroke.id)!;
+    expect(resized.transform.scale, greaterThan(1));
+    expect((resized.bounds.center - centerBefore).distance, lessThan(1));
+  });
 }
