@@ -1,11 +1,91 @@
 {
   "@@locale": "en",
   "appTitle": "Pastello",
-  "@appTitle": { "description": "App name, shown in the gallery and in the task switcher." },
+  "@appTitle": {
+    "description": "App name, shown in the gallery and in the task switcher."
+  },
   "newDrawing": "New drawing",
-  "@newDrawing": { "description": "Screen reader label of the big + button in the gallery." },
+  "@newDrawing": {
+    "description": "Screen reader label of the big + button in the gallery."
+  },
   "backToGallery": "Back to the gallery",
-  "@backToGallery": { "description": "Screen reader label of the home button in the editor." },
+  "@backToGallery": {
+    "description": "Screen reader label of the home button in the editor."
+  },
   "sheet": "Sheet",
-  "@sheet": { "description": "Screen reader label of the drawing sheet." }
+  "@sheet": {
+    "description": "Screen reader label of the drawing sheet."
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Undo button."
+  },
+  "redo": "Redo",
+  "@redo": {
+    "description": "Redo button."
+  },
+  "more": "More",
+  "@more": {
+    "description": "Menu with less frequent actions."
+  },
+  "clearSheet": "Clear the sheet",
+  "@clearSheet": {
+    "description": "Removes everything from the sheet; can be undone."
+  },
+  "lockRotation": "Lock rotation",
+  "@lockRotation": {
+    "description": "Keeps the current orientation."
+  },
+  "unlockRotation": "Unlock rotation",
+  "@unlockRotation": {
+    "description": "Lets the screen rotate again."
+  },
+  "toolPencil": "Pencil",
+  "@toolPencil": {
+    "description": "Tool name."
+  },
+  "toolMarker": "Marker",
+  "@toolMarker": {
+    "description": "Tool name."
+  },
+  "toolBrush": "Brush",
+  "@toolBrush": {
+    "description": "Tool name."
+  },
+  "toolCrayon": "Crayon",
+  "@toolCrayon": {
+    "description": "Tool name."
+  },
+  "toolRainbow": "Rainbow",
+  "@toolRainbow": {
+    "description": "Tool name."
+  },
+  "toolEraser": "Eraser",
+  "@toolEraser": {
+    "description": "Tool name."
+  },
+  "moreColors": "More colors",
+  "@moreColors": {
+    "description": "Opens the grid with 40 more colors."
+  },
+  "color": "Color",
+  "@color": {
+    "description": "Screen reader label of a color swatch."
+  },
+  "widthThin": "Thin",
+  "@widthThin": {
+    "description": "Width preset."
+  },
+  "widthMedium": "Medium",
+  "@widthMedium": {
+    "description": "Width preset."
+  },
+  "widthThick": "Thick",
+  "@widthThick": {
+    "description": "Width preset."
+  },
+  "widthExtraThick": "Extra thick",
+  "@widthExtraThick": {
+    "description": "Width preset."
+  }
 }

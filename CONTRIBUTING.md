@@ -47,8 +47,8 @@ them will not be merged.
 3. Run the same checks as CI:
 
    ```sh
-   dart format app/lib app/test packages prototype
-   flutter analyze app packages prototype
+   dart format app/lib app/test packages
+   flutter analyze app packages
    (cd packages/pastello_engine && flutter test --coverage)
    tool/check_coverage.sh packages/pastello_engine/coverage/lcov.info 90
    (cd app && flutter test --coverage)
