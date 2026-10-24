@@ -60,5 +60,6 @@
   "shapeStar": "Stella",
   "shapeHeart": "Cuore",
   "shapeLine": "Linea",
-  "shapeArrow": "Freccia"
+  "shapeArrow": "Freccia",
+  "toolSelect": "Seleziona"
 }

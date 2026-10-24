@@ -232,3 +232,60 @@ class SelectionAction extends StatelessWidget {
     ),
   );
 }
+
+/// The frame of a lasso group, as an element the selection overlay can
+/// move, resize and rotate: a box of [size] centered on the frame's
+/// transform.
+class GroupFrame extends DrawingElement {
+  const GroupFrame({required this.size, required super.transform})
+    : super(id: 'group');
+
+  final Size size;
+
+  @override
+  Rect get localBounds => Rect.fromCenter(
+    center: Offset.zero,
+    width: size.width,
+    height: size.height,
+  );
+
+  @override
+  bool get erasable => false;
+
+  @override
+  GroupFrame withId(String id) => this;
+
+  @override
+  GroupFrame withTransform(ElementTransform transform) =>
+      GroupFrame(size: size, transform: transform);
+}
+
+/// The lasso while it is drawn: a dashed line from the first point to the
+/// finger, closed back to the start.
+class LassoPainter extends CustomPainter {
+  LassoPainter(this.points, this.scale);
+
+  final List<Offset> points;
+  final double scale;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (points.length < 2) return;
+    final path = Path()..addPolygon([for (final p in points) p * scale], true);
+    final paint = Paint()
+      ..color = Tokens.sky
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(path, Paint()..color = Tokens.sky.withValues(alpha: 0.08));
+    for (final metric in path.computeMetrics()) {
+      for (var d = 0.0; d < metric.length; d += 16) {
+        canvas.drawPath(metric.extractPath(d, d + 9), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(LassoPainter oldDelegate) =>
+      oldDelegate.points != points || oldDelegate.scale != scale;
+}

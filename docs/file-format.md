@@ -127,7 +127,8 @@ Commands: `add` (`element`), `update` (`before`, `after`: the same element
 moved, resized, rotated or edited), `delete` (`element`, `index` in the
 z-order), `erase` (`sheetErasure` as drawn, and `erasures`: the pass in each
 touched stroke's coordinates, by stroke id) and `clear` (`removed`: the
-elements that were on the sheet). Version 1 forms (`add` with `stroke`,
+elements that were on the sheet), `batch` (`commands`: several commands
+applied as one undo step, for lasso selections). Version 1 forms (`add` with `stroke`,
 `erase` with `erasure` and `strokeIds`) are still read. At most 100 undo steps are
 kept. If `revision` does not match `drawing.json`, or the file cannot be read,
 the history is discarded and the drawing is opened without it

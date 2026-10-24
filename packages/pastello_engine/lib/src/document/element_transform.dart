@@ -72,6 +72,15 @@ class ElementTransform {
     );
   }
 
+  /// This transform followed by [outer]: maps a local point first with
+  /// this transform, then with [outer]. Used to move, resize or rotate
+  /// several elements together.
+  ElementTransform then(ElementTransform outer) => ElementTransform(
+    translation: outer.apply(translation),
+    scale: scale * outer.scale,
+    rotation: rotation + outer.rotation,
+  );
+
   /// Returns a copy with the given fields replaced.
   ElementTransform copyWith({
     Offset? translation,

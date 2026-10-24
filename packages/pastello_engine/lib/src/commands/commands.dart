@@ -158,6 +158,36 @@ class EraseCommand implements DrawingCommand {
   );
 }
 
+/// Several commands applied as one undo step: moving, duplicating or
+/// deleting a lasso selection (F-13).
+class BatchCommand implements DrawingCommand {
+  /// Creates a batch of [commands], applied in order.
+  const BatchCommand(this.commands);
+
+  /// Deletes the elements [ids] of [drawing] as one step. Elements are
+  /// removed from the top down, so that undo puts each one back at its
+  /// own place in the z-order.
+  static BatchCommand deleteAll(Drawing drawing, Iterable<String> ids) {
+    final wanted = ids.toSet();
+    return BatchCommand([
+      for (var i = drawing.elements.length - 1; i >= 0; i--)
+        if (wanted.contains(drawing.elements[i].id))
+          DeleteElementCommand(drawing.elements[i], i),
+    ]);
+  }
+
+  /// The commands, in the order they are applied.
+  final List<DrawingCommand> commands;
+
+  @override
+  Drawing apply(Drawing drawing) =>
+      commands.fold(drawing, (d, command) => command.apply(d));
+
+  @override
+  Drawing revert(Drawing drawing) =>
+      commands.reversed.fold(drawing, (d, command) => command.revert(d));
+}
+
 /// Removes every element ("Clear sheet"). Undoable, like everything else.
 class ClearCommand implements DrawingCommand {
   /// Creates a command that clears [removed] from the drawing.

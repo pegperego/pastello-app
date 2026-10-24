@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import '../geometry/simplify.dart';
 import 'drawing_element.dart';
 import 'element_transform.dart';
 import 'sheet_point.dart';
@@ -87,6 +88,26 @@ class StrokeElement extends DrawingElement {
 
   @override
   bool get erasable => true;
+
+  /// A stroke is hit on its line, not anywhere in its bounding box.
+  @override
+  bool contains(Offset point, {double slop = 0}) {
+    if (points.isEmpty) return false;
+    final local = transform.invert(point);
+    final reach = width / 2 + slop / transform.scale;
+    if (!localBounds.inflate(reach).contains(local)) return false;
+    final p = SheetPoint(local.dx, local.dy);
+    if (points.length == 1) {
+      return (points.first.offset - local).distance <= reach;
+    }
+    for (var i = 1; i < points.length; i++) {
+      if (segmentDistanceSquared(p, points[i - 1], points[i]) <=
+          reach * reach) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @override
   StrokeElement withTransform(ElementTransform transform) =>

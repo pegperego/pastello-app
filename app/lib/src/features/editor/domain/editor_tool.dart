@@ -11,7 +11,8 @@ enum EditorTool {
   eraser(null, WidthPreset.thick),
   text(null, WidthPreset.medium),
   stickers(null, WidthPreset.medium),
-  shapes(null, WidthPreset.medium);
+  shapes(null, WidthPreset.medium),
+  select(null, WidthPreset.medium);
 
   const EditorTool(this.strokeTool, this.defaultWidth);
 
@@ -26,13 +27,15 @@ enum EditorTool {
 
   /// Whether touching texts, stickers and shapes selects them (F-07): with
   /// drawing tools a touch always draws.
-  bool get selects => this == text || this == stickers || this == shapes;
+  bool get selects =>
+      this == text || this == stickers || this == shapes || this == select;
 
   /// Width on first use (F-06); then each tool remembers its own.
   final WidthPreset defaultWidth;
 
   /// Whether the tool paints with the selected color.
-  bool get usesColor => this != eraser && this != rainbow && this != stickers;
+  bool get usesColor =>
+      this != eraser && this != rainbow && this != stickers && this != select;
 
   /// SVG icon; parts painted with `currentColor` take the selected color.
   String get iconAsset => 'assets/icons/tools/$name.svg';
