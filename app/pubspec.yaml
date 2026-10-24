@@ -9,6 +9,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  device_info_plus: ^13.3.0
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -16,9 +17,11 @@ dependencies:
   flutter_riverpod: ^3.4.3
   flutter_svg: ^2.3.0
   intl: any
+  package_info_plus: ^10.2.2
   pastello_engine:
     path: ../packages/pastello_engine
   path_provider: ^2.1.6
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:
