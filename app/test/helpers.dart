@@ -7,6 +7,7 @@ import 'package:pastello/src/app/app.dart';
 import 'package:pastello/src/core/settings/app_settings.dart';
 import 'package:pastello/src/core/settings/settings_providers.dart';
 import 'package:pastello/src/core/clock.dart';
+import 'package:pastello/src/core/feedback/feedback.dart';
 import 'package:pastello/src/core/settings/settings_repository.dart';
 import 'package:pastello/src/features/drawings/application/drawings_providers.dart';
 import 'package:pastello/src/features/drawings/data/drawing_repository.dart';
@@ -229,6 +230,9 @@ class FakeExportService implements ExportService {
       _record('print $name');
 }
 
+/// Sounds played during a test.
+final playedSounds = <AppSound>[];
+
 /// The export service used by every widget test.
 final exports = FakeExportService();
 
@@ -255,6 +259,9 @@ List<Override> testOverrides(
     ),
   ),
   exportServiceProvider.overrideWithValue(exports),
+  soundPlayerProvider.overrideWithValue(
+    (sound) async => playedSounds.add(sound),
+  ),
   pngRendererProvider.overrideWithValue((_) async => transparentPng),
   linkOpenerProvider.overrideWithValue((uri) async {
     openedLinks.add(uri);
@@ -281,6 +288,7 @@ Future<void> pumpApp(
   exports
     ..calls.clear()
     ..fail = false;
+  playedSounds.clear();
   tester.platformDispatcher.localesTestValue = [locale];
   tester.platformDispatcher.accessibilityFeaturesTestValue = disableAnimations
       ? const FakeAccessibilityFeatures(disableAnimations: true)

@@ -9,6 +9,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  audioplayers: ^6.8.1
   device_info_plus: ^13.3.0
   flutter:
     sdk: flutter
@@ -59,6 +60,7 @@ flutter:
     - assets/fonts/PlaywriteITModerna-OFL.txt
     - assets/fonts/ComicNeue-OFL.txt
     - assets/icons/tools/
+    - assets/sounds/
     - assets/packs/
     - assets/packs/fluent-animals/
     - assets/packs/fluent-animals/stickers/

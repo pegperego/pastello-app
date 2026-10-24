@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
 import '../../../core/clock.dart';
+import '../../../core/feedback/feedback.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../parents/presentation/parental_gate.dart';
 import 'export_service.dart';
@@ -28,8 +31,10 @@ Future<void> runExport(
     switch (action) {
       case ExportAction.save:
         await service.saveToGallery(png, name);
+        unawaited(ref.read(feedbackProvider).sound(AppSound.ding));
         messenger.showSnackBar(SnackBar(content: Text(l10n.savedToGallery)));
       case ExportAction.print:
+        unawaited(ref.read(feedbackProvider).sound(AppSound.ding));
         await service.print(png, drawing.sheetSize, name);
       case ExportAction.share:
         await service.share(png, name);

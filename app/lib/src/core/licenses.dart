@@ -17,6 +17,12 @@ void registerBundledLicenses() {
         font,
       ], await rootBundle.loadString(file));
     }
+    yield const LicenseEntryWithLineBreaks(
+      ['Pastello sounds'],
+      'pop.wav, whoosh.wav and ding.wav are synthesized by the Pastello '
+      'project (tool/generate_sounds.py) and dedicated to the public domain '
+      'under CC0 1.0: https://creativecommons.org/publicdomain/zero/1.0/',
+    );
     // Stickers of the bundled content packs (F-11, ADR 0018).
     yield LicenseEntryWithLineBreaks([
       'Fluent Emoji (Microsoft)',
