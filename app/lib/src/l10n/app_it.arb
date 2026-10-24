@@ -21,5 +21,21 @@
   "widthThin": "Sottile",
   "widthMedium": "Medio",
   "widthThick": "Grosso",
-  "widthExtraThick": "Extra grosso"
+  "widthExtraThick": "Extra grosso",
+  "duplicate": "Duplica",
+  "delete": "Elimina",
+  "drawingOptions": "Opzioni del disegno",
+  "trash": "Cestino",
+  "restore": "Ripristina",
+  "emptyTrash": "Svuota il cestino",
+  "trashIsEmpty": "Il cestino è vuoto",
+  "trashRetention": "I disegni restano qui per 30 giorni.",
+  "today": "oggi",
+  "yesterday": "ieri",
+  "drawingFrom": "Disegno di {date}",
+  "grownUpsOnly": "Solo per grandi",
+  "gateQuestion": "{a} + {b} = ?",
+  "cancel": "Annulla",
+  "confirm": "Conferma",
+  "deleteDigit": "Cancella cifra"
 }

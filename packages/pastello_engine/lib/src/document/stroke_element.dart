@@ -7,9 +7,16 @@ import 'stroke_tool.dart';
 ///
 /// Points are stored in the stroke's own coordinates, so the erased parts
 /// follow the stroke when it is moved.
+///
+/// The same pass is attached to every stroke it touches; [id] identifies it,
+/// so it can be removed from all of them on undo, also after the drawing was
+/// saved and loaded again.
 class Erasure {
   /// Creates an erasure along [points] with the given [width].
-  const Erasure({required this.points, required this.width});
+  const Erasure({required this.id, required this.points, required this.width});
+
+  /// Identifier of the eraser pass.
+  final String id;
 
   /// The eraser path.
   final List<SheetPoint> points;
@@ -70,7 +77,7 @@ class StrokeElement {
   StrokeElement withoutErasure(Erasure erasure) => _copyWith(
     erasures: [
       for (final e in erasures)
-        if (!identical(e, erasure)) e,
+        if (e.id != erasure.id) e,
     ],
   );
 

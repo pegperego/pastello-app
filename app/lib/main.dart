@@ -6,6 +6,8 @@ import 'src/app/app.dart';
 import 'src/core/licenses.dart';
 import 'src/core/settings/settings_providers.dart';
 import 'src/core/settings/settings_repository.dart';
+import 'src/features/drawings/application/drawings_providers.dart';
+import 'src/features/drawings/data/drawing_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +18,9 @@ Future<void> main() async {
       overrides: [
         settingsRepositoryProvider.overrideWithValue(
           FileSettingsRepository(directory),
+        ),
+        drawingRepositoryProvider.overrideWithValue(
+          FileDrawingRepository(directory),
         ),
       ],
       child: const PastelloApp(),
