@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Editor: pencil, marker, brush, crayon, rainbow and eraser; 12 colors plus
   40 more; 4 widths remembered per tool; undo, redo and clear sheet;
   rotation lock and left-handed layout, remembered between sessions.
+- Drawings are saved automatically (also when leaving the editor or when the
+  app goes to the background), with their undo history; empty sheets are not
+  saved.
+- Gallery with thumbnails and relative dates; duplicate and delete; trash
+  that keeps drawings for 30 days and can be emptied behind the parental
+  gate.
+- Drawings are excluded from cloud backups but follow the child to a new
+  device with a direct transfer.
 
 ### Removed
 

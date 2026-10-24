@@ -17,7 +17,10 @@ import 'sheet_view.dart';
 /// The editor: action bar on top, tools and colors on the sides (landscape)
 /// or at the bottom (portrait), the sheet in the middle (F-03).
 class EditorPage extends ConsumerStatefulWidget {
-  const EditorPage({super.key});
+  const EditorPage({super.key, this.drawingId});
+
+  /// The saved drawing to open, or `null` for a new one.
+  final String? drawingId;
 
   @override
   ConsumerState<EditorPage> createState() => _EditorPageState();
@@ -27,13 +30,39 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   final PaperGrain _grain = PaperGrain.generate();
   late final DrawingRenderer _renderer = DrawingRenderer(grain: _grain);
   final LiveStroke _live = LiveStroke();
+  late final AppLifecycleListener _lifecycle;
+  bool _leaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Save as soon as the app is hidden: it may never come back (ADR 0010).
+    _lifecycle = AppLifecycleListener(
+      onHide: () => ref.read(editorProvider.notifier).flush(),
+    );
+    final id = widget.drawingId;
+    if (id != null) {
+      // Not during build: opening changes the editor's state.
+      Future.microtask(() => ref.read(editorProvider.notifier).open(id));
+    }
+  }
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _live.dispose();
     _renderer.dispose();
     _grain.dispose();
     super.dispose();
+  }
+
+  /// Saves, then goes back to the gallery. There is no Save button: leaving
+  /// always keeps the drawing.
+  Future<void> _leave() async {
+    if (_leaving) return;
+    _leaving = true;
+    await ref.read(editorProvider.notifier).flush();
+    if (mounted) Navigator.of(context).pop();
   }
 
   void _onStrokeStart() {
@@ -96,6 +125,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         builder: (context, constraints) {
           final available = constraints.biggest;
           final drawing = state.drawing;
+          if (state.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
           if (drawing == null || drawing.sheetSize != available) {
             // The controller decides whether the sheet may change shape.
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -191,54 +223,61 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     }
 
     final locked = settings.rotationLock != null;
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 72,
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  ActionButton(
-                    icon: Icons.home_rounded,
-                    tooltip: l10n.backToGallery,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: 12),
-                  ActionButton(
-                    icon: Icons.undo_rounded,
-                    tooltip: l10n.undo,
-                    onPressed: state.canUndo ? controller.undo : null,
-                  ),
-                  ActionButton(
-                    icon: Icons.redo_rounded,
-                    tooltip: l10n.redo,
-                    onPressed: state.canRedo ? controller.redo : null,
-                  ),
-                  const Spacer(),
-                  ActionButton(
-                    icon: locked
-                        ? Icons.screen_lock_rotation_rounded
-                        : Icons.screen_rotation_rounded,
-                    tooltip: locked ? l10n.unlockRotation : l10n.lockRotation,
-                    active: locked,
-                    onPressed: () => _toggleRotationLock(locked),
-                  ),
-                  _MoreMenu(
-                    tooltip: l10n.more,
-                    clearLabel: l10n.clearSheet,
-                    onClear: (state.drawing?.isEmpty ?? true)
-                        ? null
-                        : controller.clear,
-                  ),
-                  const SizedBox(width: 8),
-                ],
+    return PopScope(
+      canPop: false,
+      // The system back gesture saves too.
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _leave();
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 72,
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    ActionButton(
+                      icon: Icons.home_rounded,
+                      tooltip: l10n.backToGallery,
+                      onPressed: _leave,
+                    ),
+                    const SizedBox(width: 12),
+                    ActionButton(
+                      icon: Icons.undo_rounded,
+                      tooltip: l10n.undo,
+                      onPressed: state.canUndo ? controller.undo : null,
+                    ),
+                    ActionButton(
+                      icon: Icons.redo_rounded,
+                      tooltip: l10n.redo,
+                      onPressed: state.canRedo ? controller.redo : null,
+                    ),
+                    const Spacer(),
+                    ActionButton(
+                      icon: locked
+                          ? Icons.screen_lock_rotation_rounded
+                          : Icons.screen_rotation_rounded,
+                      tooltip: locked ? l10n.unlockRotation : l10n.lockRotation,
+                      active: locked,
+                      onPressed: () => _toggleRotationLock(locked),
+                    ),
+                    _MoreMenu(
+                      tooltip: l10n.more,
+                      clearLabel: l10n.clearSheet,
+                      onClear: (state.drawing?.isEmpty ?? true)
+                          ? null
+                          : controller.clear,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
               ),
-            ),
-            const Divider(height: 1.5),
-            Expanded(child: body),
-          ],
+              const Divider(height: 1.5),
+              Expanded(child: body),
+            ],
+          ),
         ),
       ),
     );

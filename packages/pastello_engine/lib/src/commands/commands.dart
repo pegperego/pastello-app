@@ -1,4 +1,5 @@
 import '../document/drawing.dart';
+import '../document/element_id.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
 import '../geometry/hit_test.dart';
@@ -51,7 +52,10 @@ class EraseCommand implements DrawingCommand {
         if (eraserTouchesStroke(points, width, e)) e.id,
     };
     if (ids.isEmpty) return null;
-    return EraseCommand(Erasure(points: points, width: width), ids);
+    return EraseCommand(
+      Erasure(id: newElementId(), points: points, width: width),
+      ids,
+    );
   }
 
   /// The eraser pass.
@@ -106,6 +110,28 @@ class CommandStack {
 
   /// Whether [redo] would do something.
   bool get canRedo => _redo.isNotEmpty;
+
+  /// Commands that [undo] would revert, oldest first.
+  List<DrawingCommand> get undoCommands => List.unmodifiable(_undo);
+
+  /// Commands that [redo] would apply again, the next one last.
+  List<DrawingCommand> get redoCommands => List.unmodifiable(_redo);
+
+  /// Restores a stack saved with [undoCommands] and [redoCommands] on top of
+  /// [drawing] (ADR 0007).
+  void restore(
+    Drawing drawing,
+    List<DrawingCommand> undo,
+    List<DrawingCommand> redo,
+  ) {
+    _drawing = drawing;
+    _undo
+      ..clear()
+      ..addAll(undo.skip(undo.length > limit ? undo.length - limit : 0));
+    _redo
+      ..clear()
+      ..addAll(redo);
+  }
 
   /// Applies [command] and records it. Clears the redo stack.
   void execute(DrawingCommand command) {

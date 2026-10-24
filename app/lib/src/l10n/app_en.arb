@@ -87,5 +87,82 @@
   "widthExtraThick": "Extra thick",
   "@widthExtraThick": {
     "description": "Width preset."
+  },
+  "duplicate": "Duplicate",
+  "@duplicate": {
+    "description": "Gallery action: copy a drawing."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Gallery action: move a drawing to the trash."
+  },
+  "drawingOptions": "Drawing options",
+  "@drawingOptions": {
+    "description": "Screen reader label of the ⋯ button on a thumbnail."
+  },
+  "trash": "Trash",
+  "@trash": {
+    "description": "The trash, with deleted drawings."
+  },
+  "restore": "Restore",
+  "@restore": {
+    "description": "Moves a drawing back from the trash."
+  },
+  "emptyTrash": "Empty the trash",
+  "@emptyTrash": {
+    "description": "Deletes everything in the trash for good."
+  },
+  "trashIsEmpty": "The trash is empty",
+  "@trashIsEmpty": {
+    "description": "Shown when there is nothing in the trash."
+  },
+  "trashRetention": "Drawings stay here for 30 days.",
+  "@trashRetention": {
+    "description": "Explains the automatic purge."
+  },
+  "today": "today",
+  "@today": {
+    "description": "Relative date of a drawing."
+  },
+  "yesterday": "yesterday",
+  "@yesterday": {
+    "description": "Relative date of a drawing."
+  },
+  "drawingFrom": "Drawing from {date}",
+  "@drawingFrom": {
+    "description": "Screen reader label of a thumbnail.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "grownUpsOnly": "For grown-ups",
+  "@grownUpsOnly": {
+    "description": "Title of the parental gate."
+  },
+  "gateQuestion": "{a} + {b} = ?",
+  "@gateQuestion": {
+    "description": "The addition asked by the parental gate.",
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Closes a dialog without doing anything."
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirms the answer of the parental gate."
+  },
+  "deleteDigit": "Delete digit",
+  "@deleteDigit": {
+    "description": "Keypad backspace key."
   }
 }

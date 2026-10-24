@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 10 and 11: only device-to-device transfers may copy the drawings;
+  cloud backups do not have this flag and get nothing (ADR 0010).
+-->
+<full-backup-content>
+    <include domain="file" path="." requireFlags="deviceToDeviceTransfer" />
+</full-backup-content>
