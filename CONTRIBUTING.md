@@ -47,15 +47,16 @@ them will not be merged.
 3. Run the same checks as CI:
 
    ```sh
-   dart format packages prototype
-   flutter analyze packages prototype
+   dart format app/lib app/test packages prototype
+   flutter analyze app packages prototype
    (cd packages/pastello_engine && flutter test --coverage)
    tool/check_coverage.sh packages/pastello_engine/coverage/lcov.info 90
+   (cd app && flutter test --coverage)
+   tool/check_coverage.sh app/coverage/lcov.info 70 '/presentation/|/l10n/generated/'
    ```
 
-4. Try the drawing prototype in the browser with
-   `cd prototype && flutter run -d chrome`, or on a device in profile mode
-   (see [`prototype/README.md`](prototype/README.md)).
+4. Run the app on a tablet or emulator with `cd app && flutter run`.
+   Performance must be judged in profile mode (`flutter run --profile`).
 
 Golden images (`test/goldens/`) are generated on Linux, like in CI. After an
 intentional rendering change, regenerate them with
