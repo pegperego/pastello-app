@@ -269,8 +269,8 @@ Drawing
 
 ### AD-04 — Motore di disegno proprietario del progetto, con cache raster
 
-- **Stato:** ✅ approvata (2026-10-24), prestazioni da misurare nel prototipo
-  (§7) → [ADR 0005](../docs/adr/0005-in-house-drawing-engine.md)
+- **Stato:** ✅ approvata e **confermata dal prototipo** (2026-10-24, vedi
+  [risultati](risorse/prototipo-risultati.md)) → [ADR 0005](../docs/adr/0005-in-house-drawing-engine.md)
 - **Opzioni valutate:**
 
 | Opzione | Pro | Contro |

@@ -106,11 +106,16 @@ Da verificare a mano:
 - [ ] aspetto di pastello a cera e arcobaleno a schermo reale;
 - [ ] palmo appoggiato mentre si disegna.
 
-## 3. Prova con la bambina
+## 3. Prova con la bambina (2026-10-24)
 
-_Da fare._ Da osservare:
+- ✅ **Molto fluido** al tatto: nessuno scatto percepito.
+- ✅ **Gli strumenti si capiscono bene** dalle icone.
 
-- [ ] riconosce gli strumenti dalle icone?
-- [ ] appoggia il palmo o un secondo dito mentre disegna?
-- [ ] cerca di ingrandire il foglio con due dita? (D-07)
-- [ ] cosa le piace di più / cosa cerca e non trova.
+## 4. Conclusioni
+
+- **AD-04 confermata**: il motore sviluppato da noi regge sul tablet di
+  riferimento; i picchi residui non si percepiscono.
+- Regola di progetto emersa: un frame deve riempire lo schermo intero **una
+  sola volta** (Impeller ridisegna tutto a ogni frame).
+- Restano da tarare durante lo sviluppo della v1: misure dei 4 spessori,
+  aspetto definitivo di pastello e arcobaleno, eventuale zoom (D-07).

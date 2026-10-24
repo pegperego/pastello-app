@@ -1,6 +1,6 @@
 # 0005. In-house drawing engine with raster cache
 
-- **Status:** accepted (performance to be measured on the reference device)
+- **Status:** accepted, validated by the prototype on the reference device
 - **Date:** 2026-10-24
 
 ## Context
@@ -35,6 +35,18 @@ appear, we optimize our engine rather than switching to a third-party package.
 3. Tiled cache: repaint only the region that changed.
 4. Periodic cache snapshots for instant undo/redo.
 5. Serialization and saving in a separate isolate.
+
+### Lessons from the prototype
+
+- On Android, Flutter uses Impeller, which re-renders every layer each frame:
+  `RepaintBoundary` saves CPU work, not GPU work. The GPU cost is driven by
+  how many times a frame fills the whole sheet, so a frame must fill it
+  **once**: the cache includes the background, the frozen part of the live
+  stroke is merged into a copy of the cache, and the eraser paints the
+  background instead of using a layer.
+- Measured on the Redmi Pad 2: about 5–7 ms per frame at rest and 6–8 ms
+  while drawing (budget at 90 Hz: 11.1 ms), regardless of the number of
+  strokes; undo with 500 strokes takes about 40–60 ms.
 
 ## Consequences
 
