@@ -60,6 +60,8 @@ flutter:
     - assets/fonts/PlaywriteITModerna-OFL.txt
     - assets/fonts/ComicNeue-OFL.txt
     - assets/icons/tools/
+    - assets/icons/actions/
+    - assets/mascot.svg
     - assets/sounds/
     - assets/packs/
     - assets/packs/fluent-animals/

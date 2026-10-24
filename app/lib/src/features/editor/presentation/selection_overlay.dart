@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
+import '../../../app/app_icon.dart';
 import '../../../app/tokens.dart';
 import '../application/editor_controller.dart'
     show maxElementScale, minElementScale;
@@ -134,7 +135,7 @@ class _ElementSelectionOverlayState extends State<ElementSelectionOverlay> {
 
     Widget handle(
       Offset at,
-      IconData icon,
+      Widget icon,
       String label,
       GestureDragUpdateCallback onUpdate,
     ) => Positioned(
@@ -158,7 +159,12 @@ class _ElementSelectionOverlayState extends State<ElementSelectionOverlay> {
                 shape: BoxShape.circle,
                 border: Border.all(color: Tokens.sky, width: 3),
               ),
-              child: Icon(icon, size: 16, color: Tokens.sky),
+              child: Center(
+                child: IconTheme(
+                  data: const IconThemeData(size: 16, color: Tokens.sky),
+                  child: icon,
+                ),
+              ),
             ),
           ),
         ),
@@ -184,8 +190,18 @@ class _ElementSelectionOverlayState extends State<ElementSelectionOverlay> {
             ),
           ),
         ),
-        handle(corner, Icons.open_in_full_rounded, widget.resizeLabel, _resize),
-        handle(top, Icons.rotate_right_rounded, widget.rotateLabel, _rotate),
+        handle(
+          corner,
+          const Icon(Icons.open_in_full_rounded),
+          widget.resizeLabel,
+          _resize,
+        ),
+        handle(
+          top,
+          const AppIcon(AppIcons.rotate),
+          widget.rotateLabel,
+          _rotate,
+        ),
         if (_start == null)
           Positioned(
             left: center.dx - 200,
@@ -233,7 +249,7 @@ class SelectionAction extends StatelessWidget {
     this.color = Tokens.ink,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String tooltip;
   final VoidCallback onPressed;
   final Color color;
@@ -255,7 +271,7 @@ class SelectionAction extends StatelessWidget {
         elevation: 2,
         shadowColor: Tokens.ink.withValues(alpha: 0.3),
       ),
-      icon: Icon(icon),
+      icon: icon,
     ),
   );
 }
