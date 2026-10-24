@@ -1,0 +1,43 @@
+name: pastello
+description: "Pastello: a free, offline drawing app for kids."
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  intl: any
+  pastello_engine:
+    path: ../packages/pastello_engine
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  # Bundled fonts, never downloaded at runtime (ADR 0003). SIL OFL 1.1.
+  fonts:
+    - family: Andika
+      fonts:
+        - asset: assets/fonts/Andika-Regular.ttf
+        - asset: assets/fonts/Andika-Bold.ttf
+          weight: 700
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka.ttf
+
+  assets:
+    - assets/fonts/Andika-OFL.txt
+    - assets/fonts/Fredoka-OFL.txt

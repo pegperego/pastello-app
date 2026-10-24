@@ -33,11 +33,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # Only tracked files: generated localizations are not formatted.
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed packages prototype
+        run: git ls-files '*.dart' | xargs dart format --output=none --set-exit-if-changed
 
       - name: Analyze
-        run: flutter analyze packages prototype
+        run: flutter analyze app packages prototype
 
       - name: Test the engine
         working-directory: packages/pastello_engine
@@ -46,12 +47,22 @@ jobs:
       - name: Check engine coverage (≥ 90%)
         run: tool/check_coverage.sh packages/pastello_engine/coverage/lcov.info 90
 
+      - name: Test the app
+        working-directory: app
+        run: flutter test --coverage
+
+      # App logic only: widgets and generated code are excluded (ADR 0015).
+      - name: Check app logic coverage (≥ 70%)
+        run: tool/check_coverage.sh app/coverage/lcov.info 70 '/presentation/|/l10n/generated/'
+
       - name: Upload golden failures
         if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: golden-failures
-          path: packages/pastello_engine/test/failures/
+          path: |
+            packages/pastello_engine/test/failures/
+            app/test/**/failures/
           if-no-files-found: ignore
 
   android:
@@ -67,9 +78,9 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Build release APK (prototype)
-        working-directory: prototype
+      - name: Build release APK
+        working-directory: app
         run: flutter build apk --release
 
       - name: No network permission in the release build (ADR 0003)
-        run: tool/check_permissions.sh prototype/build/app/outputs/flutter-apk/app-release.apk
+        run: tool/check_permissions.sh app/build/app/outputs/flutter-apk/app-release.apk

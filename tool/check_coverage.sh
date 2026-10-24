@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 # Fails when the line coverage in an lcov file is below a threshold.
-# Usage: tool/check_coverage.sh <lcov.info> <minimum percent>
+# Usage: tool/check_coverage.sh <lcov.info> <minimum percent> [exclude regex]
+# Files whose path matches the optional regex are left out (for example
+# widgets, whose coverage is not part of the app logic gate, ADR 0015).
 set -euo pipefail
 
 lcov_file="$1"
 minimum="$2"
+exclude="${3:-^$}"
 
-read -r hit found < <(awk -F: '
-  /^LH:/ { hit += $2 }
-  /^LF:/ { found += $2 }
-  END { print hit, found }
+read -r hit found < <(awk -F: -v exclude="$exclude" '
+  /^SF:/ { skip = ($2 ~ exclude) }
+  /^LH:/ && !skip { hit += $2 }
+  /^LF:/ && !skip { found += $2 }
+  END { print hit + 0, found + 0 }
 ' "$lcov_file")
 
 if [ "$found" -eq 0 ]; then

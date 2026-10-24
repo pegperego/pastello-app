@@ -35,7 +35,7 @@ The detailed scope is being defined during the analysis phase.
 
 | Path | Language | Content |
 |------|----------|---------|
-| `app/` | English | The Flutter app (coming after the analysis) |
+| `app/` | English | The Flutter app |
 | `packages/pastello_engine/` | English | The drawing engine: document model, commands, rendering |
 | `prototype/` | English | Throwaway app used to validate the engine on a tablet (will be removed) |
 | `docs/` | English | Developer and user documentation, architecture decision records |

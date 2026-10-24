@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "Pastello",
+  "@appTitle": { "description": "App name, shown in the gallery and in the task switcher." },
+  "newDrawing": "New drawing",
+  "@newDrawing": { "description": "Screen reader label of the big + button in the gallery." },
+  "backToGallery": "Back to the gallery",
+  "@backToGallery": { "description": "Screen reader label of the home button in the editor." },
+  "sheet": "Sheet",
+  "@sheet": { "description": "Screen reader label of the drawing sheet." }
+}
