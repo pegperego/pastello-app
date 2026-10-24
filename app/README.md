@@ -1,17 +1,16 @@
-# pastello
+# Pastello app
 
-Pastello: a free, offline drawing app for kids.
+The Flutter app. It uses the drawing engine in
+[`packages/pastello_engine`](../packages/pastello_engine).
 
-## Getting Started
+```sh
+flutter run            # debug, on a tablet or emulator
+flutter run --profile  # to judge performance
+flutter test --coverage
+```
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Code is organized by feature (`lib/src/features/`), with shared code in
+`lib/src/core/` and the theme in `lib/src/app/`
+([ADR 0012](../docs/adr/0012-workspace-app-and-engine.md)). User-visible
+strings live in `lib/src/l10n/*.arb`
+([ADR 0013](../docs/adr/0013-localization-and-keyboard-privacy.md)).
