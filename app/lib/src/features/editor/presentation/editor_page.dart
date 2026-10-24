@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
@@ -17,6 +18,7 @@ import 'font_sheet.dart';
 import 'labels.dart';
 import 'more_colors_sheet.dart';
 import 'selection_overlay.dart';
+import 'shape_panel.dart';
 import 'sheet_view.dart';
 import 'text_edit_panel.dart';
 
@@ -113,6 +115,20 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     }
   }
 
+  /// Selects the Shapes tool and opens the panel (F-12).
+  Future<void> _openShapes() async {
+    final controller = ref.read(editorProvider.notifier)
+      ..selectTool(EditorTool.shapes);
+    final state = ref.read(editorProvider);
+    final choice = await showShapePanel(
+      context,
+      selected: state.shapeKind,
+      filled: state.shapeFilled,
+      color: state.color,
+    );
+    if (choice != null) controller.chooseShape(choice.$1, filled: choice.$2);
+  }
+
   void _toggleRotationLock(bool locked) {
     final orientation = MediaQuery.orientationOf(context);
     final lock = locked
@@ -140,6 +156,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         (_) => _renderer.stickers = artwork,
       );
     }
+
+    // A light tick when a shape snaps to a perfect figure (F-12).
+    ref.listen(editorProvider.select((s) => s.shapeSnapped), (
+      previous,
+      snapped,
+    ) {
+      if (snapped && previous == false) HapticFeedback.selectionClick();
+    });
 
     // Keep the renderer in sync with the drawing and the floating elements
     // (the text being typed, the element being moved).
@@ -180,6 +204,15 @@ class _EditorPageState extends ConsumerState<EditorPage> {
             onStrokeEnd: _onStrokeEnd,
             draws: state.tool.draws,
             onTap: controller.tapSheet,
+            onDragStart: state.tool == EditorTool.shapes
+                ? controller.beginShape
+                : null,
+            onDragUpdate: state.tool == EditorTool.shapes
+                ? controller.updateShape
+                : null,
+            onDragEnd: state.tool == EditorTool.shapes
+                ? controller.endShape
+                : null,
             overlayBuilder: (context, scale) =>
                 _selectionOverlay(l10n, state, scale),
           );
@@ -194,9 +227,11 @@ class _EditorPageState extends ConsumerState<EditorPage> {
           label: toolLabel(l10n, tool),
           color: state.color,
           selected: tool == state.tool,
-          onPressed: tool == EditorTool.stickers
-              ? () => _openStickers(l10n)
-              : () => controller.selectTool(tool),
+          onPressed: switch (tool) {
+            EditorTool.stickers => () => _openStickers(l10n),
+            EditorTool.shapes => _openShapes,
+            _ => () => controller.selectTool(tool),
+          },
         ),
     ];
 

@@ -10,7 +10,8 @@ enum EditorTool {
   rainbow(StrokeTool.rainbow, WidthPreset.medium),
   eraser(null, WidthPreset.thick),
   text(null, WidthPreset.medium),
-  stickers(null, WidthPreset.medium);
+  stickers(null, WidthPreset.medium),
+  shapes(null, WidthPreset.medium);
 
   const EditorTool(this.strokeTool, this.defaultWidth);
 
@@ -21,11 +22,11 @@ enum EditorTool {
   bool get draws => !selects;
 
   /// Whether the width presets apply to this tool.
-  bool get usesWidth => !selects;
+  bool get usesWidth => !selects || this == shapes;
 
-  /// Whether touching texts, stickers (and later shapes) selects them
-  /// (F-07): with drawing tools a touch always draws.
-  bool get selects => this == text || this == stickers;
+  /// Whether touching texts, stickers and shapes selects them (F-07): with
+  /// drawing tools a touch always draws.
+  bool get selects => this == text || this == stickers || this == shapes;
 
   /// Width on first use (F-06); then each tool remembers its own.
   final WidthPreset defaultWidth;

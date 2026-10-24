@@ -22,7 +22,7 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "revision": 12,
   "sheet": { "width": 1114, "height": 663 },
   "elements": [
@@ -88,6 +88,19 @@ The local origin of a text is the center of its box.
 A sticker whose pack is not installed is drawn as a "?" placeholder; the
 reference is kept, so it reappears when the pack is installed.
 
+### Shape
+
+```json
+{ "type": "shape", "id": "5e2a…", "kind": "star", "extent": [120, 110], "color": 4280110296, "strokeWidth": 10, "filled": true }
+```
+
+| Field | Meaning |
+|---|---|
+| `kind` | `ellipse`, `rectangle`, `triangle`, `star`, `heart`, `line` or `arrow`. |
+| `extent` | Figures: width and height of the box they are inscribed in. Lines and arrows: vector from start to end (it can be negative). The local origin is the center. |
+| `color`, `strokeWidth` | Outline (and fill) color, outline width in sheet units. |
+| `filled` | Present and `true` for filled figures; lines are never filled. |
+
 ### Stroke
 
 | Field | Meaning |
@@ -103,7 +116,7 @@ reference is kept, so it reappears when the pack is installed.
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "revision": 12,
   "undo": [ { "type": "add", "stroke": { … } } ],
   "redo": []
@@ -135,6 +148,7 @@ Files in the trash also have `deletedAt`; they are purged 30 days later.
 | 1 | Strokes and erasures. |
 | 2 | Texts, element transforms, `update` and `delete` commands. Version 1 files are read as they are. |
 | 3 | Stickers. Older files are read as they are. |
+| 4 | Shapes. Older files are read as they are. |
 
 ## Changing the format
 
