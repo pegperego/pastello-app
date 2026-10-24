@@ -1,61 +1,98 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 
-import '../document/sheet_point.dart';
-import '../document/stroke_element.dart';
-import '../document/stroke_tool.dart';
 import 'drawing_renderer.dart';
-import 'stroke_painter.dart';
+import 'live_stroke.dart';
 
-/// The stroke currently being drawn.
+/// Paints the sheet background and the committed content.
 ///
-/// It is deliberately a plain [ChangeNotifier] outside of the app's state
-/// management: pointer moves repaint the sheet without rebuilding any widget
-/// (ADR 0009).
-class LiveStroke extends ChangeNotifier {
-  /// The tool, or `null` for the eraser.
-  StrokeTool? tool;
-
-  /// Ink color (ignored by the eraser and the rainbow).
-  Color color = const Color(0xFF000000);
-
-  /// Width in sheet units.
-  double width = 8;
-
-  /// Points collected so far.
-  final List<SheetPoint> points = [];
-
-  /// Whether the live stroke is an eraser pass.
-  bool get isEraser => tool == null;
-
-  /// Starts a new stroke.
-  void begin({
-    required StrokeTool? tool,
-    required Color color,
-    required double width,
-  }) {
-    this.tool = tool;
-    this.color = color;
-    this.width = width;
-    points.clear();
-  }
-
-  /// Adds a point and repaints.
-  void add(SheetPoint point) {
-    points.add(point);
-    notifyListeners();
-  }
-
-  /// Discards the stroke.
-  void clear() {
-    points.clear();
-    notifyListeners();
-  }
-}
-
-/// Paints a sheet: background, committed content and the live stroke.
+/// It repaints when the drawing changes and during eraser passes, but not
+/// while an ink stroke is drawn: that is [LiveStrokePainter]'s job, on its
+/// own layer, so the bottom layer is reused as is (ADR 0005).
 ///
 /// The canvas is scaled so that the sheet fills the painted area.
+class CommittedPainter extends CustomPainter {
+  /// Creates a painter for the committed content of [renderer].
+  CommittedPainter({
+    required this.renderer,
+    required this.live,
+    required this.sheetSize,
+    this.background = const Color(0xFFFFFFFF),
+  }) : super(repaint: Listenable.merge([renderer, live.eraserRepaint]));
+
+  /// Committed content.
+  final DrawingRenderer renderer;
+
+  /// Stroke in progress, needed for the eraser preview.
+  final LiveStroke live;
+
+  /// Logical size of the sheet.
+  final Size sheetSize;
+
+  /// Sheet background color.
+  final Color background;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final sheet = Offset.zero & sheetSize;
+    canvas
+      ..save()
+      ..scale(size.width / sheetSize.width)
+      ..clipRect(sheet)
+      ..drawRect(sheet, Paint()..color = background);
+    renderer.paintWithEraser(canvas, live);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(CommittedPainter oldDelegate) =>
+      oldDelegate.renderer != renderer ||
+      oldDelegate.live != live ||
+      oldDelegate.sheetSize != sheetSize ||
+      oldDelegate.background != background;
+}
+
+/// Paints the ink stroke in progress, on top of [CommittedPainter].
+class LiveStrokePainter extends CustomPainter {
+  /// Creates a painter for [live].
+  LiveStrokePainter({
+    required this.renderer,
+    required this.live,
+    required this.sheetSize,
+  }) : super(repaint: live);
+
+  /// Renderer that keeps the frozen part of the stroke.
+  final DrawingRenderer renderer;
+
+  /// Stroke in progress.
+  final LiveStroke live;
+
+  /// Logical size of the sheet.
+  final Size sheetSize;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (live.isEraser || live.points.isEmpty) return;
+    canvas
+      ..save()
+      ..scale(size.width / sheetSize.width)
+      ..clipRect(Offset.zero & sheetSize);
+    renderer.paintLiveInk(canvas, live);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(LiveStrokePainter oldDelegate) =>
+      oldDelegate.renderer != renderer ||
+      oldDelegate.live != live ||
+      oldDelegate.sheetSize != sheetSize;
+}
+
+/// Paints everything on a single canvas: [CommittedPainter] followed by
+/// [LiveStrokePainter].
+///
+/// Simpler to use, for tests and thumbnails. Interactive views should use the
+/// two painters on separate layers instead.
 class SheetPainter extends CustomPainter {
   /// Creates a painter for [renderer] and [live].
   SheetPainter({
@@ -63,7 +100,18 @@ class SheetPainter extends CustomPainter {
     required this.live,
     required this.sheetSize,
     this.background = const Color(0xFFFFFFFF),
-  }) : super(repaint: Listenable.merge([renderer, live]));
+  }) : _committed = CommittedPainter(
+         renderer: renderer,
+         live: live,
+         sheetSize: sheetSize,
+         background: background,
+       ),
+       _live = LiveStrokePainter(
+         renderer: renderer,
+         live: live,
+         sheetSize: sheetSize,
+       ),
+       super(repaint: Listenable.merge([renderer, live]));
 
   /// Committed content.
   final DrawingRenderer renderer;
@@ -77,42 +125,13 @@ class SheetPainter extends CustomPainter {
   /// Sheet background color.
   final Color background;
 
+  final CommittedPainter _committed;
+  final LiveStrokePainter _live;
+
   @override
   void paint(Canvas canvas, Size size) {
-    canvas
-      ..save()
-      ..scale(size.width / sheetSize.width);
-    final sheet = Offset.zero & sheetSize;
-    canvas
-      ..clipRect(sheet)
-      ..drawRect(sheet, Paint()..color = background);
-
-    if (live.isEraser && live.points.isNotEmpty) {
-      // Preview the eraser on committed content only, never on the background.
-      canvas.saveLayer(sheet, Paint());
-      renderer.paint(canvas);
-      paintEraser(canvas, live.points, live.width);
-      canvas.restore();
-    } else {
-      renderer.paint(canvas);
-      final tool = live.tool;
-      if (tool != null && live.points.isNotEmpty) {
-        // Painted exactly like a committed stroke, grain included, so nothing
-        // changes when the finger lifts.
-        paintStroke(
-          canvas,
-          StrokeElement(
-            id: 'live',
-            tool: tool,
-            color: live.color,
-            width: live.width,
-            points: live.points,
-          ),
-          renderer.grain,
-        );
-      }
-    }
-    canvas.restore();
+    _committed.paint(canvas, size);
+    _live.paint(canvas, size);
   }
 
   @override

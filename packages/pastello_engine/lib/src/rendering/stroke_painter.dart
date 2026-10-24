@@ -11,8 +11,8 @@ import 'paper_grain.dart';
 /// Distance, in sheet units, after which the rainbow repeats its colors.
 const double rainbowPeriod = 600;
 
-/// How much of the paper grain each tool lets through, 0..1.
-double _grainStrength(StrokeTool tool) => switch (tool) {
+/// How much of the paper grain each tool shows, 0 (none) to 1.
+double grainStrength(StrokeTool tool) => switch (tool) {
   StrokeTool.crayon => 0.75,
   StrokeTool.pencil => 0.35,
   _ => 0,
@@ -23,8 +23,8 @@ double _grainStrength(StrokeTool tool) => switch (tool) {
 /// Strokes with grain or erasures are composited in their own layer so the
 /// grain and the eraser only remove pixels of this stroke (ADR 0006).
 void paintStroke(Canvas canvas, StrokeElement stroke, PaperGrain grain) {
-  final grainStrength = _grainStrength(stroke.tool);
-  final needsLayer = grainStrength > 0 || stroke.erasures.isNotEmpty;
+  final strength = grainStrength(stroke.tool);
+  final needsLayer = strength > 0 || stroke.erasures.isNotEmpty;
   final bounds = stroke.bounds;
 
   if (needsLayer) canvas.saveLayer(bounds, Paint());
@@ -35,41 +35,56 @@ void paintStroke(Canvas canvas, StrokeElement stroke, PaperGrain grain) {
     stroke.width,
     stroke.points,
   );
-  if (grainStrength > 0) {
-    canvas.drawRect(
-      bounds,
-      Paint()
-        ..shader = grain.shader()
-        ..color = Color.fromRGBO(0, 0, 0, grainStrength)
-        ..blendMode = BlendMode.dstOut,
-    );
-  }
+  if (strength > 0) paintGrain(canvas, bounds, strength, grain);
   for (final erasure in stroke.erasures) {
     paintEraser(canvas, erasure.points, erasure.width);
   }
   if (needsLayer) canvas.restore();
 }
 
+/// Removes the paper grain from what is already in the current layer, within
+/// [bounds].
+void paintGrain(Canvas canvas, Rect bounds, double strength, PaperGrain grain) {
+  canvas.drawRect(
+    bounds,
+    Paint()
+      ..shader = grain.shader()
+      ..color = Color.fromRGBO(0, 0, 0, strength)
+      ..blendMode = BlendMode.dstOut,
+  );
+}
+
 /// Paints the ink of a stroke, without grain or erasures.
 ///
-/// Also used for the stroke in progress.
+/// [from] and [to] paint only a range of [points], so that a long stroke can
+/// be painted in pieces (ADR 0005); the pieces join seamlessly because the
+/// rainbow colors and the brush widths depend on the whole stroke.
 void paintStrokeInk(
   Canvas canvas,
   StrokeTool tool,
   Color color,
   double width,
-  List<SheetPoint> points,
-) {
-  if (points.isEmpty) return;
+  List<SheetPoint> points, {
+  int from = 0,
+  int? to,
+}) {
+  final end = to ?? points.length;
+  if (end - from < 1) return;
   switch (tool) {
     case StrokeTool.brush:
-      canvas.drawPath(strokeOutline(points, width), Paint()..color = color);
+      canvas.drawPath(
+        strokeOutline(points, width, from: from, to: end),
+        Paint()..color = color,
+      );
     case StrokeTool.rainbow:
-      _paintRainbow(canvas, width, points);
+      _paintRainbow(canvas, width, points, from, end);
     case StrokeTool.pencil:
     case StrokeTool.marker:
     case StrokeTool.crayon:
-      canvas.drawPath(smoothPolyline(points), _linePaint(color, width));
+      canvas.drawPath(
+        smoothPolyline(points.sublist(from, end)),
+        _linePaint(color, width),
+      );
   }
 }
 
@@ -110,7 +125,17 @@ const int _rainbowSteps = 72;
 /// different colors overlap. Stamps placed every couple of units blend into a
 /// continuous gradient, and grouping them by hue keeps it to at most
 /// [_rainbowSteps] draw calls.
-void _paintRainbow(Canvas canvas, double width, List<SheetPoint> points) {
+///
+/// Stamps are always spaced from the start of the stroke, and only those
+/// between the points [from] and [to] are painted, so a stroke painted in
+/// pieces puts every stamp exactly where the whole stroke would.
+void _paintRainbow(
+  Canvas canvas,
+  double width,
+  List<SheetPoint> points,
+  int from,
+  int to,
+) {
   final spacing = (width / 8).clamp(0.75, 3.0);
   final buckets = List.generate(_rainbowSteps, (_) => <Offset>[]);
   void stamp(Offset at, double distance) {
@@ -119,21 +144,26 @@ void _paintRainbow(Canvas canvas, double width, List<SheetPoint> points) {
     buckets[hueStep].add(at);
   }
 
+  if (from == 0) stamp(points.first.offset, 0);
   var distance = 0.0;
-  stamp(points.first.offset, 0);
-  var carry = 0.0;
-  for (var i = 1; i < points.length; i++) {
+  var next = spacing;
+  for (var i = 1; i < to; i++) {
     final a = points[i - 1].offset, b = points[i].offset;
     final length = (b - a).distance;
-    var t = spacing - carry;
-    while (t <= length) {
-      stamp(Offset.lerp(a, b, t / length)!, distance + t);
-      t += spacing;
+    // Segments before the range only advance the spacing.
+    if (i > from) {
+      while (next <= distance + length) {
+        stamp(Offset.lerp(a, b, (next - distance) / length)!, next);
+        next += spacing;
+      }
+    } else {
+      while (next <= distance + length) {
+        next += spacing;
+      }
     }
-    carry = length - (t - spacing);
     distance += length;
   }
-  stamp(points.last.offset, distance);
+  if (to == points.length) stamp(points.last.offset, distance);
 
   for (var step = 0; step < _rainbowSteps; step++) {
     if (buckets[step].isEmpty) continue;
@@ -143,4 +173,14 @@ void _paintRainbow(Canvas canvas, double width, List<SheetPoint> points) {
       _linePaint(rainbowColorAt(step / _rainbowSteps * rainbowPeriod), width),
     );
   }
+}
+
+/// Length of the polyline [points] up to (excluding) index [end].
+double polylineLength(List<SheetPoint> points, [int? end]) {
+  var total = 0.0;
+  final last = end ?? points.length;
+  for (var i = 1; i < last; i++) {
+    total += points[i].distanceTo(points[i - 1]);
+  }
+  return total;
 }

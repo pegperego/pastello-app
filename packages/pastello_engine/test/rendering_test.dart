@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pastello_engine/pastello_engine.dart';
@@ -47,6 +49,33 @@ Widget sheetWidget(DrawingRenderer renderer, LiveStroke live) => Center(
     ),
   ),
 );
+
+Future<ByteData> capture(WidgetTester tester) async {
+  final boundary = tester.renderObject<RenderRepaintBoundary>(
+    find.byType(RepaintBoundary).first,
+  );
+  return (await tester.runAsync(() async {
+    final image = await boundary.toImage();
+    final bytes = await image.toByteData();
+    image.dispose();
+    return bytes!;
+  }))!;
+}
+
+({int maxDelta, double changedRatio}) imageDifference(ByteData a, ByteData b) {
+  expect(a.lengthInBytes, b.lengthInBytes);
+  var maxDelta = 0, changed = 0;
+  for (var i = 0; i < a.lengthInBytes; i += 4) {
+    var pixelDelta = 0;
+    for (var c = 0; c < 4; c++) {
+      final d = (a.getUint8(i + c) - b.getUint8(i + c)).abs();
+      if (d > pixelDelta) pixelDelta = d;
+    }
+    if (pixelDelta > 0) changed++;
+    if (pixelDelta > maxDelta) maxDelta = pixelDelta;
+  }
+  return (maxDelta: maxDelta, changedRatio: changed / (a.lengthInBytes / 4));
+}
 
 void main() {
   late PaperGrain grain;
@@ -162,5 +191,65 @@ void main() {
 
     live.clear();
     expect(live.points, isEmpty);
+  });
+
+  group('a long live stroke looks the same once committed', () {
+    // 240 points: frozen in several batches while "drawing".
+    final points = [
+      for (var i = 0; i < 240; i++)
+        SheetPoint(30 + i * 1.4, 120 + 70 * math.sin(i / 18), time: i * 6),
+    ];
+
+    Future<void> drawLive(WidgetTester tester, StrokeTool? tool) async {
+      live.begin(tool: tool, color: const Color(0xFFE63946), width: 22);
+      for (var i = 0; i < points.length; i++) {
+        live.add(points[i]);
+        if (i % 10 == 9) await tester.pump();
+      }
+      await tester.pump();
+    }
+
+    for (final tool in StrokeTool.values) {
+      testWidgets(tool.name, (tester) async {
+        renderer.show(const Drawing(sheetSize: sheet));
+        await tester.pumpWidget(sheetWidget(renderer, live));
+        await drawLive(tester, tool);
+        final liveImage = await capture(tester);
+
+        renderer.show(
+          const Drawing(sheetSize: sheet).withElementAdded(
+            StrokeElement(
+              id: 'committed',
+              tool: tool,
+              color: live.color,
+              width: live.width,
+              points: List.of(points),
+            ),
+          ),
+        );
+        live.clear();
+        await tester.pump();
+        await expectLater(
+          find.byType(RepaintBoundary).first,
+          matchesGoldenFile('goldens/long_${tool.name}.png'),
+        );
+
+        // Pieces frozen separately only differ on anti-aliased edges, where
+        // they overlap. Measured: < 1% of pixels, at most 51/255.
+        final diff = imageDifference(liveImage, await capture(tester));
+        expect(diff.maxDelta, lessThanOrEqualTo(64));
+        expect(diff.changedRatio, lessThan(0.02));
+      });
+    }
+
+    testWidgets('eraser', (tester) async {
+      renderer.show(sampleDrawing());
+      await tester.pumpWidget(sheetWidget(renderer, live));
+      await drawLive(tester, null);
+      await expectLater(
+        find.byType(RepaintBoundary).first,
+        matchesGoldenFile('goldens/long_live_eraser.png'),
+      );
+    });
   });
 }

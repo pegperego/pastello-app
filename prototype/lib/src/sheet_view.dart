@@ -107,14 +107,32 @@ class _SheetViewState extends State<SheetView> {
               onPointerMove: _move,
               onPointerUp: _up,
               onPointerCancel: _up,
-              child: RepaintBoundary(
-                child: CustomPaint(
-                  size: sheet * _scale,
-                  painter: SheetPainter(
-                    renderer: widget.renderer,
-                    live: widget.live,
-                    sheetSize: sheet,
-                  ),
+              // Two layers: committed content below, the stroke in progress
+              // above. While drawing ink only the top layer repaints.
+              child: SizedBox.fromSize(
+                size: sheet * _scale,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    RepaintBoundary(
+                      child: CustomPaint(
+                        painter: CommittedPainter(
+                          renderer: widget.renderer,
+                          live: widget.live,
+                          sheetSize: sheet,
+                        ),
+                      ),
+                    ),
+                    RepaintBoundary(
+                      child: CustomPaint(
+                        painter: LiveStrokePainter(
+                          renderer: widget.renderer,
+                          live: widget.live,
+                          sheetSize: sheet,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

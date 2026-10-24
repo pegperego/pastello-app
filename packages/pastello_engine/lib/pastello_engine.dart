@@ -14,6 +14,7 @@ export 'src/geometry/hit_test.dart';
 export 'src/geometry/simplify.dart';
 export 'src/geometry/stroke_outline.dart';
 export 'src/rendering/drawing_renderer.dart';
+export 'src/rendering/live_stroke.dart';
 export 'src/rendering/paper_grain.dart';
 export 'src/rendering/sheet_painter.dart';
 export 'src/rendering/stroke_painter.dart';

@@ -39,18 +39,28 @@ class OutlineOptions {
 /// Used by tools whose width depends on speed (the brush, ADR 0008). Constant
 /// width tools are cheaper to render as a stroked polyline, see
 /// [smoothPolyline].
+///
+/// [from] and [to] select a range of points to outline, so a long stroke can
+/// be painted in pieces (ADR 0005). Smoothing and widths are always computed
+/// on the whole [input], which is cheap, so the pieces join seamlessly.
 Path strokeOutline(
   List<SheetPoint> input,
   double width, {
   OutlineOptions options = const OutlineOptions(),
+  int from = 0,
+  int? to,
 }) {
   final path = Path();
-  if (input.isEmpty) return path;
+  final end = to ?? input.length;
+  if (input.isEmpty || end - from < 1) return path;
 
-  final points = _streamline(input, options.streamline);
-  final radii = _radii(points, width / 2, options);
+  final all = _streamline(input, options.streamline);
+  final allRadii = _radii(all, width / 2, options);
+  final points = all.sublist(from, end);
+  final radii = allRadii.sublist(from, end);
 
-  if (points.length == 1 || _length(points) < width * 0.25) {
+  final isWholeStroke = from == 0 && end == input.length;
+  if (points.length == 1 || (isWholeStroke && _length(points) < width * 0.25)) {
     // A tap leaves a dot (ADR 0008).
     return path
       ..addOval(Rect.fromCircle(center: points.first.offset, radius: radii[0]));
@@ -59,7 +69,8 @@ Path strokeOutline(
   final left = <Offset>[];
   final right = <Offset>[];
   for (var i = 0; i < points.length; i++) {
-    final normal = _normalAt(points, i);
+    // Normals use the neighbours in the whole stroke, not just the piece.
+    final normal = _normalAt(all, from + i);
     final p = points[i].offset;
     left.add(p + normal * radii[i]);
     right.add(p - normal * radii[i]);
