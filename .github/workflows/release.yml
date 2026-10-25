@@ -61,7 +61,9 @@ jobs:
 
       - name: Signed with the release key, not the debug one
         run: |
-          signer=$("$ANDROID_HOME"/build-tools/*/apksigner verify --print-certs \
+          # The newest build-tools: runners have several installed.
+          apksigner=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)
+          signer=$("$apksigner" verify --print-certs \
             app/build/app/outputs/flutter-apk/app-release.apk | grep -m1 'certificate DN')
           echo "$signer"
           if echo "$signer" | grep -q 'CN=Android Debug'; then exit 1; fi
