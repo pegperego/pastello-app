@@ -1,0 +1,26 @@
+Pastello is a drawing book for children: tap the "+" and draw. No complicated menus, no ads and no internet.
+
+<b>To draw</b>
+• Pencil, marker, brush, crayon and rainbow, in four widths
+• An eraser that removes only the color and keeps the paper
+• 12 colors always at hand and 40 more to choose from
+• Ready-made shapes: circle, square, triangle, star, heart, line and arrow
+• Colored, lined, squared or dotted paper
+• Undo and redo, even after closing the app
+
+<b>To write and decorate</b>
+• Text with fonts made for children learning to read, cursive included
+• More than 200 stickers: animals, food, nature, vehicles, parties and more
+• Move, resize, rotate and duplicate anything, even several things at once with the lasso
+
+<b>Everything safe</b>
+• Drawings are saved automatically
+• The trash keeps deleted drawings for 30 days
+• Save to the gallery and print; sharing first asks for a small grown-ups check
+• A parents' page, behind an addition: language, left-handed layout, sounds and vibration
+
+<b>Privacy</b>
+Pastello collects no data at all and does not even ask for internet access. No ads, no purchases, no accounts.
+
+<b>Open source</b>
+Pastello is free software (GPL-3.0): its code is open to everyone at https://github.com/pegperego/pastello-app

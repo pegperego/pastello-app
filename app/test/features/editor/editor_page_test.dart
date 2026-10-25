@@ -163,4 +163,26 @@ void main() {
     await pumpFrames(tester);
     expect(find.byType(SheetView), findsNothing);
   });
+
+  testWidgets('on a phone held upright every action button is on screen', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 2.625;
+    tester.view.physicalSize = const Size(1080, 2340);
+    addTearDown(tester.view.reset);
+    await pumpApp(tester);
+    await tester.tap(find.bySemanticsLabel('Nuovo disegno'));
+    await pumpFrames(tester);
+
+    final screen = Offset.zero & tester.view.physicalSize / 2.625;
+    for (final tooltip in ['Torna alla galleria', 'Stampa', 'Altro']) {
+      final box = tester.getRect(find.byTooltip(tooltip));
+      expect(screen.contains(box.topLeft), isTrue, reason: tooltip);
+      expect(
+        screen.contains(box.bottomRight - const Offset(1, 1)),
+        isTrue,
+        reason: tooltip,
+      );
+    }
+  });
 }

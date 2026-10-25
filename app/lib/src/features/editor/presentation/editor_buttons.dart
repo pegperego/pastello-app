@@ -184,6 +184,10 @@ class WidthButton extends StatelessWidget {
 }
 
 /// A square action button for the top bar.
+/// Whether the screen is narrow, like a phone held upright: the action bar
+/// then packs its buttons closer.
+bool isCompact(BuildContext context) => MediaQuery.sizeOf(context).width < 520;
+
 class ActionButton extends StatelessWidget {
   const ActionButton({
     super.key,
@@ -201,7 +205,7 @@ class ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.symmetric(horizontal: isCompact(context) ? 0 : 4),
       child: IconButton(
         tooltip: tooltip,
         onPressed: onPressed,
