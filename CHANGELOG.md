@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-25
+
+First release.
+
 ### Added
 
 - Repository structure, community guidelines and analysis workspace.
@@ -56,7 +60,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   little; animations follow Android's "remove animations".
 - App icon: the smiling crayon as an Android adaptive icon (with a themed
   monochrome layer), the mascot in the gallery and drawn action icons.
+- Signed releases from version tags (APK on GitHub Releases, AAB for
+  Google Play) and the store listing in Italian and English.
+- On a phone held upright the editor's top bar packs its buttons closer and
+  scrolls, so none of them is cut off.
 
 ### Removed
 
 - The throwaway drawing prototype, now replaced by the app.
+
+[Unreleased]: https://github.com/pegperego/pastello-app/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/pegperego/pastello-app/releases/tag/v1.0.0

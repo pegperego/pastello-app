@@ -8,10 +8,12 @@ English documentation for users and contributors.
 | [`design/`](design/) | Design guidelines: colors, typography, icons, accessibility |
 | [`file-format.md`](file-format.md) | How drawings, history and thumbnails are stored |
 | [`content-packs.md`](content-packs.md) | Sticker packs: structure, `pack.json`, how to add one |
+| [`releasing.md`](releasing.md) | Signing, GitHub Releases and Google Play |
+| [`privacy-policy.md`](privacy-policy.md) | Privacy policy (English and Italian) |
+| [`../fastlane/metadata/android/`](../fastlane/metadata/android/) | Store listing texts and images |
 
-More guides (architecture overview, drawing file format, build and release)
-will be added once the analysis phase is complete. The original analysis notes
-are kept, in Italian, in [`../analisi/`](../analisi/).
+The original analysis notes are kept, in Italian, in
+[`../analisi/`](../analisi/).
 
 ## Architecture Decision Records
 

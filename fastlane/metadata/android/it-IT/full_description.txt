@@ -1,0 +1,26 @@
+Pastello è un quaderno da disegno per bambini: si tocca il "+" e si disegna, senza menu complicati, senza pubblicità e senza internet.
+
+<b>Per disegnare</b>
+• Matita, pennarello, pennello, pastello a cera e arcobaleno, con quattro spessori
+• Gomma che cancella solo il colore e lascia il foglio
+• 12 colori sempre a portata di mano e altri 40 da scegliere
+• Forme pronte: cerchio, quadrato, triangolo, stella, cuore, linea e freccia
+• Fogli colorati, a righe, a quadretti grandi o piccoli, a puntini
+• Annulla e ripeti, anche dopo aver chiuso l'app
+
+<b>Per scrivere e decorare</b>
+• Testo con caratteri pensati per chi impara a leggere, anche in corsivo
+• Più di 200 sticker: animali, cibo, natura, veicoli, feste e tanto altro
+• Si può spostare, ingrandire, ruotare e duplicare tutto, anche più cose insieme con il lazo
+
+<b>Tutto al sicuro</b>
+• I disegni si salvano da soli
+• Il cestino tiene i disegni eliminati per 30 giorni
+• Salva in galleria e stampa; la condivisione chiede prima un piccolo controllo per adulti
+• Pagina per i genitori, protetta da un'addizione: lingua, mancini, suoni e vibrazione
+
+<b>Privacy</b>
+Pastello non raccoglie alcun dato e non chiede nemmeno l'accesso a internet. Niente pubblicità, niente acquisti, niente account.
+
+<b>Open source</b>
+Pastello è software libero (GPL-3.0): il codice è aperto a tutti su https://github.com/pegperego/pastello-app

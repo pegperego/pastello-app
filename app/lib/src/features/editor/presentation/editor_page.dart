@@ -371,6 +371,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     }
 
     final locked = settings.rotationLock != null;
+    final compact = isCompact(context);
     return PopScope(
       canPop: false,
       // The system back gesture saves too.
@@ -384,15 +385,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
             children: [
               SizedBox(
                 height: 72,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 8),
+                child: _ActionBar(
+                  leading: [
                     ActionButton(
                       icon: const AppIcon(AppIcons.home),
                       tooltip: l10n.backToGallery,
                       onPressed: _leave,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: compact ? 4 : 12),
                     ActionButton(
                       icon: const AppIcon(AppIcons.undo),
                       tooltip: l10n.undo,
@@ -403,7 +403,8 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                       tooltip: l10n.redo,
                       onPressed: state.canRedo ? controller.redo : null,
                     ),
-                    const Spacer(),
+                  ],
+                  trailing: [
                     ActionButton(
                       icon: const AppIcon(AppIcons.paper),
                       tooltip: l10n.paper,
@@ -449,7 +450,6 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 8),
                   ],
                 ),
               ),
@@ -574,6 +574,40 @@ class _MoreMenu extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The editor's top bar: [leading] on the left and [trailing] on the right.
+/// On a narrow screen (a phone held upright) it scrolls rather than hiding
+/// the last buttons.
+class _ActionBar extends StatelessWidget {
+  const _ActionBar({required this.leading, required this.trailing});
+
+  final List<Widget> leading;
+  final List<Widget> trailing;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final edge = isCompact(context) ? 4.0 : 8.0;
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: edge),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: constraints.maxWidth - 2 * edge,
+            minHeight: constraints.maxHeight,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(children: leading),
+              Row(children: trailing),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class _ScrollColumn extends StatelessWidget {
