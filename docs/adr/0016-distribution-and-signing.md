@@ -1,6 +1,7 @@
 # 0016. Distribution channels and signing
 
-- **Status:** accepted
+- **Status:** accepted; the Google Play signing key is superseded by
+  [0019](0019-google-play-signing-key.md)
 - **Date:** 2026-10-24
 
 ## Context

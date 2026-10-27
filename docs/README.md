@@ -37,3 +37,4 @@ The original analysis notes are kept, in Italian, in
 | [0016](adr/0016-distribution-and-signing.md) | Distribution channels and signing |
 | [0017](adr/0017-child-safety.md) | Child safety |
 | [0018](adr/0018-content-packs.md) | Content packs and future updatable catalog |
+| [0019](adr/0019-google-play-signing-key.md) | Google-generated signing key on Google Play |
