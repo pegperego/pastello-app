@@ -345,8 +345,8 @@ condividi/elimina, cestino 30 giorni · 6 sfondi, ~150–200 adesivi Fluent Emoj
 inglese · GitHub Releases e Google Play.
 
 **Dopo la v1, in ordine:**
-1. Altri pennelli magici ed evidenziatore (scelti dalla bambina)
-2. Secchiello e disegni da colorare (D-06)
+1. Altri pennelli magici ed evidenziatore (scelti dalla bambina) → v1.1, F-17
+2. Secchiello e disegni da colorare (D-06) → v1.1, F-18 e F-19
 3. Sfondi illustrati e adesivi disegnati da noi
 4. Backup ed esportazione/importazione `.zip`
 5. Zoom, se il prototipo lo richiede (D-07)
@@ -355,3 +355,72 @@ inglese · GitHub Releases e Google Play.
 8. "Trasforma in disegno" (AD-05)
 9. Catalogo online e importazione pacchetti (AD-17)
 10. F-Droid (AD-15)
+
+## 7. Versione 1.1
+
+Punti 1 e 2 della lista "dopo la v1": pennelli magici ed evidenziatore,
+secchiello e disegni da colorare. Pennelli magici proposti alla bambina:
+glitter, neon, stelline, spray e acquerello.
+
+#### F-17 — Pennelli magici ed evidenziatore
+
+- **Stato:** ✅ approvata (2026-10-27)
+- Un solo pulsante **"✨ Magia"** nella barra degli strumenti, accanto
+  all'arcobaleno, apre un pannello con i pennelli magici (come il pannello
+  degli adesivi). Il pulsante mostra l'icona dell'ultimo pennello magico
+  scelto. Così la barra non si allunga di sei strumenti.
+
+| Pennello | Tratto | Colore |
+|---|---|---|
+| 🖍️ Evidenziatore | Largo, semitrasparente, punta piatta; ripassando nello stesso tratto non si scurisce | Selezionato |
+| ✨ Glitter | Brillantini sparsi lungo il tratto, di grandezze e luminosità diverse | Sfumature del selezionato |
+| 💡 Neon | Linea chiara al centro con un alone luminoso del colore scelto; bellissimo su carta scura | Selezionato |
+| ⭐ Stelline | Una scia di stelline (o cuori) a distanza regolare, grandi quanto lo spessore | Selezionato |
+| 🎨 Spray | Bomboletta: nuvola di puntini, più fitta al centro | Selezionato |
+| 💧 Acquerello | Colore morbido e trasparente con bordi sfumati; ripassando si scurisce | Selezionato |
+
+- Valgono le regole degli altri strumenti: **4 spessori** ricordati per
+  pennello, la **gomma** cancella anche i tratti magici, si spostano con il
+  lazo, si annullano.
+- Gli effetti "casuali" (glitter, spray) usano un **seme salvato nel
+  tratto**: riaprendo il disegno i brillantini sono esattamente dove erano.
+- I disegni con i nuovi pennelli non si aprono con la v1.0 (versione del
+  formato più alta): l'app mostra il messaggio già previsto.
+
+#### F-18 — Secchiello
+
+- **Stato:** ✅ approvata (2026-10-27)
+- Strumento **🪣 Secchiello**: un tocco riempie del colore selezionato la zona
+  chiusa sotto il dito.
+- **Bordi:** tratti e forme. Righe e quadretti del foglio, scritte e adesivi
+  non fermano il colore.
+- **Buchi piccoli** nel contorno (fino a circa lo spessore "medio") vengono
+  chiusi, così il colore non "scappa" per un tratto non perfettamente chiuso.
+- Il riempimento sta **sotto i tratti**: le linee restano sempre nette sopra
+  il colore. Un riempimento nuovo sta sopra quelli vecchi.
+- Toccando una zona aperta si colora tutto lo spazio libero del foglio
+  (annullabile).
+- Il riempimento è un elemento come gli altri (`FillElement`, AD-04): si
+  annulla, la gomma lo cancella, il lazo lo sposta.
+
+#### F-19 — Disegni da colorare
+
+- **Stato:** ✅ approvata (2026-10-27)
+- Nella galleria, accanto al "+", un secondo pulsante **"📖 Da colorare"**
+  apre una griglia di disegni; un tocco crea un foglio nuovo con quel disegno.
+- Il contorno è **sopra** tratti e riempimenti (colorando fuori dalle linee
+  le linee restano visibili) e **sotto** scritte e adesivi. Non si cancella
+  e non si sposta; il secchiello lo usa come bordo.
+- Il contorno si adatta al foglio con un margine, in verticale o in
+  orizzontale come il tablet.
+- I disegni arrivano come **pacchetto di contenuti** (`coloring/*.svg`,
+  AD-17). Prima dotazione: **circa 20 disegni** (animali, veicoli, natura,
+  feste), **disegnati da noi** in SVG con contorni semplici e spessi, rilasciati
+  CC0 (D-12).
+
+### Decisioni della v1.1
+
+| Codice | Domanda | Decisione |
+|---|---|---|
+| D-11 | Spray o acquerello? | ✅ **Deciso:** entrambi |
+| D-12 | Da dove prendiamo i disegni da colorare? | ✅ **Deciso:** disegnati da noi in SVG, CC0, rivisti dai genitori e dalla bambina |
