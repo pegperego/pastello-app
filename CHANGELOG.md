@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The tools are grouped into categories in one column (one row in
+  portrait): each button shows the last tool used in it, and the Draw
+  category opens a small flyout with its tools, which closes by itself.
+  In portrait the widths fold into one button.
+
 ## [1.0.0] - 2026-10-25
 
 First release.

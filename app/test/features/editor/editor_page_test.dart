@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pastello/src/app/app_icon.dart';
 import 'package:pastello/src/core/settings/app_settings.dart';
+import 'package:pastello/src/features/editor/application/editor_controller.dart';
+import 'package:pastello/src/features/editor/domain/editor_tool.dart';
 import 'package:pastello/src/features/editor/presentation/editor_buttons.dart';
+import 'package:pastello/src/features/editor/presentation/editor_page.dart';
 import 'package:pastello/src/features/editor/presentation/sheet_view.dart';
 
 import '../../helpers.dart';
@@ -33,6 +37,9 @@ IconButton action(WidgetTester tester, AppIcons icon) => tester.widget(
   ),
 );
 
+ProviderContainer container(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(EditorPage)));
+
 Future<void> drawStroke(WidgetTester tester, {double dy = 0}) async {
   final sheet = tester.getCenter(find.byType(SheetView));
   await tester.timedDragFrom(
@@ -50,7 +57,7 @@ void main() {
     await openEditor(tester);
     final sheetX = tester.getCenter(find.byType(SheetView)).dx;
     expect(
-      tester.getCenter(find.bySemanticsLabel('Matita')).dx,
+      tester.getCenter(find.bySemanticsLabel('Gomma')).dx,
       lessThan(sheetX),
     );
     expect(
@@ -63,17 +70,14 @@ void main() {
       settings: MemorySettingsRepository(const AppSettings(leftHanded: true)),
     );
     final x = tester.getCenter(find.byType(SheetView)).dx;
-    expect(
-      tester.getCenter(find.bySemanticsLabel('Matita')).dx,
-      greaterThan(x),
-    );
+    expect(tester.getCenter(find.bySemanticsLabel('Gomma')).dx, greaterThan(x));
   });
 
   testWidgets('portrait: tools and colors below the sheet', (tester) async {
     await openEditor(tester, portrait: true);
     final sheetY = tester.getCenter(find.byType(SheetView)).dy;
     expect(
-      tester.getCenter(find.bySemanticsLabel('Matita')).dy,
+      tester.getCenter(find.bySemanticsLabel('Gomma')).dy,
       greaterThan(sheetY),
     );
     final sheet = tester.getSize(find.byType(SheetView));
@@ -137,6 +141,85 @@ void main() {
     // The picked color gets its own swatch next to the fixed ones.
     expect(find.bySemanticsLabel('Colore'), findsNWidgets(swatches + 1));
     expect(settings.saved.extraColor, isNotNull);
+  });
+
+  testWidgets('tools come in categories with a flyout (F-20)', (tester) async {
+    final settings = MemorySettingsRepository();
+    await openEditor(tester, settings: settings);
+    final c = container(tester);
+
+    // The Draw category shows its last tool, the crayon by default.
+    expect(find.bySemanticsLabel('Matita'), findsNothing);
+    await tester.tap(find.bySemanticsLabel('Pastello'));
+    await tester.pump();
+    expect(find.bySemanticsLabel('Matita'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Pennarello'));
+    await tester.pump();
+    expect(c.read(editorProvider).tool, EditorTool.marker);
+    // The flyout closes and the category now shows the marker.
+    expect(find.bySemanticsLabel('Matita'), findsNothing);
+    expect(find.bySemanticsLabel('Pennarello'), findsOneWidget);
+    expect(settings.saved.categoryTools['draw'], 'marker');
+
+    // One tap brings the marker back after another tool.
+    await tester.tap(find.bySemanticsLabel('Gomma'));
+    await tester.tap(find.bySemanticsLabel('Pennarello'));
+    await tester.pump();
+    expect(c.read(editorProvider).tool, EditorTool.marker);
+    expect(find.bySemanticsLabel('Matita'), findsOneWidget);
+    // A second tap closes the flyout.
+    await tester.tap(find.bySemanticsLabel('Pennarello').first);
+    await tester.pump();
+    expect(find.bySemanticsLabel('Matita'), findsNothing);
+  });
+
+  testWidgets('a long press opens the flyout; the sheet closes it and draws', (
+    tester,
+  ) async {
+    await openEditor(tester);
+    final c = container(tester);
+    await tester.tap(find.bySemanticsLabel('Gomma'));
+    await tester.longPress(find.bySemanticsLabel('Pastello'));
+    await tester.pump();
+    expect(find.bySemanticsLabel('Matita'), findsOneWidget);
+    expect(c.read(editorProvider).tool, EditorTool.eraser);
+
+    await tester.tap(find.bySemanticsLabel('Pennello'));
+    await tester.pump();
+    await tester.longPress(find.bySemanticsLabel('Pennello'));
+    await tester.pump();
+    await drawStroke(tester);
+    expect(find.bySemanticsLabel('Matita'), findsNothing);
+    expect(c.read(editorProvider).canUndo, isTrue);
+  });
+
+  testWidgets('each category remembers its tool between sessions', (
+    tester,
+  ) async {
+    await openEditor(
+      tester,
+      settings: MemorySettingsRepository(
+        const AppSettings(tool: 'eraser', categoryTools: {'draw': 'brush'}),
+      ),
+    );
+    expect(find.bySemanticsLabel('Pennello'), findsOneWidget);
+    expect(container(tester).read(editorProvider).tool, EditorTool.eraser);
+  });
+
+  testWidgets('portrait: the widths fold into one button', (tester) async {
+    final settings = MemorySettingsRepository();
+    await openEditor(tester, portrait: true, settings: settings);
+    expect(find.bySemanticsLabel('Extra grosso'), findsNothing);
+
+    await tester.tap(find.bySemanticsLabel('Medio'));
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Extra grosso'));
+    await tester.pump();
+    expect(settings.saved.widths['crayon'], 'extraThick');
+    // The flyout closed; the button shows the new width.
+    expect(find.bySemanticsLabel('Medio'), findsNothing);
+    expect(find.bySemanticsLabel('Extra grosso'), findsOneWidget);
   });
 
   testWidgets('the rotation lock is applied and remembered', (tester) async {

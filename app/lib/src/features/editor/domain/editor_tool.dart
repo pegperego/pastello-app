@@ -40,3 +40,34 @@ enum EditorTool {
   /// SVG icon; parts painted with `currentColor` take the selected color.
   String get iconAsset => 'assets/icons/tools/$name.svg';
 }
+
+/// The groups of tools shown in the toolbar (F-20). A category with more
+/// than one tool opens a flyout with them.
+enum ToolCategory {
+  draw([
+    EditorTool.pencil,
+    EditorTool.marker,
+    EditorTool.brush,
+    EditorTool.crayon,
+  ]),
+  magic([EditorTool.rainbow]),
+  eraser([EditorTool.eraser]),
+  text([EditorTool.text]),
+  stickers([EditorTool.stickers]),
+  shapes([EditorTool.shapes]),
+  select([EditorTool.select]);
+
+  const ToolCategory(this.tools);
+
+  /// The tools of the category, in the order shown in its flyout.
+  final List<EditorTool> tools;
+
+  /// Whether the category opens a flyout to choose among its tools.
+  bool get hasFlyout => tools.length > 1;
+}
+
+extension EditorToolCategory on EditorTool {
+  /// The category this tool belongs to.
+  ToolCategory get category =>
+      ToolCategory.values.firstWhere((c) => c.tools.contains(this));
+}
