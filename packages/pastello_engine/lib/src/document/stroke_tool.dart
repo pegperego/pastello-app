@@ -14,6 +14,16 @@ enum StrokeTool {
 
   /// Line whose color cycles through the rainbow along its length.
   rainbow,
+
+  /// Wide, semi-transparent line with a flat tip (F-17). Going over the
+  /// same stroke again does not make it darker.
+  highlighter,
+
+  /// Light core with a glow of the selected color (F-17).
+  neon;
+
+  /// How far the ink reaches beyond the input points, in stroke widths.
+  double get reach => this == neon ? 2 : 1;
 }
 
 /// Width presets offered by the toolbar (functional decision F-06).

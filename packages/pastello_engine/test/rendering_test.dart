@@ -193,6 +193,67 @@ void main() {
     expect(live.points, isEmpty);
   });
 
+  group('magic brushes', () {
+    /// A loop that crosses itself at (200, 120).
+    StrokeElement loop(StrokeTool tool, Color color) => StrokeElement(
+      id: newElementId(),
+      tool: tool,
+      color: color,
+      width: 24,
+      points: [
+        for (var i = 0; i <= 80; i++)
+          SheetPoint(
+            200 + 150 * math.sin(i / 80 * 2 * math.pi),
+            120 + 80 * math.sin(i / 80 * 4 * math.pi),
+          ),
+      ],
+    );
+
+    Drawing magic(SheetBackground background) => Drawing(
+      sheetSize: sheet,
+      background: background,
+      elements: [
+        wave(StrokeTool.marker, 120, const Color(0xFF1D4ED8)),
+        loop(StrokeTool.highlighter, const Color(0xFFFFD60A)),
+        wave(StrokeTool.neon, 40, const Color(0xFFFF4FD8)),
+        wave(StrokeTool.neon, 200, const Color(0xFF2EE6A6)),
+      ],
+    );
+
+    for (final (name, background) in [
+      ('white', SheetBackground.white),
+      ('dark', const SheetBackground(color: Color(0xFF1E2A44))),
+    ]) {
+      testWidgets('on $name paper', (tester) async {
+        renderer.show(magic(background));
+        await tester.pumpWidget(sheetWidget(renderer, live));
+        await expectLater(
+          find.byType(RepaintBoundary).first,
+          matchesGoldenFile('goldens/magic_$name.png'),
+        );
+      });
+    }
+
+    testWidgets('the highlighter does not get darker where it crosses '
+        'itself', (tester) async {
+      renderer.show(
+        const Drawing(sheetSize: sheet).withElementAdded(
+          loop(StrokeTool.highlighter, const Color(0xFF3A86FF)),
+        ),
+      );
+      await tester.pumpWidget(sheetWidget(renderer, live));
+      final image = await capture(tester);
+      // Captured at one pixel per sheet unit.
+      int red(Offset at) => image.getUint8(
+        (at.dy.round() * sheet.width.round() + at.dx.round()) * 4,
+      );
+
+      final crossing = red(const Offset(200, 120));
+      expect(crossing, lessThan(255), reason: 'the highlighter is there');
+      expect(crossing, red(const Offset(350, 120)));
+    });
+  });
+
   group('a long live stroke looks the same once committed', () {
     // 240 points: frozen in several batches while "drawing".
     final points = [
@@ -238,7 +299,12 @@ void main() {
         // they overlap. Measured: < 1% of pixels, at most 51/255.
         final diff = imageDifference(liveImage, await capture(tester));
         expect(diff.maxDelta, lessThanOrEqualTo(64));
-        expect(diff.changedRatio, lessThan(0.02));
+        // The blurred glow of the neon also differs by a few levels across
+        // its halo, and around the joint with the tail still drawn live.
+        expect(
+          diff.changedRatio,
+          lessThan(tool == StrokeTool.neon ? 0.05 : 0.02),
+        );
       });
     }
 

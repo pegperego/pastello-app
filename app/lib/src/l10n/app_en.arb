@@ -60,6 +60,14 @@
   "@toolRainbow": {
     "description": "Tool name."
   },
+  "toolHighlighter": "Highlighter",
+  "@toolHighlighter": {
+    "description": "Semi-transparent wide tool in the magic group (F-17)."
+  },
+  "toolNeon": "Neon",
+  "@toolNeon": {
+    "description": "Glowing line tool in the magic group (F-17)."
+  },
   "toolEraser": "Eraser",
   "@toolEraser": {
     "description": "Tool name."
