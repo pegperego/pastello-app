@@ -22,6 +22,9 @@ class LiveStroke extends ChangeNotifier {
   /// Width in sheet units.
   double width = 8;
 
+  /// Seed of the random pieces of the magic brushes.
+  int seed = 0;
+
   /// Points collected so far.
   final List<SheetPoint> points = [];
 
@@ -37,8 +40,10 @@ class LiveStroke extends ChangeNotifier {
     required StrokeTool? tool,
     required Color color,
     required double width,
+    int seed = 0,
   }) {
     this.tool = tool;
+    this.seed = seed;
     this.color = color;
     this.width = width;
     points.clear();

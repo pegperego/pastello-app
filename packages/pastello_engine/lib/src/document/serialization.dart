@@ -92,8 +92,8 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
     );
   }
   // Version 2 added texts and element transforms, version 3 stickers,
-  // version 4 shapes, version 5 backgrounds, version 6 the highlighter and
-  // neon strokes: older files are valid newer files, nothing to convert.
+  // version 4 shapes, version 5 backgrounds, version 6 the magic brushes:
+  // older files are valid newer files, nothing to convert.
   return json;
 }
 
@@ -223,6 +223,7 @@ Map<String, Object?> strokeToJson(StrokeElement stroke) => {
   'color': stroke.color.toARGB32(),
   'width': _round(stroke.width),
   'points': _pointsToJson(stroke.points),
+  if (stroke.seed != 0) 'seed': stroke.seed,
   if (stroke.erasures.isNotEmpty)
     'erasures': [for (final e in stroke.erasures) _erasureToJson(e)],
   ..._transformToJson(stroke.transform),
@@ -242,6 +243,7 @@ StrokeElement strokeFromJson(Map<String, Object?> json) {
     color: Color(_int(json['color'])),
     width: _double(json['width']),
     points: _pointsFromJson(json['points']),
+    seed: json['seed'] == null ? 0 : _int(json['seed']),
     erasures: [
       for (final e in _list(json['erasures'] ?? const <Object?>[]))
         _erasureFromJson(_map(e)),

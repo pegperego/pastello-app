@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M30 6 Q32 22 46 24 Q32 26 30 42 Q28 26 14 24 Q28 22 30 6 Z" fill="currentColor" stroke="#2D2A32" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M50 36 Q51 44 58 45 Q51 46 50 54 Q49 46 42 45 Q49 44 50 36 Z" fill="#FFF3B0" stroke="#2D2A32" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="14" cy="46" r="4" fill="currentColor" stroke="#2D2A32" stroke-width="2"/>
+      <circle cx="26" cy="54" r="2.5" fill="currentColor"/>
+      <circle cx="8" cy="34" r="2" fill="currentColor"/>
+      <circle cx="40" cy="58" r="2" fill="currentColor"/></svg>

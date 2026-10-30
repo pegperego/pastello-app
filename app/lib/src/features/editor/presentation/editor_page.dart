@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class _EditorPageState extends ConsumerState<EditorPage> {
   final PaperGrain _grain = PaperGrain.generate();
   late final DrawingRenderer _renderer = DrawingRenderer(grain: _grain);
   final LiveStroke _live = LiveStroke();
+  final math.Random _random = math.Random();
   late final AppLifecycleListener _lifecycle;
   bool _leaving = false;
 
@@ -96,11 +98,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       tool: state.tool.strokeTool,
       color: state.color,
       width: state.width,
+      seed: _random.nextInt(1 << 31),
     );
   }
 
   void _onStrokeEnd() {
-    ref.read(editorProvider.notifier).commitStroke(List.of(_live.points));
+    ref
+        .read(editorProvider.notifier)
+        .commitStroke(List.of(_live.points), seed: _live.seed);
     _live.clear();
   }
 

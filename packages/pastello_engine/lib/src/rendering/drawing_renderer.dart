@@ -242,15 +242,16 @@ class DrawingRenderer extends ChangeNotifier {
         live.points,
         from: from,
         to: to,
+        seed: live.seed,
         solidFrom: tool == StrokeTool.neon
-            ? _indexBefore(live.points, from, live.width * tool.reach)
+            ? _indexBefore(live.points, from, tool.margin(live.width))
             : null,
       );
       return;
     }
     final bounds = polylineBounds(
       live.points.sublist(from, to),
-    ).inflate(live.width * tool.reach);
+    ).inflate(tool.margin(live.width));
     canvas.saveLayer(bounds, ui.Paint());
     if (from > 0) {
       final joint = live.points[from].offset;
@@ -446,6 +447,7 @@ class DrawingRenderer extends ChangeNotifier {
           color: live.color,
           width: live.width,
           points: live.points,
+          seed: live.seed,
         ),
         grain,
       );

@@ -206,6 +206,18 @@ void main() {
         c.read(editorProvider).drawing!.elements.last as StrokeElement;
     expect(highlight.tool, StrokeTool.highlighter);
     expect(highlight.width, WidthPreset.thick.width);
+
+    // The random brushes keep a seed and every point drawn.
+    await tester.tap(find.bySemanticsLabel('Evidenziatore'));
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Glitter'));
+    await tester.pump();
+    await drawStroke(tester, dy: -80);
+    final glitter =
+        c.read(editorProvider).drawing!.elements.last as StrokeElement;
+    expect(glitter.tool, StrokeTool.glitter);
+    expect(glitter.seed, isNot(0));
+    expect(glitter.points.length, greaterThan(highlight.points.length));
   });
 
   testWidgets('a long press opens the flyout; the sheet closes it and draws', (

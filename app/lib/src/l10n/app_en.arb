@@ -68,6 +68,22 @@
   "@toolNeon": {
     "description": "Glowing line tool in the magic group (F-17)."
   },
+  "toolGlitter": "Glitter",
+  "@toolGlitter": {
+    "description": "Sparkles along the line, in the magic group (F-17)."
+  },
+  "toolStars": "Stars",
+  "@toolStars": {
+    "description": "A trail of stars, in the magic group (F-17)."
+  },
+  "toolSpray": "Spray",
+  "@toolSpray": {
+    "description": "Spray can dots, in the magic group (F-17)."
+  },
+  "toolWatercolor": "Watercolor",
+  "@toolWatercolor": {
+    "description": "Soft see-through color, in the magic group (F-17)."
+  },
   "toolEraser": "Eraser",
   "@toolEraser": {
     "description": "Tool name."

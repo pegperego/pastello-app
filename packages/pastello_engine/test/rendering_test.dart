@@ -220,6 +220,28 @@ void main() {
       ],
     );
 
+    /// The brushes with random pieces, and a watercolor going over itself.
+    Drawing random(SheetBackground background) => Drawing(
+      sheetSize: sheet,
+      background: background,
+      elements: [
+        for (final (i, tool) in [
+          StrokeTool.glitter,
+          StrokeTool.stars,
+          StrokeTool.spray,
+        ].indexed)
+          StrokeElement(
+            id: newElementId(),
+            tool: tool,
+            color: const Color(0xFFFF4FD8),
+            width: 20,
+            seed: 7 + i,
+            points: wave(tool, 30 + i * 50, const Color(0)).points,
+          ),
+        loop(StrokeTool.watercolor, const Color(0xFF3A86FF)),
+      ],
+    );
+
     for (final (name, background) in [
       ('white', SheetBackground.white),
       ('dark', const SheetBackground(color: Color(0xFF1E2A44))),
@@ -231,8 +253,57 @@ void main() {
           find.byType(RepaintBoundary).first,
           matchesGoldenFile('goldens/magic_$name.png'),
         );
+        renderer.show(random(background));
+        await tester.pump();
+        await expectLater(
+          find.byType(RepaintBoundary).first,
+          matchesGoldenFile('goldens/magic_random_$name.png'),
+        );
       });
     }
+
+    testWidgets('the same seed paints the same sparkles', (tester) async {
+      StrokeElement glitter(int seed) => StrokeElement(
+        id: 'g',
+        tool: StrokeTool.glitter,
+        color: const Color(0xFFE63946),
+        width: 30,
+        seed: seed,
+        points: wave(StrokeTool.glitter, 120, const Color(0)).points,
+      );
+      Future<ByteData> paint(int seed) async {
+        renderer.show(
+          const Drawing(sheetSize: sheet).withElementAdded(glitter(seed)),
+        );
+        await tester.pump();
+        return capture(tester);
+      }
+
+      await tester.pumpWidget(sheetWidget(renderer, live));
+      final first = await paint(1);
+      expect(imageDifference(first, await paint(1)).maxDelta, 0);
+      expect(imageDifference(first, await paint(2)).maxDelta, greaterThan(0));
+    });
+
+    testWidgets('watercolor gets darker where it goes over itself', (
+      tester,
+    ) async {
+      renderer.show(
+        const Drawing(sheetSize: sheet).withElementAdded(
+          loop(StrokeTool.watercolor, const Color(0xFF3A86FF)),
+        ),
+      );
+      await tester.pumpWidget(sheetWidget(renderer, live));
+      final image = await capture(tester);
+      int red(Offset at) => image.getUint8(
+        (at.dy.round() * sheet.width.round() + at.dx.round()) * 4,
+      );
+      expect(
+        red(const Offset(200, 120)),
+        lessThan(red(const Offset(350, 120))),
+      );
+      expect(red(const Offset(350, 120)), lessThan(255));
+    });
 
     testWidgets('the highlighter does not get darker where it crosses '
         'itself', (tester) async {
