@@ -236,7 +236,7 @@ void main() {
             color: const Color(0xFFFF4FD8),
             width: 20,
             seed: 7 + i,
-            points: wave(tool, 30 + i * 50, const Color(0)).points,
+            points: wave(tool, 30 + i * 50, const Color(0x00000000)).points,
           ),
         loop(StrokeTool.watercolor, const Color(0xFF3A86FF)),
       ],
@@ -269,7 +269,7 @@ void main() {
         color: const Color(0xFFE63946),
         width: 30,
         seed: seed,
-        points: wave(StrokeTool.glitter, 120, const Color(0)).points,
+        points: wave(StrokeTool.glitter, 120, const Color(0x00000000)).points,
       );
       Future<ByteData> paint(int seed) async {
         renderer.show(
