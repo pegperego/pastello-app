@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pastello/src/core/settings/app_settings.dart';
 import 'package:pastello/src/features/parents/application/parents_providers.dart';
@@ -12,11 +13,17 @@ Future<void> openParents(
   WidgetTester tester, {
   MemorySettingsRepository? settings,
   MemoryDrawingRepository? drawings,
+  List<Override> overrides = const [],
 }) async {
   tester.view.devicePixelRatio = 2.25;
   tester.view.physicalSize = const Size(2560, 1600);
   addTearDown(tester.view.reset);
-  await pumpApp(tester, settings: settings, drawings: drawings);
+  await pumpApp(
+    tester,
+    settings: settings,
+    drawings: drawings,
+    overrides: overrides,
+  );
   await tester.tap(find.byTooltip('Genitori'));
   await pumpFrames(tester);
   await solveGate(tester);
@@ -24,17 +31,22 @@ Future<void> openParents(
 }
 
 /// Scrolls the parents' page until [finder] is on screen.
-Future<void> scrollTo(WidgetTester tester, Finder finder) =>
-    tester.scrollUntilVisible(
-      finder,
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byType(ListView),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
+Future<void> scrollTo(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find
+        .descendant(
+          of: find.byType(ListView),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  // Built is not enough: the list builds a little past the screen, and the
+  // top of the list is under the app bar.
+  await Scrollable.ensureVisible(tester.element(finder.first), alignment: 0.5);
+  await tester.pump();
+}
 
 void main() {
   testWidgets('the parents page is behind the gate', (tester) async {

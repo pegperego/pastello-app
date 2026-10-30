@@ -410,5 +410,87 @@
   "exportFailed": "Something went wrong, try again",
   "@exportFailed": {
     "description": "Shown when saving, printing or sharing fails."
+  },
+  "backup": "Backup of the drawings",
+  "@backup": {
+    "description": "Section of the parents' page with export and import (F-21)."
+  },
+  "backupHint": "Save all the drawings in one file, to keep them safe or to move them to another tablet or to the Google Play version. The trash is not included.",
+  "@backupHint": {
+    "description": "Explains the backup section."
+  },
+  "exportDrawings": "Export all drawings",
+  "@exportDrawings": {
+    "description": "Button: writes all drawings to a .zip file."
+  },
+  "importDrawings": "Import drawings",
+  "@importDrawings": {
+    "description": "Button: adds the drawings of a .zip file."
+  },
+  "backupFileName": "pastello-drawings-{date}.zip",
+  "@backupFileName": {
+    "description": "Suggested name of the backup file.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2026-10-30"
+      }
+    }
+  },
+  "backupWorking": "Just a moment…",
+  "@backupWorking": {
+    "description": "Shown while the backup file is written or read."
+  },
+  "exportDone": "{count, plural, =0{No drawings to export} =1{1 drawing exported} other{{count} drawings exported}}",
+  "@exportDone": {
+    "description": "Message after an export.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDone": "Import complete",
+  "@importDone": {
+    "description": "Title of the import result."
+  },
+  "importAdded": "{count, plural, =0{No new drawings.} =1{1 drawing added to the gallery.} other{{count} drawings added to the gallery.}}",
+  "@importAdded": {
+    "description": "Drawings added by an import.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importPresent": "{count, plural, =1{1 was already there.} other{{count} were already there.}}",
+  "@importPresent": {
+    "description": "Drawings skipped because already present.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importUnreadable": "{count, plural, =1{1 could not be read.} other{{count} could not be read.}}",
+  "@importUnreadable": {
+    "description": "Drawings that could not be imported.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importNotBackup": "This file is not a backup of Pastello drawings.",
+  "@importNotBackup": {
+    "description": "Import error: wrong file."
+  },
+  "importTooNew": "This backup was made with a newer version of Pastello: update the app and try again.",
+  "@importTooNew": {
+    "description": "Import error: newer backup format."
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "Closes a message."
   }
 }

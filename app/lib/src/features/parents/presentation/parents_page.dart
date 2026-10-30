@@ -7,6 +7,7 @@ import '../../../app/tokens.dart';
 import '../../../core/settings/app_settings.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../backup/presentation/backup_section.dart';
 import '../../drawings/application/drawings_providers.dart';
 import '../application/parents_providers.dart';
 
@@ -125,6 +126,7 @@ class ParentsPage extends ConsumerWidget {
                   ),
                 ),
               ]),
+              section(l10n.backup, [const BackupSection()]),
               section(l10n.pinningTitle, [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),

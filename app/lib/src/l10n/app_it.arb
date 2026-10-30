@@ -94,5 +94,19 @@
   "print": "Stampa",
   "share": "Condividi",
   "savedToGallery": "Salvato nella galleria",
-  "exportFailed": "Qualcosa non ha funzionato, riprova"
+  "exportFailed": "Qualcosa non ha funzionato, riprova",
+  "backup": "Copia dei disegni",
+  "backupHint": "Salva tutti i disegni in un file, per tenerli al sicuro o portarli su un altro tablet o sulla versione del Play Store. Il cestino non è incluso.",
+  "exportDrawings": "Esporta tutti i disegni",
+  "importDrawings": "Importa disegni",
+  "backupFileName": "pastello-disegni-{date}.zip",
+  "backupWorking": "Un momento…",
+  "exportDone": "{count, plural, =0{Nessun disegno da esportare} =1{1 disegno esportato} other{{count} disegni esportati}}",
+  "importDone": "Importazione completata",
+  "importAdded": "{count, plural, =0{Nessun disegno nuovo.} =1{1 disegno aggiunto alla galleria.} other{{count} disegni aggiunti alla galleria.}}",
+  "importPresent": "{count, plural, =1{1 era già presente.} other{{count} erano già presenti.}}",
+  "importUnreadable": "{count, plural, =1{1 non si poteva leggere.} other{{count} non si potevano leggere.}}",
+  "importNotBackup": "Questo file non è una copia dei disegni di Pastello.",
+  "importTooNew": "Questa copia è stata fatta con una versione più recente di Pastello: aggiorna l'app e riprova.",
+  "ok": "OK"
 }
