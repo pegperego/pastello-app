@@ -12,6 +12,7 @@ void main() {
     color: 0xFFE63946,
     extraColor: 0xFF00C2A8,
     widths: {'brush': 'extraThick'},
+    categoryTools: {'draw': 'brush'},
     leftHanded: true,
     rotationLock: LockedOrientation.portrait,
   );
@@ -27,6 +28,7 @@ void main() {
         'tool': 42,
         'color': 'red',
         'widths': {'brush': 3, 'pencil': 'thin'},
+        'categoryTools': ['draw'],
         'leftHanded': 'yes',
         'rotationLock': 'sideways',
         'unknown': true,
@@ -34,6 +36,7 @@ void main() {
       expect(restored.tool, isNull);
       expect(restored.color, isNull);
       expect(restored.widths, {'pencil': 'thin'});
+      expect(restored.categoryTools, isEmpty);
       expect(restored.leftHanded, isFalse);
       expect(restored.rotationLock, isNull);
     });

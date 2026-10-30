@@ -6,6 +6,9 @@ import '../domain/editor_tool.dart';
 
 /// A big tool button with its illustrated icon (G-05). The tip of the
 /// drawing tools takes [color].
+///
+/// In the toolbar it stands for a tool category (F-20): [hasMore] draws a
+/// mark in the corner when the category holds more tools.
 class ToolButton extends StatelessWidget {
   const ToolButton({
     super.key,
@@ -14,6 +17,8 @@ class ToolButton extends StatelessWidget {
     required this.color,
     required this.selected,
     required this.onPressed,
+    this.onLongPress,
+    this.hasMore = false,
   });
 
   final EditorTool tool;
@@ -21,6 +26,8 @@ class ToolButton extends StatelessWidget {
   final Color color;
   final bool selected;
   final VoidCallback onPressed;
+  final VoidCallback? onLongPress;
+  final bool hasMore;
 
   @override
   Widget build(BuildContext context) {
@@ -47,24 +54,28 @@ class ToolButton extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
               onTap: onPressed,
+              onLongPress: onLongPress,
               child: SizedBox.square(
                 dimension: 64,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  // The chosen tool "jumps" a little (G-08), unless the
-                  // system asks to remove animations.
-                  child: TweenAnimationBuilder<double>(
-                    key: ValueKey(selected),
-                    tween: Tween(begin: selected ? 1.18 : 1, end: 1),
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : const Duration(milliseconds: 250),
-                    curve: Curves.easeOutBack,
-                    builder: (context, scale, child) =>
-                        Transform.scale(scale: scale, child: child),
-                    child: SvgPicture.asset(
-                      tool.iconAsset,
-                      theme: SvgTheme(currentColor: color),
+                child: CustomPaint(
+                  foregroundPainter: hasMore ? const _CornerMark() : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    // The chosen tool "jumps" a little (G-08), unless the
+                    // system asks to remove animations.
+                    child: TweenAnimationBuilder<double>(
+                      key: ValueKey(selected),
+                      tween: Tween(begin: selected ? 1.18 : 1, end: 1),
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 250),
+                      curve: Curves.easeOutBack,
+                      builder: (context, scale, child) =>
+                          Transform.scale(scale: scale, child: child),
+                      child: SvgPicture.asset(
+                        tool.iconAsset,
+                        theme: SvgTheme(currentColor: color),
+                      ),
                     ),
                   ),
                 ),
@@ -75,6 +86,29 @@ class ToolButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The small triangle in the bottom right corner of a tool category that
+/// holds more tools (F-20).
+class _CornerMark extends CustomPainter {
+  const _CornerMark();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const side = 11.0, inset = 6.0;
+    final corner = Offset(size.width - inset, size.height - inset);
+    canvas.drawPath(
+      Path()
+        ..moveTo(corner.dx, corner.dy - side)
+        ..lineTo(corner.dx, corner.dy)
+        ..lineTo(corner.dx - side, corner.dy)
+        ..close(),
+      Paint()..color = Tokens.coral,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_CornerMark oldDelegate) => false;
 }
 
 /// A round color swatch. The selected one gets a double ring (G-06).
@@ -138,6 +172,7 @@ class WidthButton extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onPressed,
+    this.width = 112,
   });
 
   final double dotSize;
@@ -145,6 +180,9 @@ class WidthButton extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onPressed;
+
+  /// Width of the button: narrower when it stands for all the presets.
+  final double width;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +194,7 @@ class WidthButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
-          width: 112,
+          width: width,
           height: Tokens.minTouchTarget - 4,
           margin: const EdgeInsets.all(2),
           alignment: Alignment.center,

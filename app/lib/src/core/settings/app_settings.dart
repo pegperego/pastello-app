@@ -14,6 +14,7 @@ class AppSettings {
     this.color,
     this.extraColor,
     this.widths = const {},
+    this.categoryTools = const {},
     this.leftHanded = false,
     this.rotationLock,
     this.language,
@@ -24,6 +25,7 @@ class AppSettings {
   /// Restores settings from JSON, ignoring anything unknown or malformed.
   factory AppSettings.fromJson(Map<String, Object?> json) {
     final widths = json['widths'];
+    final categoryTools = json['categoryTools'];
     final lock = json['rotationLock'];
     return AppSettings(
       tool: json['tool'] is String ? json['tool'] as String : null,
@@ -32,6 +34,12 @@ class AppSettings {
       widths: widths is Map
           ? {
               for (final MapEntry(:key, :value) in widths.entries)
+                if (key is String && value is String) key: value,
+            }
+          : const {},
+      categoryTools: categoryTools is Map
+          ? {
+              for (final MapEntry(:key, :value) in categoryTools.entries)
                 if (key is String && value is String) key: value,
             }
           : const {},
@@ -59,6 +67,9 @@ class AppSettings {
   /// Width preset name for each tool name (F-06).
   final Map<String, String> widths;
 
+  /// Last tool name used in each tool category name (F-20).
+  final Map<String, String> categoryTools;
+
   /// Swaps the tool and color columns (F-03).
   final bool leftHanded;
 
@@ -83,6 +94,7 @@ class AppSettings {
     int? color,
     int? extraColor,
     Map<String, String>? widths,
+    Map<String, String>? categoryTools,
     bool? leftHanded,
     LockedOrientation? Function()? rotationLock,
     String? Function()? language,
@@ -93,6 +105,7 @@ class AppSettings {
     color: color ?? this.color,
     extraColor: extraColor ?? this.extraColor,
     widths: widths ?? this.widths,
+    categoryTools: categoryTools ?? this.categoryTools,
     leftHanded: leftHanded ?? this.leftHanded,
     rotationLock: rotationLock != null ? rotationLock() : this.rotationLock,
     language: language != null ? language() : this.language,
@@ -106,6 +119,7 @@ class AppSettings {
     'color': ?color,
     'extraColor': ?extraColor,
     'widths': widths,
+    'categoryTools': categoryTools,
     'leftHanded': leftHanded,
     'rotationLock': ?rotationLock?.name,
     'language': ?language,

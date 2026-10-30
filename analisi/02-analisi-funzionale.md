@@ -442,9 +442,9 @@ glitter, neon, stelline, spray e acquerello.
 - **Colori invariati** (F-05): i 12 colori restano sempre visibili, perché si
   cambiano molto più spesso degli strumenti.
 - **Spessori:** in orizzontale restano i 4 pallini; in **verticale** diventano
-  **un pulsante** che mostra lo spessore attuale e apre un pannellino con i
-  4, che si chiude da solo come quello degli strumenti. Così colori e
-  spessore stanno in una riga senza scorrere.
+  **un pulsante**, in fondo alla riga degli strumenti, che mostra lo spessore
+  attuale e apre un pannellino con i 4, che si chiude da solo come quello
+  degli strumenti. Così i colori hanno una riga tutta per loro.
 - Scelta fra tre proposte (A, B, C) con i mockup in
   [`risorse/design/layout-strumenti.html`](risorse/design/layout-strumenti.html):
   scelta la A. Scartate la B (strumenti della categoria sempre visibili: foglio

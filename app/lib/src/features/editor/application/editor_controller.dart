@@ -61,6 +61,7 @@ class EditorState {
     required this.tool,
     required this.color,
     required this.widths,
+    this.categoryTools = const {},
     this.extraColor,
     this.textFont = TextFont.andika,
     this.sticker,
@@ -93,6 +94,13 @@ class EditorState {
 
   /// Width preset of each tool (F-06).
   final Map<EditorTool, WidthPreset> widths;
+
+  /// Last tool used in each category, shown on its toolbar button (F-20).
+  final Map<ToolCategory, EditorTool> categoryTools;
+
+  /// The tool shown on the toolbar button of [category].
+  EditorTool toolOf(ToolCategory category) =>
+      categoryTools[category] ?? category.tools.first;
 
   /// Last color picked from the "more colors" grid, shown next to the
   /// fixed ones (F-05).
@@ -188,6 +196,7 @@ class EditorState {
     EditorTool? tool,
     Color? color,
     Map<EditorTool, WidthPreset>? widths,
+    Map<ToolCategory, EditorTool>? categoryTools,
     Color? extraColor,
     TextFont? textFont,
     StickerChoice? sticker,
@@ -208,6 +217,7 @@ class EditorState {
     tool: tool ?? this.tool,
     color: color ?? this.color,
     widths: widths ?? this.widths,
+    categoryTools: categoryTools ?? this.categoryTools,
     extraColor: extraColor ?? this.extraColor,
     textFont: textFont ?? this.textFont,
     sticker: sticker ?? this.sticker,
@@ -266,11 +276,19 @@ class EditorController extends Notifier<EditorState> {
   EditorState build() {
     ref.onDispose(() => _autosave?.cancel());
     final settings = ref.read(settingsProvider).value ?? const AppSettings();
-    final tool = EditorTool.values
-        .where((t) => t.name == settings.tool)
-        .firstOrNull;
+    final tool =
+        EditorTool.values.where((t) => t.name == settings.tool).firstOrNull ??
+        EditorTool.crayon;
     return EditorState(
-      tool: tool ?? EditorTool.crayon,
+      tool: tool,
+      categoryTools: {
+        for (final c in ToolCategory.values)
+          c:
+              c.tools
+                  .where((t) => t.name == settings.categoryTools[c.name])
+                  .firstOrNull ??
+              (tool.category == c ? tool : c.tools.first),
+      },
       color: settings.color != null
           ? Color(settings.color!)
           : drawingColors.first,
@@ -336,6 +354,7 @@ class EditorController extends Notifier<EditorState> {
     tool: state.tool,
     color: state.color,
     widths: state.widths,
+    categoryTools: state.categoryTools,
     extraColor: state.extraColor,
     textFont: state.textFont,
     sticker: state.sticker,
@@ -390,8 +409,16 @@ class EditorController extends Notifier<EditorState> {
       commitText();
       state = _withoutGroup().copyWith(selectedId: null, lasso: null);
     }
-    state = state.copyWith(tool: tool);
-    _saveSettings((s) => s.copyWith(tool: tool.name));
+    state = state.copyWith(
+      tool: tool,
+      categoryTools: {...state.categoryTools, tool.category: tool},
+    );
+    _saveSettings(
+      (s) => s.copyWith(
+        tool: tool.name,
+        categoryTools: {...s.categoryTools, tool.category.name: tool.name},
+      ),
+    );
   }
 
   /// Selects [color]. A color outside the fixed 12 becomes the "extra"
@@ -894,6 +921,7 @@ class EditorController extends Notifier<EditorState> {
       tool: state.tool,
       color: state.color,
       widths: state.widths,
+      categoryTools: state.categoryTools,
       extraColor: state.extraColor,
       textFont: state.textFont,
       sticker: state.sticker,

@@ -120,7 +120,7 @@ void main() {
     expect(text(c).color, c.read(editorProvider).color);
 
     // Drawing tools draw over texts instead of selecting them.
-    await tester.tap(find.bySemanticsLabel('Pennarello'));
+    await tester.tap(find.bySemanticsLabel('Gomma'));
     await tester.pump();
     expect(find.byType(ElementSelectionOverlay), findsNothing);
   });
