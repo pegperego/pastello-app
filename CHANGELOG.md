@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Parents' page: export all the drawings to a `.zip` file, saved where the
+  parent chooses, and import them back, for example to move to a new tablet
+  or to the Google Play version. Importing never replaces or duplicates a
+  drawing.
+
 ### Changed
 
 - The tools are grouped into categories in one column (one row in

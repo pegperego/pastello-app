@@ -145,6 +145,33 @@ the history is discarded and the drawing is opened without it
 
 Files in the trash also have `deletedAt`; they are purged 30 days later.
 
+## Backup files
+
+"Export all drawings" in the parents' page writes a `.zip` (ADR 0020):
+
+```text
+pastello-backup.json
+drawings/
+└── <id>/              # 32 hexadecimal characters
+    ├── drawing.json
+    ├── history.json
+    ├── meta.json
+    └── thumbnail.png
+```
+
+`pastello-backup.json` holds the backup format (currently `1`), the app
+version that wrote it and the date:
+
+```json
+{ "format": 1, "appVersion": "1.1.0 (2)", "createdAt": "2026-10-30T18:00:00.000" }
+```
+
+The trash is not exported. On import, entries outside this layout are
+ignored, drawings already in the gallery or in the trash are skipped, and a
+drawing that cannot be decoded (for example from a newer schema version) is
+skipped and reported. A missing or damaged `meta.json` is replaced with the
+import date; a thumbnail that is not a PNG is dropped.
+
 ## Versions
 
 | Version | Changes |
