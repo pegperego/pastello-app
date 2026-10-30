@@ -28,7 +28,7 @@ bool eraserTouchesStroke(
     ];
     eraserWidth /= t.scale;
   }
-  final reach = (eraserWidth + stroke.width) / 2;
+  final reach = (eraserWidth + stroke.tool.margin(stroke.width)) / 2;
   if (!polylineBounds(eraser).inflate(reach).overlaps(stroke.localBounds)) {
     return false;
   }

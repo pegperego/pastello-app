@@ -20,11 +20,38 @@ enum StrokeTool {
   highlighter,
 
   /// Light core with a glow of the selected color (F-17).
-  neon;
+  neon,
 
-  /// How far the ink reaches beyond the input points, in stroke widths.
-  double get reach => this == neon ? 2 : 1;
+  /// Sparkles of different sizes and brightness along the line (F-17).
+  glitter,
+
+  /// A trail of stars at regular spacing, sized by the width (F-17).
+  stars,
+
+  /// A cloud of dots, denser in the middle, like a spray can (F-17).
+  spray,
+
+  /// Soft, transparent color with blurred edges; going over it again makes
+  /// it darker (F-17).
+  watercolor;
+
+  /// How far the ink reaches beyond the input points, for a stroke [width].
+  double margin(double width) => switch (this) {
+    neon => width * 2,
+    stars => starSize(width) / 2 + 1,
+    _ => width,
+  };
+
+  /// Whether the stroke is made of pieces placed with a random seed: its
+  /// points are kept as they were drawn, so the pieces stay where the child
+  /// saw them (F-17).
+  bool get isRandom =>
+      this == glitter || this == stars || this == spray || this == watercolor;
 }
+
+/// Size of the stars of [StrokeTool.stars] for a stroke [width]: even the
+/// thin ones are big enough to look like stars.
+double starSize(double width) => width * 1.2 + 8;
 
 /// Width presets offered by the toolbar (functional decision F-06).
 ///

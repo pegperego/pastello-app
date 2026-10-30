@@ -108,10 +108,11 @@ reference is kept, so it reappears when the pack is installed.
 | Field | Meaning |
 |---|---|
 | `id` | 32 hex characters, unique in the drawing. |
-| `tool` | `pencil`, `marker`, `brush`, `crayon`, `rainbow`, `highlighter` or `neon`. |
+| `tool` | `pencil`, `marker`, `brush`, `crayon`, `rainbow`, `highlighter`, `neon`, `glitter`, `stars`, `spray` or `watercolor`. |
 | `color` | ARGB as a 32-bit integer (ignored by `rainbow`). |
 | `width` | Base width in sheet units. |
 | `points` | Flat list of `x, y, pressure, time` quadruples: sheet units, 0–1, milliseconds since the stroke started. Rounded to hundredths. |
+| `seed` | Only for `glitter`, `stars`, `spray` and `watercolor`: places their random pieces, so a reopened drawing looks exactly the same. Their points are stored as drawn, not simplified. Missing means 0. |
 | `erasures` | Eraser passes attached to this stroke, in the stroke's local coordinates. The same pass (same `id`) is attached to every stroke it touched. Texts are never erased. |
 
 ## `history.json`
@@ -181,7 +182,7 @@ import date; a thumbnail that is not a PNG is dropped.
 | 3 | Stickers. Older files are read as they are. |
 | 4 | Shapes. Older files are read as they are. |
 | 5 | Paper color and pattern. Older files are read as they are (white paper). |
-| 6 | `highlighter` and `neon` strokes. Older files are read as they are. |
+| 6 | Magic brushes: `highlighter`, `neon`, `glitter`, `stars`, `spray` and `watercolor` strokes, stroke `seed`. Older files are read as they are. |
 
 ## Changing the format
 

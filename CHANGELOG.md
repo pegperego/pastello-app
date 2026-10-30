@@ -14,9 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or to the Google Play version. Importing never replaces or duplicates a
   drawing.
 - Magic brushes, next to the rainbow: the highlighter (wide and
-  see-through, it does not get darker going over it again) and the neon
-  (a light line with a glow of the chosen color, best on dark paper).
-  Drawings that use them need this version to open.
+  see-through, it does not get darker going over it again), the neon
+  (a light line with a glow of the chosen color, best on dark paper),
+  glitter, stars, spray and watercolor. The sparkles, stars and dots stay
+  exactly where they were when the drawing is opened again. Drawings that
+  use them need this version to open.
 
 ### Changed
 

@@ -40,6 +40,7 @@ class StrokeElement extends DrawingElement {
     required this.color,
     required this.width,
     required this.points,
+    this.seed = 0,
     this.erasures = const [],
     super.transform,
   });
@@ -56,6 +57,10 @@ class StrokeElement extends DrawingElement {
   /// Input points, in sheet units.
   final List<SheetPoint> points;
 
+  /// Seed of the random pieces of the magic brushes (F-17): the same seed
+  /// puts every sparkle back where it was.
+  final int seed;
+
   /// Eraser passes applied to this stroke, oldest first.
   final List<Erasure> erasures;
 
@@ -71,7 +76,7 @@ class StrokeElement extends DrawingElement {
       if (p.y < top) top = p.y;
       if (p.y > bottom) bottom = p.y;
     }
-    return Rect.fromLTRB(left, top, right, bottom).inflate(width * tool.reach);
+    return Rect.fromLTRB(left, top, right, bottom).inflate(tool.margin(width));
   }
 
   /// Returns a copy of this stroke with [erasure] added.
@@ -94,7 +99,7 @@ class StrokeElement extends DrawingElement {
   bool contains(Offset point, {double slop = 0}) {
     if (points.isEmpty) return false;
     final local = transform.invert(point);
-    final reach = width / 2 + slop / transform.scale;
+    final reach = tool.margin(width) / 2 + slop / transform.scale;
     if (!localBounds.inflate(reach).contains(local)) return false;
     final p = SheetPoint(local.dx, local.dy);
     if (points.length == 1) {
@@ -126,6 +131,7 @@ class StrokeElement extends DrawingElement {
     color: color,
     width: width,
     points: points,
+    seed: seed,
     erasures: erasures ?? this.erasures,
     transform: transform ?? this.transform,
   );

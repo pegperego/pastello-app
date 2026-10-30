@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/painting.dart'
@@ -81,6 +82,7 @@ void paintStroke(Canvas canvas, StrokeElement stroke, PaperGrain grain) {
     stroke.color,
     stroke.width,
     stroke.points,
+    seed: stroke.seed,
   );
   if (strength > 0) paintGrain(canvas, bounds, strength, grain);
   for (final erasure in stroke.erasures) {
@@ -107,6 +109,10 @@ void paintGrain(Canvas canvas, Rect bounds, double strength, PaperGrain grain) {
 /// be painted in pieces (ADR 0005); the pieces join seamlessly because the
 /// rainbow colors and the brush widths depend on the whole stroke.
 ///
+/// The random pieces of the magic brushes come from [seed] and from their
+/// position along the whole stroke, so pieces painted separately are the
+/// same as the whole stroke painted at once.
+///
 /// The neon paints its tube and core from [solidFrom] (default: [from]):
 /// starting them earlier than the glow repaints them over the glow that a
 /// piece spills onto the previous one.
@@ -119,6 +125,7 @@ void paintStrokeInk(
   int from = 0,
   int? to,
   int? solidFrom,
+  int seed = 0,
 }) {
   final end = to ?? points.length;
   if (end - from < 1) return;
@@ -146,6 +153,14 @@ void paintStrokeInk(
             ? points[solidFrom ?? from].offset
             : null,
       );
+    case StrokeTool.glitter:
+      _paintGlitter(canvas, color, width, seed, points, from, end);
+    case StrokeTool.stars:
+      _paintStars(canvas, color, width, seed, points, from, end);
+    case StrokeTool.spray:
+      _paintSpray(canvas, color, width, seed, points, from, end);
+    case StrokeTool.watercolor:
+      _paintWatercolor(canvas, color, width, seed, points, from, end);
     case StrokeTool.pencil:
     case StrokeTool.marker:
     case StrokeTool.crayon:
@@ -188,7 +203,7 @@ Paint _linePaint(Color color, double width) => Paint()
 
 /// Paints a neon tube: a blurred glow of [color] along [glow], then the
 /// tube itself and a light core along [solid]. The glow stays within
-/// [StrokeTool.reach].
+/// [StrokeTool.margin].
 ///
 /// When [solid] continues an earlier piece, the round cap of the tube at
 /// the [joint] would cover the core already painted there: it is clipped
@@ -241,16 +256,47 @@ Color rainbowColorAt(double distance) {
 /// gradient, few enough to keep the number of draw calls small.
 const int _rainbowSteps = 72;
 
+/// Calls [stamp] for the "stamps" spaced [spacing] apart along [points],
+/// with their distance from the start of the stroke and their number.
+///
+/// Stamps are always counted from the start of the stroke, and only those
+/// between the points [from] and [to] are reported, so a stroke painted in
+/// pieces puts every stamp exactly where the whole stroke would, once.
+void _walkStamps(
+  List<SheetPoint> points,
+  double spacing,
+  int from,
+  int to,
+  void Function(Offset at, double distance, int index) stamp,
+) {
+  if (from == 0) stamp(points.first.offset, 0, 0);
+  var distance = 0.0;
+  var next = spacing;
+  var index = 1;
+  for (var i = 1; i < to; i++) {
+    final a = points[i - 1].offset, b = points[i].offset;
+    final length = (b - a).distance;
+    // Segments before the range only advance the count.
+    while (next <= distance + length) {
+      if (i > from) {
+        stamp(Offset.lerp(a, b, (next - distance) / length)!, next, index);
+      }
+      next += spacing;
+      index++;
+    }
+    distance += length;
+  }
+  if (to == points.length && points.length > 1) {
+    stamp(points.last.offset, distance, index);
+  }
+}
+
 /// Paints the rainbow as round "stamps" spaced along the line.
 ///
 /// Drawing one segment per color would show beads where round caps of
 /// different colors overlap. Stamps placed every couple of units blend into a
 /// continuous gradient, and grouping them by hue keeps it to at most
 /// [_rainbowSteps] draw calls.
-///
-/// Stamps are always spaced from the start of the stroke, and only those
-/// between the points [from] and [to] are painted, so a stroke painted in
-/// pieces puts every stamp exactly where the whole stroke would.
 void _paintRainbow(
   Canvas canvas,
   double width,
@@ -260,33 +306,11 @@ void _paintRainbow(
 ) {
   final spacing = (width / 8).clamp(0.75, 3.0);
   final buckets = List.generate(_rainbowSteps, (_) => <Offset>[]);
-  void stamp(Offset at, double distance) {
+  _walkStamps(points, spacing, from, to, (at, distance, _) {
     final hueStep =
         ((distance / rainbowPeriod) * _rainbowSteps).floor() % _rainbowSteps;
     buckets[hueStep].add(at);
-  }
-
-  if (from == 0) stamp(points.first.offset, 0);
-  var distance = 0.0;
-  var next = spacing;
-  for (var i = 1; i < to; i++) {
-    final a = points[i - 1].offset, b = points[i].offset;
-    final length = (b - a).distance;
-    // Segments before the range only advance the spacing.
-    if (i > from) {
-      while (next <= distance + length) {
-        stamp(Offset.lerp(a, b, (next - distance) / length)!, next);
-        next += spacing;
-      }
-    } else {
-      while (next <= distance + length) {
-        next += spacing;
-      }
-    }
-    distance += length;
-  }
-  if (to == points.length) stamp(points.last.offset, distance);
-
+  });
   for (var step = 0; step < _rainbowSteps; step++) {
     if (buckets[step].isEmpty) continue;
     canvas.drawPoints(
@@ -295,6 +319,162 @@ void _paintRainbow(
       _linePaint(rainbowColorAt(step / _rainbowSteps * rainbowPeriod), width),
     );
   }
+}
+
+/// A number in [0, 1) that depends only on [seed], [index] and [k]: the
+/// same stamp of the same stroke always gets the same "random" look.
+double _random(int seed, int index, int k) {
+  var h = (seed ^ (index * 0x9E3779B1) ^ (k * 0x85EBCA77)) & 0xFFFFFFFF;
+  h = ((h ^ (h >> 16)) * 0x7FEB352D) & 0xFFFFFFFF;
+  h = ((h ^ (h >> 15)) * 0x846CA68B) & 0xFFFFFFFF;
+  h ^= h >> 16;
+  return h / 0x100000000;
+}
+
+/// A point at a random place within [radius] of [at]. With [centered] the
+/// points are denser near the middle.
+Offset _scatter(
+  Offset at,
+  double radius,
+  int seed,
+  int index,
+  int k, {
+  bool centered = false,
+}) {
+  final angle = _random(seed, index, k) * 2 * math.pi;
+  final r = _random(seed, index, k + 1);
+  final distance = radius * (centered ? r : math.sqrt(r));
+  return at + Offset(math.cos(angle), math.sin(angle)) * distance;
+}
+
+/// Glitter: round sparkles of different sizes and brightness, with now and
+/// then a bigger four-pointed twinkle.
+void _paintGlitter(
+  Canvas canvas,
+  Color color,
+  double width,
+  int seed,
+  List<SheetPoint> points,
+  int from,
+  int to,
+) {
+  final spacing = math.max(1.0, width * 0.1);
+  final white = const Color(0xFFFFFFFF), black = const Color(0xFF000000);
+  final paint = Paint();
+  _walkStamps(points, spacing, from, to, (at, _, index) {
+    final center = _scatter(at, width / 2, seed, index, 0);
+    final shade = _random(seed, index, 2);
+    // Most sparkles are lighter than the color, some a little darker.
+    paint.color = shade < 0.25
+        ? Color.lerp(color, black, shade)!
+        : Color.lerp(color, white, (shade - 0.25) * 0.8)!;
+    final size = math.max(0.6, width * (0.05 + 0.13 * _random(seed, index, 3)));
+    if (_random(seed, index, 4) > 0.9) {
+      paint.color = Color.lerp(color, white, 0.7)!;
+      canvas.drawPath(_twinkle(center, size * 2.5), paint);
+    } else {
+      canvas.drawCircle(center, size, paint);
+    }
+  });
+}
+
+/// A four-pointed twinkle of radius [r].
+Path _twinkle(Offset c, double r) {
+  final w = r * 0.25;
+  return Path()
+    ..moveTo(c.dx, c.dy - r)
+    ..quadraticBezierTo(c.dx + w, c.dy - w, c.dx + r, c.dy)
+    ..quadraticBezierTo(c.dx + w, c.dy + w, c.dx, c.dy + r)
+    ..quadraticBezierTo(c.dx - w, c.dy + w, c.dx - r, c.dy)
+    ..quadraticBezierTo(c.dx - w, c.dy - w, c.dx, c.dy - r)
+    ..close();
+}
+
+/// Stars: one every star and a half, each turned a little differently.
+void _paintStars(
+  Canvas canvas,
+  Color color,
+  double width,
+  int seed,
+  List<SheetPoint> points,
+  int from,
+  int to,
+) {
+  final size = starSize(width);
+  final paint = Paint()..color = color;
+  _walkStamps(points, size * 1.4, from, to, (at, _, index) {
+    final turn = _random(seed, index, 0) * 2 * math.pi / 5;
+    final star = Path();
+    for (var i = 0; i < 10; i++) {
+      final r = i.isEven ? size / 2 : size / 4.4;
+      final a = turn - math.pi / 2 + i * math.pi / 5;
+      final p = at + Offset(math.cos(a), math.sin(a)) * r;
+      i == 0 ? star.moveTo(p.dx, p.dy) : star.lineTo(p.dx, p.dy);
+    }
+    canvas.drawPath(star..close(), paint);
+  });
+}
+
+/// Spray: tiny dots scattered around the line, denser in the middle, in
+/// three sizes (one draw call each).
+void _paintSpray(
+  Canvas canvas,
+  Color color,
+  double width,
+  int seed,
+  List<SheetPoint> points,
+  int from,
+  int to,
+) {
+  final spacing = math.max(1.0, width * 0.2);
+  final dots = (3 + width * 0.7).round();
+  final sizes = [
+    for (final f in [0.7, 1.0, 1.4]) math.max(1.0, width * 0.05) * f,
+  ];
+  final buckets = [<Offset>[], <Offset>[], <Offset>[]];
+  _walkStamps(points, spacing, from, to, (at, _, index) {
+    for (var d = 0; d < dots; d++) {
+      final k = d * 3;
+      buckets[(_random(seed, index, k + 2) * 3).floor()].add(
+        _scatter(at, width / 2, seed, index, k, centered: true),
+      );
+    }
+  });
+  for (var i = 0; i < 3; i++) {
+    canvas.drawPoints(
+      PointMode.points,
+      buckets[i],
+      _linePaint(color, sizes[i]),
+    );
+  }
+}
+
+/// Watercolor: soft, see-through blots with blurred edges. Each blot adds a
+/// little color, so the middle of the line and the places painted twice
+/// are darker.
+void _paintWatercolor(
+  Canvas canvas,
+  Color color,
+  double width,
+  int seed,
+  List<SheetPoint> points,
+  int from,
+  int to,
+) {
+  final spacing = math.max(1.0, width * 0.12);
+  final paint = Paint();
+  final clear = color.withValues(alpha: 0);
+  _walkStamps(points, spacing, from, to, (at, _, index) {
+    final radius = width / 2 * (0.92 + 0.16 * _random(seed, index, 0));
+    final center = _scatter(at, width * 0.08, seed, index, 1);
+    paint.shader = Gradient.radial(
+      center,
+      radius,
+      [color.withValues(alpha: 0.12), color.withValues(alpha: 0.1), clear],
+      const [0, 0.7, 1],
+    );
+    canvas.drawCircle(center, radius, paint);
+  });
 }
 
 /// Length of the polyline [points] up to (excluding) index [end].

@@ -9,6 +9,7 @@ StrokeElement stroke(StrokeTool tool, double y) => StrokeElement(
   tool: tool,
   color: const Color(0xFF8E44AD),
   width: 12.5,
+  seed: tool.isRandom ? 123456789 : 0,
   points: [
     for (var x = 0; x <= 100; x += 25)
       SheetPoint(x.toDouble(), y + x / 3, pressure: 0.42, time: x * 4),
@@ -44,6 +45,7 @@ void main() {
       expect(b.tool, a.tool);
       expect(b.color, a.color);
       expect(b.width, a.width);
+      expect(b.seed, a.seed);
       expect(b.points.length, a.points.length);
       expect(b.points.last.x, closeTo(a.points.last.x, 0.005));
       expect(b.points.last.y, closeTo(a.points.last.y, 0.005));

@@ -546,11 +546,15 @@ class EditorController extends Notifier<EditorState> {
   // Strokes
 
   /// Commits a finished stroke (or eraser pass) drawn through [points].
-  void commitStroke(List<SheetPoint> points) {
+  /// [seed] places the random pieces of the magic brushes (F-17).
+  void commitStroke(List<SheetPoint> points, {int seed = 0}) {
     final stack = _stack;
     if (stack == null || points.isEmpty) return;
-    final simplified = simplify(points, _simplifyTolerance);
     final strokeTool = state.tool.strokeTool;
+    // The random pieces are placed along the points: they are kept as drawn.
+    final simplified = (strokeTool?.isRandom ?? false)
+        ? points
+        : simplify(points, _simplifyTolerance);
     if (strokeTool == null) {
       if (state.tool != EditorTool.eraser) return;
       final command = EraseCommand.forDrawing(
@@ -571,6 +575,7 @@ class EditorController extends Notifier<EditorState> {
           color: state.color,
           width: state.width,
           points: simplified,
+          seed: strokeTool.isRandom ? seed : 0,
         ),
       ),
     );
