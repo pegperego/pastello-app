@@ -310,7 +310,7 @@ VERTICALE
 | ℹ️ Informazioni | Versione, dispositivo, Android, "Copia informazioni per la segnalazione" (AD-02) | v1 |
 | 🔗 Link | Codice sorgente, segnala un problema, informativa privacy (AD-16) | v1 |
 | 📜 Crediti e licenze | Librerie, caratteri, adesivi (AD-13, AD-17) | v1 |
-| 💾 Backup | Esporta/importa tutti i disegni in `.zip` (AD-09) | dopo la v1 |
+| 💾 Backup | Esporta/importa tutti i disegni in `.zip` (AD-09, F-21) | v1.1 |
 | 📦 Catalogo | Scarica nuovi pacchetti (AD-17) | dopo la v1 |
 
 ### Esperienza
@@ -349,7 +349,7 @@ inglese · GitHub Releases e Google Play.
 1. Altri pennelli magici ed evidenziatore (scelti dalla bambina) → v1.1, F-17
 2. Secchiello e disegni da colorare (D-06) → v1.1, F-18 e F-19
 3. Sfondi illustrati e adesivi disegnati da noi
-4. Backup ed esportazione/importazione `.zip`
+4. Backup ed esportazione/importazione `.zip` → v1.1, F-21
 5. Zoom, se il prototipo lo richiede (D-07)
 6. Contagocce (F-05)
 7. Supporto penna (AD-07)
@@ -450,6 +450,34 @@ glitter, neon, stelline, spray e acquerello.
   scelta la A. Scartate la B (strumenti della categoria sempre visibili: foglio
   più piccolo) e la C (anche i colori a famiglie: cambiare colore costerebbe
   due tocchi).
+
+#### F-21 — Esporta e importa i disegni
+
+- **Stato:** ✅ approvata (2026-10-30), anticipa il punto 4 della lista "dopo
+  la v1"
+- **Perché ora:** per passare da una versione installata a mano a quella del
+  Play Store (firme diverse) bisogna disinstallare, e disinstallare cancella
+  i disegni. Serve anche come copia di sicurezza o per cambiare tablet.
+- **Dove:** nella **pagina genitori** (dietro il cancello), due voci:
+  "Esporta tutti i disegni" e "Importa disegni".
+- **Esporta:** un file `.zip` (es. `pastello-disegni-2026-10-30.zip`) con
+  tutti i disegni della galleria, **cronologia di annulla compresa**, nella
+  struttura di cartelle già documentata (AD-09). Il **cestino non** è
+  incluso. Il posto lo sceglie il genitore con la finestra **"Salva"** di
+  Android (Download, chiavetta, Drive se installato): nessun permesso e
+  nessun accesso a internet per l'app.
+- **Importa:** il genitore sceglie il `.zip` con la finestra **"Apri"** di
+  Android; i disegni si **aggiungono** alla galleria. Quelli già presenti
+  (stesso identificativo, anche nel cestino) vengono **saltati**, così
+  importare due volte non crea doppioni. Alla fine un messaggio dice quanti
+  disegni sono stati aggiunti, quanti erano già presenti e quanti non si
+  potevano leggere.
+- **Sicurezza:** si accettano solo i file previsti dalla struttura, con
+  dimensioni massime; tutto il resto è ignorato. Un disegno fatto con una
+  versione più recente dell'app viene saltato (e contato tra quelli non
+  letti).
+- **Passaggio al Play Store:** esporta → disinstalla → installa da Play →
+  importa.
 
 ### Decisioni della v1.1
 

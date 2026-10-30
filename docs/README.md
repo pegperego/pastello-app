@@ -38,3 +38,4 @@ The original analysis notes are kept, in Italian, in
 | [0017](adr/0017-child-safety.md) | Child safety |
 | [0018](adr/0018-content-packs.md) | Content packs and future updatable catalog |
 | [0019](adr/0019-google-play-signing-key.md) | Google-generated signing key on Google Play |
+| [0020](adr/0020-backup-export-import.md) | Exporting and importing all drawings |
