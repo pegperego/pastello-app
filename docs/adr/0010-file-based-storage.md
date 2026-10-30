@@ -39,6 +39,7 @@ database:
     drawings follow the child to a new tablet without going through the cloud.
   - Later, the parents' page will offer **"Export all drawings"** as a `.zip`
     file and **"Import"** to restore them, using the same documented layout.
+    Done in version 1.1, see ADR 0020.
 
 ## Consequences
 

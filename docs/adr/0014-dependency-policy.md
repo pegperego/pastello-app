@@ -36,6 +36,7 @@ small community. Every dependency is code we do not control.
 | Interface sounds | `audioplayers` (added 2026-10-25) | 6.8.1 | MIT |
 | About page | `package_info_plus`, `device_info_plus` | 10.2.2 / 13.3.0 | BSD-3-Clause |
 | Links in the parents' page | `url_launcher` (added 2026-10-25) | 6.3.3 | BSD-3-Clause |
+| Backup `.zip` files | `archive` (added 2026-10-30, already a transitive dependency, ADR 0020) | 4.5.2 | MIT |
 | Lints (dev only) | `flutter_lints` | 6.0.0 | BSD-3-Clause |
 
 ### Deliberately not used
