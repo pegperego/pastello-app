@@ -223,6 +223,16 @@ class DrawingRenderer extends ChangeNotifier {
     int to,
   ) {
     final strength = grainStrength(tool);
+    if (tool == StrokeTool.highlighter) {
+      // Painted whole every frame (see _syncFrozen), in its own layer.
+      canvas.saveLayer(
+        polylineBounds(live.points).inflate(live.width),
+        inkLayerPaint(tool),
+      );
+      paintStrokeInk(canvas, tool, live.color, live.width, live.points);
+      canvas.restore();
+      return;
+    }
     if (strength == 0) {
       paintStrokeInk(
         canvas,
@@ -232,12 +242,15 @@ class DrawingRenderer extends ChangeNotifier {
         live.points,
         from: from,
         to: to,
+        solidFrom: tool == StrokeTool.neon
+            ? _indexBefore(live.points, from, live.width * tool.reach)
+            : null,
       );
       return;
     }
     final bounds = polylineBounds(
       live.points.sublist(from, to),
-    ).inflate(live.width);
+    ).inflate(live.width * tool.reach);
     canvas.saveLayer(bounds, ui.Paint());
     if (from > 0) {
       final joint = live.points[from].offset;
@@ -263,6 +276,17 @@ class DrawingRenderer extends ChangeNotifier {
     canvas.restore();
   }
 
+  /// Index of the point at least [distance] before [index] along [points].
+  static int _indexBefore(List<SheetPoint> points, int index, double distance) {
+    var i = index;
+    var travelled = 0.0;
+    while (i > 0 && travelled < distance) {
+      travelled += points[i].distanceTo(points[i - 1]);
+      i--;
+    }
+    return i;
+  }
+
   /// Index of the first point that is still painted live. The tail starts
   /// at the last frozen point, so the two pieces join.
   int _tailStart(LiveStroke live) {
@@ -278,15 +302,21 @@ class DrawingRenderer extends ChangeNotifier {
     }
     final cache = _cache;
     if (cache == null) return;
+    // Pieces of a translucent stroke would get darker where they overlap:
+    // the highlighter is cheap enough to be painted whole every frame.
+    if (live.tool == StrokeTool.highlighter) return;
     // The newest points stay live: smoothing still moves them.
     const keep = 8;
     final end = live.points.length - keep;
     if (end - _frozenUntil < freezeBatch) return;
 
-    final start = _tailStart(live);
+    // The neon glow would get stronger where frozen pieces overlap: its
+    // frozen part is painted again whole, over the committed content.
+    final whole = live.tool == StrokeTool.neon;
+    final start = whole ? 0 : _tailStart(live);
     final recorder = ui.PictureRecorder();
     final canvas = ui.Canvas(recorder);
-    final base = _working ?? cache;
+    final base = whole ? cache : (_working ?? cache);
     canvas
       ..drawImage(
         base,

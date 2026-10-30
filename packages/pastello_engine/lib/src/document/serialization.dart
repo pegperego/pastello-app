@@ -16,7 +16,7 @@ import 'text_element.dart';
 ///
 /// Bump it when the format changes and add a step to [migrateDrawingJson].
 /// The format is documented in `docs/file-format.md`.
-const int drawingSchemaVersion = 5;
+const int drawingSchemaVersion = 6;
 
 /// Thrown when a file cannot be read: it is malformed, or it was written by a
 /// newer version of the app.
@@ -92,8 +92,8 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
     );
   }
   // Version 2 added texts and element transforms, version 3 stickers,
-  // version 4 shapes, version 5 backgrounds: older files are valid newer
-  // files, nothing to convert.
+  // version 4 shapes, version 5 backgrounds, version 6 the highlighter and
+  // neon strokes: older files are valid newer files, nothing to convert.
   return json;
 }
 

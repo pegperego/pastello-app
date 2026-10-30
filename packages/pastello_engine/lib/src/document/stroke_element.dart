@@ -71,7 +71,7 @@ class StrokeElement extends DrawingElement {
       if (p.y < top) top = p.y;
       if (p.y > bottom) bottom = p.y;
     }
-    return Rect.fromLTRB(left, top, right, bottom).inflate(width);
+    return Rect.fromLTRB(left, top, right, bottom).inflate(width * tool.reach);
   }
 
   /// Returns a copy of this stroke with [erasure] added.

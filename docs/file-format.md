@@ -22,7 +22,7 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 
 ```json
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "revision": 12,
   "sheet": { "width": 1114, "height": 663 },
   "background": { "color": 4294967295, "pattern": "lines" },
@@ -108,7 +108,7 @@ reference is kept, so it reappears when the pack is installed.
 | Field | Meaning |
 |---|---|
 | `id` | 32 hex characters, unique in the drawing. |
-| `tool` | `pencil`, `marker`, `brush`, `crayon` or `rainbow`. |
+| `tool` | `pencil`, `marker`, `brush`, `crayon`, `rainbow`, `highlighter` or `neon`. |
 | `color` | ARGB as a 32-bit integer (ignored by `rainbow`). |
 | `width` | Base width in sheet units. |
 | `points` | Flat list of `x, y, pressure, time` quadruples: sheet units, 0–1, milliseconds since the stroke started. Rounded to hundredths. |
@@ -118,7 +118,7 @@ reference is kept, so it reappears when the pack is installed.
 
 ```json
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "revision": 12,
   "undo": [ { "type": "add", "stroke": { … } } ],
   "redo": []
@@ -181,6 +181,7 @@ import date; a thumbnail that is not a PNG is dropped.
 | 3 | Stickers. Older files are read as they are. |
 | 4 | Shapes. Older files are read as they are. |
 | 5 | Paper color and pattern. Older files are read as they are (white paper). |
+| 6 | `highlighter` and `neon` strokes. Older files are read as they are. |
 
 ## Changing the format
 

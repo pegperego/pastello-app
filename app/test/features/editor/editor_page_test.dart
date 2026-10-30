@@ -9,6 +9,7 @@ import 'package:pastello/src/features/editor/domain/editor_tool.dart';
 import 'package:pastello/src/features/editor/presentation/editor_buttons.dart';
 import 'package:pastello/src/features/editor/presentation/editor_page.dart';
 import 'package:pastello/src/features/editor/presentation/sheet_view.dart';
+import 'package:pastello_engine/pastello_engine.dart';
 
 import '../../helpers.dart';
 
@@ -172,6 +173,39 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Pennarello').first);
     await tester.pump();
     expect(find.bySemanticsLabel('Matita'), findsNothing);
+  });
+
+  testWidgets('the magic brushes draw with the selected color (F-17)', (
+    tester,
+  ) async {
+    final settings = MemorySettingsRepository();
+    await openEditor(tester, settings: settings);
+    final c = container(tester);
+
+    await tester.tap(find.bySemanticsLabel('Arcobaleno'));
+    await tester.pump();
+    expect(find.bySemanticsLabel('Evidenziatore'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Neon'));
+    await tester.pump();
+    expect(settings.saved.categoryTools['magic'], 'neon');
+
+    await drawStroke(tester);
+    final state = c.read(editorProvider);
+    final stroke = state.drawing!.elements.last as StrokeElement;
+    expect(stroke.tool, StrokeTool.neon);
+    expect(stroke.color, state.color);
+    expect(stroke.width, WidthPreset.medium.width);
+
+    // The highlighter has its own width, wide by default.
+    await tester.tap(find.bySemanticsLabel('Neon'));
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('Evidenziatore'));
+    await tester.pump();
+    await drawStroke(tester, dy: 80);
+    final highlight =
+        c.read(editorProvider).drawing!.elements.last as StrokeElement;
+    expect(highlight.tool, StrokeTool.highlighter);
+    expect(highlight.width, WidthPreset.thick.width);
   });
 
   testWidgets('a long press opens the flyout; the sheet closes it and draws', (

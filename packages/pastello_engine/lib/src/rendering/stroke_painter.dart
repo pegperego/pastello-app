@@ -23,6 +23,16 @@ double grainStrength(StrokeTool tool) => switch (tool) {
   _ => 0,
 };
 
+/// Opacity of the highlighter. Its ink is painted opaque in a layer that is
+/// composited with this opacity, so a stroke crossing itself does not get
+/// darker.
+const double highlighterOpacity = 0.45;
+
+/// Paint for the layer a stroke drawn with [tool] is composited with.
+Paint inkLayerPaint(StrokeTool tool) => tool == StrokeTool.highlighter
+    ? (Paint()..color = const Color.fromRGBO(0, 0, 0, highlighterOpacity))
+    : Paint();
+
 /// Paints any [element] on [canvas], in sheet coordinates.
 ///
 /// Stickers are drawn with the pictures from [stickers]; without them, or
@@ -58,10 +68,13 @@ void paintElement(
 /// grain and the eraser only remove pixels of this stroke (ADR 0006).
 void paintStroke(Canvas canvas, StrokeElement stroke, PaperGrain grain) {
   final strength = grainStrength(stroke.tool);
-  final needsLayer = strength > 0 || stroke.erasures.isNotEmpty;
+  final needsLayer =
+      strength > 0 ||
+      stroke.erasures.isNotEmpty ||
+      stroke.tool == StrokeTool.highlighter;
   final bounds = stroke.localBounds;
 
-  if (needsLayer) canvas.saveLayer(bounds, Paint());
+  if (needsLayer) canvas.saveLayer(bounds, inkLayerPaint(stroke.tool));
   paintStrokeInk(
     canvas,
     stroke.tool,
@@ -93,6 +106,10 @@ void paintGrain(Canvas canvas, Rect bounds, double strength, PaperGrain grain) {
 /// [from] and [to] paint only a range of [points], so that a long stroke can
 /// be painted in pieces (ADR 0005); the pieces join seamlessly because the
 /// rainbow colors and the brush widths depend on the whole stroke.
+///
+/// The neon paints its tube and core from [solidFrom] (default: [from]):
+/// starting them earlier than the glow repaints them over the glow that a
+/// piece spills onto the previous one.
 void paintStrokeInk(
   Canvas canvas,
   StrokeTool tool,
@@ -101,6 +118,7 @@ void paintStrokeInk(
   List<SheetPoint> points, {
   int from = 0,
   int? to,
+  int? solidFrom,
 }) {
   final end = to ?? points.length;
   if (end - from < 1) return;
@@ -112,6 +130,22 @@ void paintStrokeInk(
       );
     case StrokeTool.rainbow:
       _paintRainbow(canvas, width, points, from, end);
+    case StrokeTool.highlighter:
+      canvas.drawPath(
+        smoothPolyline(points.sublist(from, end)),
+        _linePaint(color, width)..strokeCap = StrokeCap.square,
+      );
+    case StrokeTool.neon:
+      _paintNeon(
+        canvas,
+        color,
+        width,
+        smoothPolyline(points.sublist(from, end)),
+        smoothPolyline(points.sublist(solidFrom ?? from, end)),
+        joint: (solidFrom ?? from) > 0
+            ? points[solidFrom ?? from].offset
+            : null,
+      );
     case StrokeTool.pencil:
     case StrokeTool.marker:
     case StrokeTool.crayon:
@@ -151,6 +185,48 @@ Paint _linePaint(Color color, double width) => Paint()
   ..strokeWidth = width
   ..strokeCap = StrokeCap.round
   ..strokeJoin = StrokeJoin.round;
+
+/// Paints a neon tube: a blurred glow of [color] along [glow], then the
+/// tube itself and a light core along [solid]. The glow stays within
+/// [StrokeTool.reach].
+///
+/// When [solid] continues an earlier piece, the round cap of the tube at
+/// the [joint] would cover the core already painted there: it is clipped
+/// out.
+void _paintNeon(
+  Canvas canvas,
+  Color color,
+  double width,
+  Path glow,
+  Path solid, {
+  Offset? joint,
+}) {
+  canvas.drawPath(
+    glow,
+    _linePaint(color.withValues(alpha: 0.6), width * 1.6)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, width * 0.35),
+  );
+  if (joint != null) {
+    canvas
+      ..save()
+      ..clipPath(
+        Path()
+          ..fillType = PathFillType.evenOdd
+          ..addRect(solid.getBounds().inflate(width))
+          ..addOval(Rect.fromCircle(center: joint, radius: width * 0.35)),
+      );
+  }
+  canvas
+    ..drawPath(solid, _linePaint(color, width * 0.7))
+    ..drawPath(
+      solid,
+      _linePaint(
+        Color.lerp(color, const Color(0xFFFFFFFF), 0.75)!,
+        width * 0.3,
+      ),
+    );
+  if (joint != null) canvas.restore();
+}
 
 /// Color of the rainbow at [distance] sheet units from the stroke start.
 ///
