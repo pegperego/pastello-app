@@ -111,6 +111,7 @@ VERTICALE
 - Target touch **≥ 56 dp**.
 - **Opzione "Mancina/o"** nella pagina genitori: scambia le colonne di
   strumenti e colori.
+- Dalla v1.1 gli strumenti sono raggruppati in categorie (F-20).
 - Altre impostazioni di personalizzazione: da pensare in futuro.
 
 #### F-04 — Strumenti di disegno della v1
@@ -365,10 +366,8 @@ glitter, neon, stelline, spray e acquerello.
 #### F-17 — Pennelli magici ed evidenziatore
 
 - **Stato:** ✅ approvata (2026-10-27)
-- Un solo pulsante **"✨ Magia"** nella barra degli strumenti, accanto
-  all'arcobaleno, apre un pannello con i pennelli magici (come il pannello
-  degli adesivi). Il pulsante mostra l'icona dell'ultimo pennello magico
-  scelto. Così la barra non si allunga di sei strumenti.
+- I pennelli magici stanno nella categoria **"✨ Magia"** (F-20), insieme
+  all'arcobaleno.
 
 | Pennello | Tratto | Colore |
 |---|---|---|
@@ -417,6 +416,40 @@ glitter, neon, stelline, spray e acquerello.
   AD-17). Prima dotazione: **circa 20 disegni** (animali, veicoli, natura,
   feste), **disegnati da noi** in SVG con contorni semplici e spessi, rilasciati
   CC0 (D-12).
+
+#### F-20 — Strumenti a categorie
+
+- **Stato:** ✅ approvata (2026-10-30), aggiorna F-03
+- Con pennelli magici e secchiello gli strumenti diventerebbero 17: non
+  stanno più nelle due colonne di oggi. Si raggruppano in **8 categorie**,
+  in **una colonna** (orizzontale) o **una riga** (verticale):
+
+| Categoria | Strumenti |
+|---|---|
+| ✏️ Disegna | Matita, pennarello, pennello, pastello a cera |
+| ✨ Magia | Arcobaleno, evidenziatore, glitter, neon, stelline, spray, acquerello |
+| 🧽 Gomma · 🪣 Secchiello · 🔤 Testo · 😀 Adesivi · ⬛ Forme · ⬚ Seleziona | Uno ciascuna, come oggi |
+
+- Ogni pulsante mostra l'**ultimo strumento usato** della categoria, ricordato
+  tra una sessione e l'altra: **un tocco** lo seleziona subito.
+- Nelle categorie con più strumenti (segnate da un **triangolino**
+  nell'angolo) lo stesso tocco apre un **pannellino** accanto con gli altri
+  strumenti. Toccare di nuovo la categoria lo chiude.
+- Il pannellino **si chiude da solo** scegliendo uno strumento o toccando il
+  foglio; il tocco sul foglio **disegna già**, non va sprecato.
+- **Tenendo premuto** una categoria si apre il pannellino senza cambiare
+  strumento.
+- **Colori invariati** (F-05): i 12 colori restano sempre visibili, perché si
+  cambiano molto più spesso degli strumenti.
+- **Spessori:** in orizzontale restano i 4 pallini; in **verticale** diventano
+  **un pulsante** che mostra lo spessore attuale e apre un pannellino con i
+  4, che si chiude da solo come quello degli strumenti. Così colori e
+  spessore stanno in una riga senza scorrere.
+- Scelta fra tre proposte (A, B, C) con i mockup in
+  [`risorse/design/layout-strumenti.html`](risorse/design/layout-strumenti.html):
+  scelta la A. Scartate la B (strumenti della categoria sempre visibili: foglio
+  più piccolo) e la C (anche i colori a famiglie: cambiare colore costerebbe
+  due tocchi).
 
 ### Decisioni della v1.1
 
