@@ -9,6 +9,7 @@ import 'package:pastello/src/core/settings/settings_providers.dart';
 import 'package:pastello/src/core/clock.dart';
 import 'package:pastello/src/core/feedback/feedback.dart';
 import 'package:pastello/src/core/settings/settings_repository.dart';
+import 'package:pastello/src/features/coloring/application/coloring_providers.dart';
 import 'package:pastello/src/features/drawings/application/drawings_providers.dart';
 import 'package:pastello/src/features/drawings/data/drawing_repository.dart';
 import 'package:pastello/src/features/drawings/domain/drawing_summary.dart';
@@ -193,7 +194,7 @@ class MemoryDrawingRepository implements DrawingRepository {
   Future<int> purgeTrash() async => 0;
 }
 
-/// The bundled sticker packs, loaded once per test file by [loadTestPacks].
+/// The bundled content packs, loaded once per test file by [loadTestPacks].
 ///
 /// Reading assets needs real asynchronous work, which widget tests' fake
 /// time does not provide; loading them up front keeps the tests fast and
@@ -250,7 +251,7 @@ List<Override> testOverrides(
   ),
   thumbnailRendererProvider.overrideWithValue((_) async => transparentPng),
   clockProvider.overrideWithValue(() => testNow),
-  stickerPacksProvider.overrideWith((ref) async => testPacks),
+  contentPacksProvider.overrideWith((ref) async => testPacks),
   appInfoProvider.overrideWith(
     (ref) async => const AppInfo(
       version: '0.1.0 (1)',
@@ -269,6 +270,8 @@ List<Override> testOverrides(
   }),
   // Stickers render as placeholders: no SVG work in widget tests.
   stickerArtworkProvider.overrideWith((ref) async => PackArtwork(const {})),
+  // Coloring pages too: their outline is a placeholder.
+  coloringArtworkProvider.overrideWith((ref) async => ColoringPages(const {})),
   orientationSetterProvider.overrideWithValue((orientations) async {
     requestedOrientations.add(orientations);
   }),

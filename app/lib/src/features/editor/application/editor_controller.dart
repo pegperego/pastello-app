@@ -7,6 +7,7 @@ import 'package:pastello_engine/pastello_engine.dart';
 
 import '../../../core/settings/app_settings.dart';
 import '../../../core/settings/settings_providers.dart';
+import '../../coloring/application/coloring_providers.dart';
 import '../../drawings/application/drawings_providers.dart';
 import '../domain/editor_tool.dart';
 import '../domain/palette.dart';
@@ -265,6 +266,7 @@ class EditorController extends Notifier<EditorState> {
   String _drawingId = newElementId();
   bool _onDisk = false;
   bool _loading = false;
+  ColoringOutline? _outline;
   bool _dirty = false;
   Timer? _autosave;
   Future<void> _saving = Future.value();
@@ -309,6 +311,10 @@ class EditorController extends Notifier<EditorState> {
   // ---------------------------------------------------------------------------
   // Sheet, loading and saving
 
+  /// Starts the new drawing from a coloring page: its sheet will have
+  /// [outline] (F-19).
+  void startColoring(ColoringOutline outline) => _outline = outline;
+
   /// Makes sure there is a sheet for the [available] space.
   ///
   /// The sheet takes the shape of the screen and keeps it once something is
@@ -325,7 +331,7 @@ class EditorController extends Notifier<EditorState> {
             stack.drawing.sheetSize == available)) {
       return;
     }
-    _stack = CommandStack(Drawing(sheetSize: available));
+    _stack = CommandStack(Drawing(sheetSize: available, outline: _outline));
     _publish(changed: false);
   }
 
@@ -619,7 +625,12 @@ class EditorController extends Notifier<EditorState> {
       if (recolored != null) _execute(UpdateElementCommand(border, recolored));
       return;
     }
-    final mask = await bucketFill(drawing, point);
+    final mask = await bucketFill(
+      drawing,
+      point,
+      // The outline must stop the color: wait for it if it is loading.
+      coloring: await coloringFor(ref, drawing),
+    );
     if (mask == null || !identical(_stack?.drawing, drawing)) return;
     final fill = FillElement(id: newElementId(), color: color, mask: mask);
     // Fills hidden under the new one go away, so coloring an area again

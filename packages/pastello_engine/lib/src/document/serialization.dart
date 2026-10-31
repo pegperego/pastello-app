@@ -42,6 +42,8 @@ Map<String, Object?> drawingToJson(Drawing drawing) => {
   },
   if (!drawing.background.isDefault)
     'background': backgroundToJson(drawing.background),
+  if (drawing.outline case final outline?)
+    'outline': {'pack': outline.packId, 'page': outline.pageId},
   'elements': [for (final e in drawing.elements) elementToJson(e)],
 };
 
@@ -72,11 +74,19 @@ Drawing drawingFromJson(Map<String, Object?> json) {
     background: current['background'] == null
         ? SheetBackground.white
         : backgroundFromJson(_map(current['background'])),
+    outline: current['outline'] == null
+        ? null
+        : _outlineFromJson(_map(current['outline'])),
     elements: [
       for (final e in _list(current['elements'])) elementFromJson(_map(e)),
     ],
   );
 }
+
+ColoringOutline _outlineFromJson(Map<String, Object?> json) => ColoringOutline(
+  packId: _string(json['pack']),
+  pageId: _string(json['page']),
+);
 
 /// Brings [json] up to [drawingSchemaVersion].
 ///
@@ -94,8 +104,8 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
     );
   }
   // Version 2 added texts and element transforms, version 3 stickers,
-  // version 4 shapes, version 5 backgrounds, version 6 the magic brushes and
-  // the fills of the paint bucket:
+  // version 4 shapes, version 5 backgrounds, version 6 the magic brushes,
+  // the fills of the paint bucket and the coloring outlines:
   // older files are valid newer files, nothing to convert.
   return json;
 }

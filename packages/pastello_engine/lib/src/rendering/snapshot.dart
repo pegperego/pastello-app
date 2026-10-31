@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import '../document/drawing.dart';
 import '../document/sticker_element.dart';
+import 'coloring.dart';
 import 'paper_grain.dart';
 import 'stroke_painter.dart';
 
@@ -15,12 +16,17 @@ ui.Picture renderDrawing(
   PaperGrain grain, {
   required int width,
   StickerArtwork? stickers,
+  ColoringArtwork? coloring,
 }) {
   final scale = width / drawing.sheetSize.width;
   final recorder = ui.PictureRecorder();
   final canvas = ui.Canvas(recorder)..scale(scale);
   drawing.background.paint(canvas, drawing.sheetSize);
-  for (final element in drawing.paintOrder) {
+  for (final element in drawing.underOutline) {
+    paintElement(canvas, element, grain, stickers: stickers);
+  }
+  paintOutline(canvas, drawing, coloring);
+  for (final element in drawing.overOutline) {
     paintElement(canvas, element, grain, stickers: stickers);
   }
   return recorder.endRecording();

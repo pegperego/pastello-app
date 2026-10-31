@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
+import '../../coloring/application/coloring_providers.dart';
 import '../../stickers/application/stickers_providers.dart';
 import '../data/drawing_repository.dart';
 import '../domain/drawing_summary.dart';
@@ -20,9 +21,10 @@ const thumbnailWidth = 480;
 /// encoding images needs the real event loop.
 final thumbnailRendererProvider = Provider<Future<Uint8List> Function(Drawing)>(
   (ref) =>
-      (drawing) => renderThumbnail(
+      (drawing) async => renderThumbnail(
         drawing,
         stickers: ref.read(stickerArtworkProvider).value,
+        coloring: await coloringFor(ref, drawing),
       ),
 );
 
@@ -30,6 +32,7 @@ final thumbnailRendererProvider = Provider<Future<Uint8List> Function(Drawing)>(
 Future<Uint8List> renderThumbnail(
   Drawing drawing, {
   StickerArtwork? stickers,
+  ColoringArtwork? coloring,
 }) async {
   final grain = PaperGrain.generate();
   final picture = renderDrawing(
@@ -37,6 +40,7 @@ Future<Uint8List> renderThumbnail(
     grain,
     width: thumbnailWidth,
     stickers: stickers,
+    coloring: coloring,
   );
   final image = await picture.toImage(
     thumbnailWidth,

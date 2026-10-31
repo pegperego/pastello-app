@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   chosen color, under the lines, and small gaps in the outline are closed
   so the color does not spill out. A tap on a line changes its color.
   Fills can be erased, moved with the lasso and undone.
+- Coloring pages: a "Coloring pages" button next to the "+" opens a grid
+  of drawings to color; a tap starts a new sheet with that outline. The
+  outline stays above the colors, cannot be erased or moved, and stops the
+  paint bucket. A first set of three pages (star, house, fish), drawn by
+  the project and released under CC0.
 
 ### Changed
 

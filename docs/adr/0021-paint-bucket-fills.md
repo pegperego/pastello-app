@@ -55,7 +55,7 @@ Risk R-03 suggested storing fills as PNG masks.
   sheet is never zoomed today (D-07).
 - A fill moved with the lasso is painted above the other elements while the
   finger moves, and goes back under them when released.
-- The coloring pages (F-19) will add their outline as a border.
+- The outlines of coloring pages (F-19) are borders too (ADR 0022).
 
 ## Alternatives considered
 

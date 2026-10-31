@@ -1,0 +1,65 @@
+# 0022. Coloring pages
+
+- **Status:** accepted
+- **Date:** 2026-10-31
+
+## Context
+
+The child can start a drawing from a coloring page (functional decision
+F-19). The outline must stay visible when coloring outside the lines, must
+not be erased or moved by mistake, and must stop the paint bucket
+(ADR 0021). Pages come from content packs (ADR 0018), and the sheet takes
+the shape of the screen, in portrait or landscape (D-05).
+
+## Decision
+
+- **Model:** the outline is a property of the drawing, like the paper:
+  `Drawing.outline`, a reference to a pack and a page
+  (`{"pack": …, "page": …}` in the file). It is **not an element**, so no
+  command (eraser, lasso, delete, clear, undo) can change it. An untouched
+  coloring sheet is not saved, like an empty one (F-01).
+- **Placement:** the page is scaled to fit the sheet within a margin of 5%
+  of its short side, and centered. The placement is computed from the
+  sheet and page sizes when painting, so it does not need to be stored.
+- **Z-order:** paper, fills, strokes and shapes, **outline**, then texts
+  and stickers (`Drawing.underOutline`, `Drawing.overOutline`). Drawings
+  without an outline keep the usual order.
+- **Rendering:** the raster cache (ADR 0005) holds what goes under the
+  outline. The outline and the elements above it are rendered once into a
+  transparent **overlay** image, painted over the cache and the stroke in
+  progress, so even a live stroke stays under the lines. The overlay is
+  rendered again only when its elements, the density or the artwork change.
+- **Paint bucket:** the outline is painted into the bucket's walls through a
+  color filter that turns darkness into opacity: black lines stop the
+  color, white areas of the artwork do not. A tap on the outline fills the
+  nearest area.
+- **Packs:** `pack.json` gets a `kind`, `stickers` by default or `coloring`
+  (`coloring/*.svg`). Unknown kinds are skipped. The artwork is loaded once
+  as pictures, each keeping its own size, through a `ColoringArtwork`
+  interface given to the engine.
+- **Missing page:** if the pack is not installed, a "?" placeholder is drawn
+  in the middle of the sheet and the drawing can still be colored; while the
+  artwork is loading nothing is drawn. Thumbnails, exports and the paint
+  bucket wait for the artwork to load.
+
+## Consequences
+
+- Coloring outside the lines never hides them, and the outline cannot be
+  lost.
+- On a coloring sheet each frame paints one more full-sheet image (the
+  overlay); blank sheets are not affected.
+- A drawing shows its outline only where the pack is installed: a backup
+  restored on a device without the pack shows the placeholder.
+- An updated page in a pack changes the outline of the drawings made from
+  it.
+
+## Alternatives considered
+
+- **Outline as a locked element:** fits the element list, but every command
+  and tool would need an exception to leave it alone.
+- **Copying the SVG into the drawing:** drawings would stay complete without
+  the pack, but files would grow and a fixed page would not reach existing
+  drawings.
+- **Painting the outline in the cache:** cheaper per frame, but strokes are
+  added to the cache incrementally on top of what is there, so they would
+  cover the lines.

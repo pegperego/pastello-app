@@ -24,6 +24,7 @@ export 'src/geometry/lasso.dart';
 export 'src/geometry/simplify.dart';
 export 'src/geometry/stroke_outline.dart';
 export 'src/rendering/bucket.dart';
+export 'src/rendering/coloring.dart';
 export 'src/rendering/drawing_renderer.dart';
 export 'src/rendering/live_stroke.dart';
 export 'src/rendering/paper_grain.dart';

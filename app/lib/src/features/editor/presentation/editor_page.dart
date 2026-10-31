@@ -13,6 +13,7 @@ import '../../../core/settings/app_settings.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../export/application/export_actions.dart';
+import '../../coloring/application/coloring_providers.dart';
 import '../../stickers/application/stickers_providers.dart';
 import '../../stickers/presentation/sticker_panel.dart';
 import '../application/editor_controller.dart';
@@ -31,10 +32,13 @@ import 'text_edit_panel.dart';
 /// The editor: action bar on top, tools and colors on the sides (landscape)
 /// or at the bottom (portrait), the sheet in the middle (F-03).
 class EditorPage extends ConsumerStatefulWidget {
-  const EditorPage({super.key, this.drawingId});
+  const EditorPage({super.key, this.drawingId, this.outline});
 
   /// The saved drawing to open, or `null` for a new one.
   final String? drawingId;
+
+  /// The coloring page a new drawing starts from (F-19).
+  final ColoringOutline? outline;
 
   @override
   ConsumerState<EditorPage> createState() => _EditorPageState();
@@ -67,6 +71,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     _lifecycle = AppLifecycleListener(
       onHide: () => ref.read(editorProvider.notifier).flush(),
     );
+    final outline = widget.outline;
+    if (outline != null) {
+      ref.read(editorProvider.notifier).startColoring(outline);
+    }
     final id = widget.drawingId;
     if (id != null) {
       // Not during build: opening changes the editor's state.
@@ -223,6 +231,13 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     if (artwork != null && !identical(_renderer.stickers, artwork)) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _renderer.stickers = artwork,
+      );
+    }
+    // The same for the outlines of coloring pages.
+    final coloring = ref.watch(coloringArtworkProvider).value;
+    if (coloring != null && !identical(_renderer.coloring, coloring)) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _renderer.coloring = coloring,
       );
     }
 

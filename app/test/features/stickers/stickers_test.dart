@@ -8,6 +8,7 @@ import 'package:pastello/src/features/editor/application/editor_controller.dart'
 import 'package:pastello/src/features/editor/domain/editor_tool.dart';
 import 'package:pastello/src/features/stickers/application/stickers_providers.dart';
 import 'package:pastello/src/features/stickers/data/bundled_packs.dart';
+import 'package:pastello/src/features/stickers/domain/sticker_pack.dart';
 import 'package:pastello_engine/pastello_engine.dart';
 
 import '../../helpers.dart';
@@ -16,7 +17,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('the bundled packs: 8 categories, every file present', () async {
-    final packs = await loadBundledPacks(rootBundle);
+    final packs = [
+      for (final pack in await loadBundledPacks(rootBundle))
+        if (pack.kind == PackKind.stickers) pack,
+    ];
     expect(packs, hasLength(8));
     expect(packs.first.title('it'), 'Animali');
     expect(packs.first.title('en'), 'Animals');

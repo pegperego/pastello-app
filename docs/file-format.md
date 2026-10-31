@@ -57,6 +57,7 @@ Every file is written atomically: to `<name>.tmp` first, then renamed.
 | `revision` | Increases at every save; `history.json` must carry the same value. |
 | `sheet` | Fixed sheet size in sheet units (not pixels). |
 | `background` | Paper `color` (ARGB) and `pattern`: `none`, `lines`, `bigSquares`, `smallSquares` or `dots`. Omitted for plain white paper. One printed centimeter is the sheet's long side divided by 29.7 (an A4 page). |
+| `outline` | The coloring page the drawing started from (ADR 0022): `{"pack": "pastello-first", "page": "house"}`, the ids of a content pack and of one of its pages. Omitted for a blank sheet. The artwork is not copied: a missing pack shows a placeholder. |
 | `elements` | Elements from bottom to top (z-order). |
 
 ### Transform
@@ -198,7 +199,7 @@ import date; a thumbnail that is not a PNG is dropped.
 | 3 | Stickers. Older files are read as they are. |
 | 4 | Shapes. Older files are read as they are. |
 | 5 | Paper color and pattern. Older files are read as they are (white paper). |
-| 6 | Magic brushes: `highlighter`, `neon`, `glitter`, `stars`, `spray` and `watercolor` strokes, stroke `seed`. Paint bucket fills. Older files are read as they are. |
+| 6 | Magic brushes: `highlighter`, `neon`, `glitter`, `stars`, `spray` and `watercolor` strokes, stroke `seed`. Paint bucket fills. Coloring page `outline`. Older files are read as they are. |
 
 ## Changing the format
 

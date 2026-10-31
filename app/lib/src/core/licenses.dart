@@ -27,5 +27,12 @@ void registerBundledLicenses() {
     yield LicenseEntryWithLineBreaks([
       'Fluent Emoji (Microsoft)',
     ], await rootBundle.loadString('assets/packs/LICENSE-fluent-emoji.txt'));
+    // Coloring pages (F-19), drawn by the project.
+    yield const LicenseEntryWithLineBreaks(
+      ['Pastello coloring pages'],
+      'The coloring pages in assets/packs/pastello-* are drawn by the '
+      'Pastello project and dedicated to the public domain under CC0 1.0: '
+      'https://creativecommons.org/publicdomain/zero/1.0/',
+    );
   });
 }

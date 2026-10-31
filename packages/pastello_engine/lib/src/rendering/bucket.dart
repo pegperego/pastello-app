@@ -8,6 +8,7 @@ import '../document/fill_element.dart';
 import '../document/shape_element.dart';
 import '../document/stroke_element.dart';
 import '../geometry/bucket_fill.dart';
+import 'coloring.dart';
 import 'stroke_painter.dart';
 
 /// Whether the paint bucket stops at [element] (F-18): strokes of solid
@@ -39,8 +40,13 @@ Future<DrawingElement?> bucketBorderAt(Drawing drawing, ui.Offset point) async {
 /// there is nothing to color there (ADR 0021).
 ///
 /// The borders are painted at one pixel per sheet unit; the area is then
-/// computed in another isolate, so the editor stays responsive.
-Future<FillMask?> bucketFill(Drawing drawing, ui.Offset point) async {
+/// computed in another isolate, so the editor stays responsive. The outline
+/// of a coloring page, taken from [coloring], is a border too (ADR 0022).
+Future<FillMask?> bucketFill(
+  Drawing drawing,
+  ui.Offset point, {
+  ColoringArtwork? coloring,
+}) async {
   final width = drawing.sheetSize.width.ceil();
   final height = drawing.sheetSize.height.ceil();
   if (width <= 0 || height <= 0) return null;
@@ -48,6 +54,13 @@ Future<FillMask?> bucketFill(Drawing drawing, ui.Offset point) async {
   final canvas = ui.Canvas(recorder);
   for (final element in drawing.paintOrder) {
     if (isBucketBorder(element)) _paintBorder(canvas, element);
+  }
+  if (drawing.outline != null) {
+    // Only the dark lines of the page are walls: a white area in the
+    // artwork must not stop the color.
+    canvas.saveLayer(null, ui.Paint()..colorFilter = _darkness);
+    paintOutline(canvas, drawing, coloring);
+    canvas.restore();
   }
   final walls = await _alpha(recorder.endRecording(), width, height);
   final region = await compute(_region, (
@@ -60,6 +73,14 @@ Future<FillMask?> bucketFill(Drawing drawing, ui.Offset point) async {
   if (region == null) return null;
   return FillMask(left: region.left, top: region.top, rows: region.rows);
 }
+
+/// Turns how dark a pixel is into its opacity, and its color into black.
+const _darkness = ui.ColorFilter.matrix([
+  0, 0, 0, 0, 0, //
+  0, 0, 0, 0, 0, //
+  0, 0, 0, 0, 0, //
+  -0.2126, -0.7152, -0.0722, 1, 0, //
+]);
 
 BucketRegion? _region((Uint8List, int, int, int, int) args) {
   final (walls, width, height, x, y) = args;
