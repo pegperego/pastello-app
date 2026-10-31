@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+<g stroke="#000" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+<path d="M 240 175 A 21.6 21.6 0 0 1 215 205.3 A 27.5 27.5 0 0 1 165 205.3 A 21.6 21.6 0 0 1 140 175 A 21.6 21.6 0 0 1 165 144.7 A 27.5 27.5 0 0 1 215 144.7 A 21.6 21.6 0 0 1 240 175 Z" fill="#fff"/>
+<path d="M 332 110 A 22.2 22.2 0 0 1 308.7 142.8 A 29.2 29.2 0 0 1 256.2 150.9 A 26.3 26.3 0 0 1 214.1 128.2 A 20 20 0 0 1 214.1 91.8 A 26.3 26.3 0 0 1 256.2 69.1 A 29.2 29.2 0 0 1 308.7 77.2 A 22.2 22.2 0 0 1 332 110 Z" fill="#fff"/>
+<path d="M 423 70 A 19.5 19.5 0 0 1 399 96 A 26.4 26.4 0 0 1 351 96 A 19.5 19.5 0 0 1 327 70 A 19.5 19.5 0 0 1 351 44 A 26.4 26.4 0 0 1 399 44 A 19.5 19.5 0 0 1 423 70 Z" fill="#fff"/>
+<polygon points="150,365 200,365 220,235 130,235" fill="#fff"/>
+<path d="M 120 365 L 330 365 L 330 530 L 120 530 Q 70 530 70 447 Q 70 365 120 365 Z" fill="#fff"/>
+<path d="M 160 365 L 160 530" fill="none"/>
+<path d="M 240 365 L 240 530" fill="none"/>
+<rect x="330" y="250" width="160" height="280" fill="#fff"/>
+<rect x="310" y="225" width="200" height="35" rx="8" fill="#fff"/>
+<rect x="362" y="290" width="96" height="90" rx="8" fill="#fff"/>
+<polygon points="70,500 22,585 90,585" fill="#fff"/>
+<rect x="60" y="528" width="450" height="40" rx="8" fill="#fff"/>
+<circle cx="150" cy="610" r="50" fill="#fff"/>
+<circle cx="275" cy="610" r="50" fill="#fff"/>
+<circle cx="420" cy="600" r="66" fill="#fff"/>
+<circle cx="420" cy="600" r="22" fill="#fff"/>
+<path d="M 510 548 L 540 548" fill="none"/>
+<rect x="540" y="380" width="220" height="168" rx="10" fill="#fff"/>
+<path d="M 560 420 L 740 420" fill="none"/>
+<rect x="535" y="540" width="230" height="30" rx="8" fill="#fff"/>
+<circle cx="600" cy="612" r="44" fill="#fff"/>
+<circle cx="700" cy="612" r="44" fill="#fff"/>
+<path d="M 20 680 L 780 680" fill="none"/>
+</g>
+</svg>

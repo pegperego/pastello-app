@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+<g stroke="#000" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+<polygon points="130,114 139.5,136.9 164.2,138.9 145.4,155 151.2,179.1 130,166.2 108.8,179.1 114.6,155 95.8,138.9 120.5,136.9" fill="#fff"/>
+<polygon points="680,142 687.4,159.8 706.6,161.3 692,173.9 696.5,192.7 680,182.6 663.5,192.7 668,173.9 653.4,161.3 672.6,159.8" fill="#fff"/>
+<polygon points="670,526 679,547.6 702.3,549.5 684.6,564.7 690,587.5 670,575.3 650,587.5 655.4,564.7 637.7,549.5 661,547.6" fill="#fff"/>
+<path d="M 322 600 L 300 770 L 500 770 L 478 600 Z" fill="#fff"/>
+<path d="M 335 190 C 225 195 170 295 198 380 C 150 445 168 525 218 565 C 196 615 226 668 282 668 C 270 600 270 520 266 440 C 252 340 262 252 335 190 Z" fill="#fff"/>
+<path d="M 210 380 C 240 330 270 280 320 220" fill="none"/>
+<path d="M 222 565 C 238 520 250 470 262 430" fill="none"/>
+<path d="M 312 238 L 282 112 L 372 186 Z" fill="#fff"/>
+<path d="M 488 238 L 518 112 L 428 186 Z" fill="#fff"/>
+<path d="M 312 205 L 297 150 L 338 185" fill="none"/>
+<path d="M 488 205 L 503 150 L 462 185" fill="none"/>
+<path d="M 400 175 C 520 175 562 262 548 360 C 540 425 522 470 522 525 C 522 600 472 645 400 645 C 328 645 278 600 278 525 C 278 470 260 425 252 360 C 238 262 280 175 400 175 Z" fill="#fff"/>
+<polygon points="368,205 432,205 400,40" fill="#fff"/>
+<path d="M 378 165 L 422 150" fill="none"/>
+<path d="M 386 120 L 414 110" fill="none"/>
+<path d="M 330 215 Q 352 160 400 192 Q 448 160 470 215 Q 438 250 400 228 Q 362 252 330 215 Z" fill="#fff"/>
+<ellipse cx="338" cy="385" rx="24" ry="32" fill="#000"/>
+<ellipse cx="462" cy="385" rx="24" ry="32" fill="#000"/>
+<path d="M 316 368 L 296 350" fill="none"/>
+<path d="M 322 356 L 308 334" fill="none"/>
+<path d="M 484 368 L 504 350" fill="none"/>
+<path d="M 478 356 L 492 334" fill="none"/>
+<circle cx="318" cy="455" r="24" fill="none"/>
+<circle cx="482" cy="455" r="24" fill="none"/>
+<ellipse cx="400" cy="560" rx="112" ry="72" fill="#fff"/>
+<ellipse cx="362" cy="548" rx="10" ry="15" fill="#000"/>
+<ellipse cx="438" cy="548" rx="10" ry="15" fill="#000"/>
+<path d="M 366 585 Q 400 603 434 585" fill="none"/>
+</g>
+</svg>

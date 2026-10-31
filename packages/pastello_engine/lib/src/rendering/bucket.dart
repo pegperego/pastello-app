@@ -55,13 +55,9 @@ Future<FillMask?> bucketFill(
   for (final element in drawing.paintOrder) {
     if (isBucketBorder(element)) _paintBorder(canvas, element);
   }
-  if (drawing.outline != null) {
-    // Only the dark lines of the page are walls: a white area in the
-    // artwork must not stop the color.
-    canvas.saveLayer(null, ui.Paint()..colorFilter = _darkness);
-    paintOutline(canvas, drawing, coloring);
-    canvas.restore();
-  }
+  // Only the dark lines of the page are painted, so a white area in the
+  // artwork does not stop the color.
+  paintOutline(canvas, drawing, coloring, placeholder: false);
   final walls = await _alpha(recorder.endRecording(), width, height);
   final region = await compute(_region, (
     walls,
@@ -73,14 +69,6 @@ Future<FillMask?> bucketFill(
   if (region == null) return null;
   return FillMask(left: region.left, top: region.top, rows: region.rows);
 }
-
-/// Turns how dark a pixel is into its opacity, and its color into black.
-const _darkness = ui.ColorFilter.matrix([
-  0, 0, 0, 0, 0, //
-  0, 0, 0, 0, 0, //
-  0, 0, 0, 0, 0, //
-  -0.2126, -0.7152, -0.0722, 1, 0, //
-]);
 
 BucketRegion? _region((Uint8List, int, int, int, int) args) {
   final (walls, width, height, x, y) = args;

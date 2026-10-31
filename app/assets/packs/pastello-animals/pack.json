@@ -1,0 +1,50 @@
+{
+ "id": "pastello-animals",
+ "version": 1,
+ "kind": "coloring",
+ "title": {
+  "it": "Animali",
+  "en": "Animals"
+ },
+ "icon": "cat",
+ "author": "Pastello project",
+ "license": "CC0-1.0",
+ "source": "https://github.com/pegperego/pastello-app",
+ "items": [
+  {
+   "id": "cat",
+   "file": "coloring/cat.svg",
+   "name": "Cat"
+  },
+  {
+   "id": "dog",
+   "file": "coloring/dog.svg",
+   "name": "Dog"
+  },
+  {
+   "id": "bunny",
+   "file": "coloring/bunny.svg",
+   "name": "Bunny"
+  },
+  {
+   "id": "fish",
+   "file": "coloring/fish.svg",
+   "name": "Fish"
+  },
+  {
+   "id": "butterfly",
+   "file": "coloring/butterfly.svg",
+   "name": "Butterfly"
+  },
+  {
+   "id": "turtle",
+   "file": "coloring/turtle.svg",
+   "name": "Turtle"
+  },
+  {
+   "id": "unicorn",
+   "file": "coloring/unicorn.svg",
+   "name": "Unicorn"
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+<g stroke="#000" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+<path d="M 269 640 A 30.9 30.9 0 0 1 231.7 678.7 A 48.5 48.5 0 0 1 148 688.3 A 41.6 41.6 0 0 1 80.8 661.5 A 24.7 24.7 0 0 1 80.8 618.5 A 41.6 41.6 0 0 1 148 591.7 A 48.5 48.5 0 0 1 231.7 601.3 A 30.9 30.9 0 0 1 269 640 Z" fill="#fff"/>
+<path d="M 721 160 A 25.3 25.3 0 0 1 690.5 191.7 A 39.7 39.7 0 0 1 622 199.5 A 34 34 0 0 1 567 177.6 A 20.2 20.2 0 0 1 567 142.4 A 34 34 0 0 1 622 120.5 A 39.7 39.7 0 0 1 690.5 128.3 A 25.3 25.3 0 0 1 721 160 Z" fill="#fff"/>
+<polygon points="135,362 100,215 185,215 262,355" fill="#fff"/>
+<path d="M 100 420 Q 100 362 180 352 L 600 352 Q 700 352 725 405 Q 700 458 600 460 L 180 460 Q 100 460 100 420 Z" fill="#fff"/>
+<path d="M 630 368 Q 690 372 708 400 L 630 400 Z" fill="#fff"/>
+<circle cx="250" cy="395" r="18" fill="#fff"/>
+<circle cx="310" cy="395" r="18" fill="#fff"/>
+<circle cx="370" cy="395" r="18" fill="#fff"/>
+<circle cx="430" cy="395" r="18" fill="#fff"/>
+<circle cx="490" cy="395" r="18" fill="#fff"/>
+<circle cx="550" cy="395" r="18" fill="#fff"/>
+<path d="M 330 432 L 480 432 L 395 610 L 318 610 Z" fill="#fff"/>
+</g>
+</svg>
