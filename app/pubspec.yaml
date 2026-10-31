@@ -19,7 +19,7 @@ dependencies:
   flutter_riverpod: ^3.4.3
   flutter_svg: ^2.3.0
   gal: ^2.3.3
-  intl: any
+  intl: 0.20.3
   package_info_plus: ^10.2.2
   pastello_engine:
     path: ../packages/pastello_engine
