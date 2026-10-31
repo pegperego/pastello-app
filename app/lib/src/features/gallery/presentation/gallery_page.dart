@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pastello_engine/pastello_engine.dart';
 
 import '../../../app/app_icon.dart';
 import '../../../app/theme.dart';
@@ -7,10 +8,12 @@ import '../../../app/tokens.dart';
 import '../../../core/clock.dart';
 import '../../../core/feedback/feedback.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../coloring/presentation/coloring_picker_page.dart';
 import '../../drawings/application/drawings_providers.dart';
 import '../../drawings/domain/drawing_summary.dart';
 import '../../editor/presentation/editor_page.dart';
 import 'breathing_plus.dart';
+import 'coloring_tile.dart';
 import 'drawing_tile.dart';
 import 'relative_date.dart';
 import 'trash_page.dart';
@@ -27,11 +30,26 @@ class GalleryPage extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref, {
     String? drawingId,
+    ColoringOutline? outline,
   }) async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => EditorPage(drawingId: drawingId)),
+      MaterialPageRoute<void>(
+        builder: (_) => EditorPage(drawingId: drawingId, outline: outline),
+      ),
     );
     await ref.read(drawingsProvider.notifier).refresh();
+  }
+
+  /// Lets the child pick a coloring page, then opens it on a new sheet
+  /// (F-19).
+  Future<void> _openColoring(BuildContext context, WidgetRef ref) async {
+    final outline = await Navigator.of(context).push(
+      MaterialPageRoute<ColoringOutline>(
+        builder: (_) => const ColoringPickerPage(),
+      ),
+    );
+    if (outline == null || !context.mounted) return;
+    await _openEditor(context, ref, outline: outline);
   }
 
   Future<void> _export(
@@ -187,8 +205,8 @@ class GalleryPage extends ConsumerWidget {
                   mainAxisSpacing: 20,
                   crossAxisSpacing: 20,
                 ),
-                // The "+" is always the first tile.
-                itemCount: 1 + drawings.length,
+                // The "+" and the coloring pages are always the first tiles.
+                itemCount: 2 + drawings.length,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return Padding(
@@ -199,7 +217,16 @@ class GalleryPage extends ConsumerWidget {
                       ),
                     );
                   }
-                  final summary = drawings[index - 1];
+                  if (index == 1) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 26),
+                      child: ColoringTile(
+                        label: l10n.coloringPages,
+                        onPressed: () => _openColoring(context, ref),
+                      ),
+                    );
+                  }
+                  final summary = drawings[index - 2];
                   final date = relativeDate(
                     l10n,
                     locale,

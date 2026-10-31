@@ -420,6 +420,11 @@ glitter, neon, stelline, spray e acquerello.
   AD-17). Prima dotazione: **circa 20 disegni** (animali, veicoli, natura,
   feste), **disegnati da noi** in SVG con contorni semplici e spessi, rilasciati
   CC0 (D-12).
+- Se il pacchetto di un disegno non c'è più, al posto del contorno compare un
+  "?" e il foglio si può colorare lo stesso. Un foglio da colorare lasciato
+  intatto non viene salvato, come un foglio vuoto (F-01).
+- Toccando la linea del contorno con il secchiello si colora la zona più
+  vicina: il contorno resta nero (deciso 2026-10-31, ADR 0022).
 
 #### F-20 — Strumenti a categorie
 

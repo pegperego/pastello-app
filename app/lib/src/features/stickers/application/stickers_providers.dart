@@ -11,9 +11,17 @@ import '../domain/sticker_pack.dart';
 /// Where packs are read from. Replaced in tests.
 final assetBundleProvider = Provider<AssetBundle>((ref) => rootBundle);
 
+/// The installed content packs, of every kind.
+final contentPacksProvider = FutureProvider<List<StickerPack>>(
+  (ref) => loadBundledPacks(ref.watch(assetBundleProvider)),
+);
+
 /// The installed sticker packs.
 final stickerPacksProvider = FutureProvider<List<StickerPack>>(
-  (ref) => loadBundledPacks(ref.watch(assetBundleProvider)),
+  (ref) async => [
+    for (final pack in await ref.watch(contentPacksProvider.future))
+      if (pack.kind == PackKind.stickers) pack,
+  ],
 );
 
 /// The artwork of every installed sticker, for the drawing engine.

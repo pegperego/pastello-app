@@ -11,6 +11,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../coloring/application/coloring_providers.dart';
 import '../../stickers/application/stickers_providers.dart';
 
 /// Gets drawings out of the app (ADR 0011). Every action goes through
@@ -89,6 +90,7 @@ Future<Uint8List> renderPng(
   Drawing drawing, {
   required int width,
   StickerArtwork? stickers,
+  ColoringArtwork? coloring,
 }) async {
   final grain = PaperGrain.generate();
   final picture = renderDrawing(
@@ -96,6 +98,7 @@ Future<Uint8List> renderPng(
     grain,
     width: width,
     stickers: stickers,
+    coloring: coloring,
   );
   final image = await picture.toImage(width, renderedHeight(drawing, width));
   final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -110,13 +113,14 @@ Future<Uint8List> renderPng(
 final pngRendererProvider = Provider<Future<Uint8List> Function(Drawing)>((
   ref,
 ) {
-  return (drawing) {
+  return (drawing) async {
     final view = ui.PlatformDispatcher.instance.implicitView;
     final screen = view?.physicalSize ?? const Size(2560, 1600);
     return renderPng(
       drawing,
       width: exportWidth(drawing.sheetSize, screen),
       stickers: ref.read(stickerArtworkProvider).value,
+      coloring: await coloringFor(ref, drawing),
     );
   };
 });

@@ -40,3 +40,4 @@ The original analysis notes are kept, in Italian, in
 | [0019](adr/0019-google-play-signing-key.md) | Google-generated signing key on Google Play |
 | [0020](adr/0020-backup-export-import.md) | Exporting and importing all drawings |
 | [0021](adr/0021-paint-bucket-fills.md) | Paint bucket fills |
+| [0022](adr/0022-coloring-pages.md) | Coloring pages |

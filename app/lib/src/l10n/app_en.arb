@@ -8,6 +8,14 @@
   "@newDrawing": {
     "description": "Screen reader label of the big + button in the gallery."
   },
+  "coloringPages": "Coloring pages",
+  "@coloringPages": {
+    "description": "Gallery button that opens the coloring pages, and title of their screen."
+  },
+  "chooseColoringPage": "Choose a page to color",
+  "@chooseColoringPage": {
+    "description": "Subtitle of the coloring pages screen."
+  },
   "backToGallery": "Back to the gallery",
   "@backToGallery": {
     "description": "Screen reader label of the home button in the editor."

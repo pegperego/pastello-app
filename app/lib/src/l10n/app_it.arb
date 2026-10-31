@@ -2,6 +2,8 @@
   "@@locale": "it",
   "appTitle": "Pastello",
   "newDrawing": "Nuovo disegno",
+  "coloringPages": "Da colorare",
+  "chooseColoringPage": "Scegli un disegno da colorare",
   "backToGallery": "Torna alla galleria",
   "sheet": "Foglio",
   "undo": "Annulla",

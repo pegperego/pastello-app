@@ -1,0 +1,30 @@
+{
+ "id": "pastello-first",
+ "version": 1,
+ "kind": "coloring",
+ "title": {
+  "it": "Primi disegni",
+  "en": "First pages"
+ },
+ "icon": "star",
+ "author": "Pastello project",
+ "license": "CC0-1.0",
+ "source": "https://github.com/pegperego/pastello-app",
+ "items": [
+  {
+   "id": "star",
+   "file": "coloring/star.svg",
+   "name": "Star"
+  },
+  {
+   "id": "house",
+   "file": "coloring/house.svg",
+   "name": "House"
+  },
+  {
+   "id": "fish",
+   "file": "coloring/fish.svg",
+   "name": "Fish"
+  }
+ ]
+}

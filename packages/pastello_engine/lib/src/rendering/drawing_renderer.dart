@@ -10,6 +10,7 @@ import '../document/stroke_element.dart';
 import '../document/stroke_tool.dart';
 import '../geometry/hit_test.dart';
 import '../document/sticker_element.dart';
+import 'coloring.dart';
 import 'live_stroke.dart';
 import 'paper_grain.dart';
 import 'stroke_painter.dart';
@@ -29,13 +30,20 @@ import 'stroke_painter.dart';
 ///   live. The cost per frame does not grow with the length of the stroke.
 /// - The eraser paints the background along its path instead of punching
 ///   holes in a layer: the result is the same and no extra layer is needed.
+/// - On a coloring page, the cache holds what goes under the outline. The
+///   outline, with the texts and stickers above it, is rendered once into a
+///   transparent **overlay** painted over the cache and the live stroke
+///   (ADR 0022).
 class DrawingRenderer extends ChangeNotifier {
   /// Creates a renderer that draws grain with [grain].
   DrawingRenderer({
     required this.grain,
     StickerArtwork? stickers,
+    ColoringArtwork? coloring,
     // ignore: prefer_initializing_formals, the setter also rebuilds the cache.
-  }) : _stickers = stickers;
+  }) : _stickers = stickers,
+       // ignore: prefer_initializing_formals, as above.
+       _coloring = coloring;
 
   /// Paper texture shared by every stroke.
   final PaperGrain grain;
@@ -51,6 +59,17 @@ class DrawingRenderer extends ChangeNotifier {
     _rebuild();
   }
 
+  ColoringArtwork? _coloring;
+
+  /// Artwork of the coloring pages. Setting it repaints the outline, so a
+  /// page loaded after the drawing appears.
+  ColoringArtwork? get coloring => _coloring;
+  set coloring(ColoringArtwork? value) {
+    if (identical(value, _coloring)) return;
+    _coloring = value;
+    notifyListeners();
+  }
+
   /// How many new points of the live stroke trigger a freeze.
   static const int freezeBatch = 48;
 
@@ -63,6 +82,11 @@ class DrawingRenderer extends ChangeNotifier {
   /// moved or edited (ADR 0005). Their committed versions are hidden.
   List<DrawingElement> _floating = const [];
   Set<String> _hidden = const {};
+
+  // The overlay of a coloring page and what it was rendered from.
+  ui.Image? _overlay;
+  Object? _overlayKey;
+  List<DrawingElement> _overlayElements = const [];
 
   int _liveGeneration = -1;
   int _frozenUntil = 0;
@@ -123,6 +147,13 @@ class DrawingRenderer extends ChangeNotifier {
     } else if (!hiddenChanged &&
         previous != null &&
         _isAppend(previous, drawing) &&
+        drawing.outline != null &&
+        !Drawing.isUnderOutline(drawing.elements.last)) {
+      // A text or sticker above a coloring outline: only the overlay changes.
+      notifyListeners();
+    } else if (!hiddenChanged &&
+        previous != null &&
+        _isAppend(previous, drawing) &&
         !hidden.contains(drawing.elements.last.id)) {
       _update(
         (canvas) => paintElement(
@@ -155,9 +186,10 @@ class DrawingRenderer extends ChangeNotifier {
     );
   }
 
-  /// Elements the eraser leaves untouched whose bounds meet [area].
+  /// Elements of the cache the eraser leaves untouched whose bounds meet
+  /// [area].
   Iterable<DrawingElement> _protectedIn(Drawing drawing, ui.Rect area) =>
-      drawing.elements.where(
+      drawing.underOutline.where(
         (e) =>
             !e.erasable && !_hidden.contains(e.id) && e.bounds.overlaps(area),
       );
@@ -194,7 +226,78 @@ class DrawingRenderer extends ChangeNotifier {
     if (hasLive) _syncFrozen(live);
     _paintImage(canvas, hasLive ? (_working ?? cache) : cache);
     if (hasLive) _paintTail(canvas, live);
+    final overlay = _overlayImage();
+    if (overlay != null) {
+      canvas.drawImageRect(
+        overlay,
+        ui.Rect.fromLTWH(
+          0,
+          0,
+          overlay.width.toDouble(),
+          overlay.height.toDouble(),
+        ),
+        ui.Offset.zero & drawing.sheetSize,
+        ui.Paint()..filterQuality = ui.FilterQuality.low,
+      );
+    }
     _paintFloating(canvas);
+  }
+
+  /// The outline of the current coloring page with the elements above it,
+  /// rendered again only when one of them, the density or the artwork
+  /// changes; `null` when the drawing has no outline.
+  ui.Image? _overlayImage() {
+    final drawing = _drawing;
+    if (drawing == null || drawing.outline == null) return null;
+    final elements = [
+      for (final e in drawing.overOutline)
+        if (!_hidden.contains(e.id)) e,
+    ];
+    final key = (
+      drawing.outline,
+      drawing.sheetSize,
+      _pixelScale,
+      _coloring,
+      _stickers,
+    );
+    if (_overlay != null &&
+        key == _overlayKey &&
+        _sameElements(elements, _overlayElements)) {
+      return _overlay;
+    }
+    final width = (drawing.sheetSize.width * _pixelScale).ceil();
+    final height = (drawing.sheetSize.height * _pixelScale).ceil();
+    if (width <= 0 || height <= 0) return null;
+    final recorder = ui.PictureRecorder();
+    final canvas = ui.Canvas(recorder)..scale(_pixelScale);
+    _paintOverOutline(canvas, drawing, elements);
+    final picture = recorder.endRecording();
+    _overlay?.dispose();
+    _overlay = picture.toImageSync(width, height);
+    picture.dispose();
+    _overlayKey = key;
+    _overlayElements = elements;
+    return _overlay;
+  }
+
+  static bool _sameElements(List<DrawingElement> a, List<DrawingElement> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (!identical(a[i], b[i])) return false;
+    }
+    return true;
+  }
+
+  /// Paints the outline of [drawing] and [elements] above it.
+  void _paintOverOutline(
+    ui.Canvas canvas,
+    Drawing drawing,
+    Iterable<DrawingElement> elements,
+  ) {
+    paintOutline(canvas, drawing, _coloring);
+    for (final element in elements) {
+      paintElement(canvas, element, grain, stickers: _stickers);
+    }
   }
 
   void _paintFloating(ui.Canvas canvas) {
@@ -358,7 +461,8 @@ class DrawingRenderer extends ChangeNotifier {
 
   bool _isAppend(Drawing previous, Drawing next) {
     if (next.background != previous.background ||
-        next.sheetSize != previous.sheetSize) {
+        next.sheetSize != previous.sheetSize ||
+        next.outline != previous.outline) {
       return false;
     }
     if (next.elements.length != previous.elements.length + 1) return false;
@@ -427,8 +531,10 @@ class DrawingRenderer extends ChangeNotifier {
     );
   }
 
+  /// Paints the elements that go in the cache: all of them, or those under
+  /// the outline of a coloring page.
   void _paintElements(ui.Canvas canvas, Drawing drawing, {ui.Rect? area}) {
-    for (final element in drawing.paintOrder) {
+    for (final element in drawing.underOutline) {
       if (!_hidden.contains(element.id) &&
           (area == null || element.bounds.overlaps(area))) {
         paintElement(canvas, element, grain, stickers: _stickers);
@@ -460,7 +566,17 @@ class DrawingRenderer extends ChangeNotifier {
   void _paintUncached(ui.Canvas canvas, Drawing drawing, LiveStroke live) {
     _paintBackground(canvas, drawing);
     _paintElements(canvas, drawing);
+    _paintUncachedLive(canvas, live);
+    if (drawing.outline != null) {
+      _paintOverOutline(canvas, drawing, [
+        for (final e in drawing.overOutline)
+          if (!_hidden.contains(e.id)) e,
+      ]);
+    }
     _paintFloating(canvas);
+  }
+
+  void _paintUncachedLive(ui.Canvas canvas, LiveStroke live) {
     if (live.points.isEmpty) return;
     final tool = live.tool;
     if (tool == null) {
@@ -544,6 +660,7 @@ class DrawingRenderer extends ChangeNotifier {
 
   @override
   void dispose() {
+    _overlay?.dispose();
     _paper?.dispose();
     _working?.dispose();
     _cache?.dispose();

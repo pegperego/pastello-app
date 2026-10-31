@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// A sticker in a pack.
+/// An item of a pack: a sticker, or a coloring page.
 @immutable
 class StickerItem {
   const StickerItem({
@@ -19,11 +19,22 @@ class StickerItem {
   final String name;
 }
 
-/// A content pack of stickers, described by its `pack.json` (ADR 0018).
+/// What a content pack contains (ADR 0018).
+enum PackKind {
+  /// Stickers (F-11), in `stickers/`.
+  stickers,
+
+  /// Coloring pages (F-19), in `coloring/`.
+  coloring,
+}
+
+/// A content pack, described by its `pack.json` (ADR 0018). Packs of
+/// stickers and of coloring pages share the format.
 @immutable
 class StickerPack {
   const StickerPack({
     required this.id,
+    this.kind = PackKind.stickers,
     required this.version,
     required this.titles,
     required this.icon,
@@ -34,6 +45,8 @@ class StickerPack {
 
   /// Identifier, stored in drawings together with the item id.
   final String id;
+
+  final PackKind kind;
 
   final int version;
 
