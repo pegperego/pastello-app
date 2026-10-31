@@ -2,11 +2,17 @@ Pastello is a drawing book for children: tap the "+" and draw. No complicated me
 
 <b>To draw</b>
 • Pencil, marker, brush, crayon and rainbow, in four widths
+• Magic brushes: highlighter, neon, glitter, stars, spray and watercolor
+• A paint bucket that fills closed areas with color in one tap
 • An eraser that removes only the color and keeps the paper
 • 12 colors always at hand and 40 more to choose from
 • Ready-made shapes: circle, square, triangle, star, heart, line and arrow
 • Colored, lined, squared or dotted paper
 • Undo and redo, even after closing the app
+
+<b>Coloring pages</b>
+• 24 pages to color: animals, vehicles, nature and parties
+• The outline always stays above the colors and cannot be erased by mistake
 
 <b>To write and decorate</b>
 • Text with fonts made for children learning to read, cursive included
@@ -18,6 +24,7 @@ Pastello is a drawing book for children: tap the "+" and draw. No complicated me
 • The trash keeps deleted drawings for 30 days
 • Save to the gallery and print; sharing first asks for a small grown-ups check
 • A parents' page, behind an addition: language, left-handed layout, sounds and vibration
+• Copy all the drawings to a file, to keep them safe or move them to another tablet
 
 <b>Privacy</b>
 Pastello collects no data at all and does not even ask for internet access. No ads, no purchases, no accounts.

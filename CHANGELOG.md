@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-31
+
 ### Added
 
 - Parents' page: export all the drawings to a `.zip` file, saved where the
@@ -98,5 +100,6 @@ First release.
 
 - The throwaway drawing prototype, now replaced by the app.
 
-[Unreleased]: https://github.com/pegperego/pastello-app/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/pegperego/pastello-app/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/pegperego/pastello-app/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/pegperego/pastello-app/releases/tag/v1.0.0
