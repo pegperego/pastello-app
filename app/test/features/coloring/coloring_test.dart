@@ -24,7 +24,12 @@ void main() {
       for (final pack in await loadBundledPacks(rootBundle))
         if (pack.kind == PackKind.coloring) pack,
     ];
-    expect(packs, isNotEmpty);
+    // Animals, vehicles, nature, parties: about 20 pages (D-12).
+    expect(packs, hasLength(4));
+    expect(
+      packs.fold<int>(0, (n, p) => n + p.items.length),
+      greaterThanOrEqualTo(20),
+    );
     for (final pack in packs) {
       expect(pack.license, 'CC0-1.0');
       for (final item in pack.items) {
@@ -51,13 +56,13 @@ void main() {
       () => c.read(coloringArtworkProvider.future),
     ))!;
     final star = artwork.pageFor(
-      const ColoringOutline(packId: 'pastello-first', pageId: 'star'),
+      const ColoringOutline(packId: 'pastello-party', pageId: 'star'),
     );
     expect(star, isNotNull);
     expect(star!.size, const Size(800, 800));
     expect(
       artwork.pageFor(
-        const ColoringOutline(packId: 'pastello-first', pageId: 'nope'),
+        const ColoringOutline(packId: 'pastello-party', pageId: 'nope'),
       ),
       isNull,
     );
@@ -76,13 +81,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(ColoringPickerPage), findsOneWidget);
     expect(find.text('Scegli un disegno da colorare'), findsOneWidget);
+    // One tab per category.
+    await tester.tap(find.text('Natura'));
+    await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('House'));
     await pumpFrames(tester);
 
     final c = ProviderScope.containerOf(
       tester.element(find.byType(EditorPage)),
     );
-    const house = ColoringOutline(packId: 'pastello-first', pageId: 'house');
+    const house = ColoringOutline(packId: 'pastello-nature', pageId: 'house');
     expect(c.read(editorProvider).drawing!.outline, house);
 
     // The outline stays when the sheet is cleared or a stroke undone.

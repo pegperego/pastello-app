@@ -1,0 +1,40 @@
+{
+ "id": "pastello-nature",
+ "version": 1,
+ "kind": "coloring",
+ "title": {
+  "it": "Natura",
+  "en": "Nature"
+ },
+ "icon": "daisy",
+ "author": "Pastello project",
+ "license": "CC0-1.0",
+ "source": "https://github.com/pegperego/pastello-app",
+ "items": [
+  {
+   "id": "house",
+   "file": "coloring/house.svg",
+   "name": "House"
+  },
+  {
+   "id": "daisy",
+   "file": "coloring/daisy.svg",
+   "name": "Daisy"
+  },
+  {
+   "id": "tree",
+   "file": "coloring/tree.svg",
+   "name": "Apple tree"
+  },
+  {
+   "id": "rainbow",
+   "file": "coloring/rainbow.svg",
+   "name": "Rainbow"
+  },
+  {
+   "id": "mushroom",
+   "file": "coloring/mushroom.svg",
+   "name": "Mushroom"
+  }
+ ]
+}

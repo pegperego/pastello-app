@@ -81,5 +81,11 @@ flutter:
     - assets/packs/fluent-vehicles/stickers/
     - assets/packs/fluent-party/
     - assets/packs/fluent-party/stickers/
-    - assets/packs/pastello-first/
-    - assets/packs/pastello-first/coloring/
+    - assets/packs/pastello-animals/
+    - assets/packs/pastello-animals/coloring/
+    - assets/packs/pastello-vehicles/
+    - assets/packs/pastello-vehicles/coloring/
+    - assets/packs/pastello-nature/
+    - assets/packs/pastello-nature/coloring/
+    - assets/packs/pastello-party/
+    - assets/packs/pastello-party/coloring/

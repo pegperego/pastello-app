@@ -261,10 +261,12 @@ void main() {
     }
 
     final ring = await render(
-      const Drawing(sheetSize: sheet, outline: page),
+      Drawing(sheetSize: sheet, outline: page, elements: [stroke('a', 120)]),
       artwork,
     );
     expect(pixel(ring, 114, 120), black);
+    // The white disc of the artwork does not cover the colors.
+    expect(pixel(ring, 200, 120), red);
     const missing = Drawing(
       sheetSize: sheet,
       outline: ColoringOutline(packId: 'test', pageId: 'gone'),

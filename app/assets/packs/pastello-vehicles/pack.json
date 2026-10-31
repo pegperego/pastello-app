@@ -1,0 +1,45 @@
+{
+ "id": "pastello-vehicles",
+ "version": 1,
+ "kind": "coloring",
+ "title": {
+  "it": "Veicoli",
+  "en": "Vehicles"
+ },
+ "icon": "car",
+ "author": "Pastello project",
+ "license": "CC0-1.0",
+ "source": "https://github.com/pegperego/pastello-app",
+ "items": [
+  {
+   "id": "car",
+   "file": "coloring/car.svg",
+   "name": "Car"
+  },
+  {
+   "id": "train",
+   "file": "coloring/train.svg",
+   "name": "Train"
+  },
+  {
+   "id": "sailboat",
+   "file": "coloring/sailboat.svg",
+   "name": "Sailboat"
+  },
+  {
+   "id": "airplane",
+   "file": "coloring/airplane.svg",
+   "name": "Airplane"
+  },
+  {
+   "id": "rocket",
+   "file": "coloring/rocket.svg",
+   "name": "Rocket"
+  },
+  {
+   "id": "balloon",
+   "file": "coloring/balloon.svg",
+   "name": "Hot air balloon"
+  }
+ ]
+}
