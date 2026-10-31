@@ -1,8 +1,22 @@
 import 'dart:ui';
 
+import '../document/drawing_element.dart';
+import '../document/fill_element.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
 import 'simplify.dart';
+
+/// Whether an eraser path of [eraserWidth] touches [element]: only strokes
+/// and fills can be erased (ADR 0006).
+bool eraserTouches(
+  List<SheetPoint> eraser,
+  double eraserWidth,
+  DrawingElement element,
+) => switch (element) {
+  StrokeElement() => eraserTouchesStroke(eraser, eraserWidth, element),
+  FillElement() => eraserTouchesFill(eraser, eraserWidth, element),
+  _ => false,
+};
 
 /// Whether an eraser path of [eraserWidth] touches [stroke].
 ///
@@ -38,6 +52,52 @@ bool eraserTouchesStroke(
   for (final (a0, a1) in a) {
     for (final (b0, b1) in b) {
       if (segmentsDistanceSquared(a0, a1, b0, b1) <= reachSquared) return true;
+    }
+  }
+  return false;
+}
+
+/// Whether an eraser path of [eraserWidth] touches the area of [fill].
+///
+/// Each run of the mask is treated as a segment through the middle of its
+/// row, half a pixel thick.
+bool eraserTouchesFill(
+  List<SheetPoint> eraser,
+  double eraserWidth,
+  FillElement fill,
+) {
+  if (eraser.isEmpty) return false;
+  final t = fill.transform;
+  if (!t.isIdentity) {
+    eraser = [
+      for (final p in eraser)
+        () {
+          final local = t.invert(p.offset);
+          return SheetPoint(local.dx, local.dy);
+        }(),
+    ];
+    eraserWidth /= t.scale;
+  }
+  final reach = eraserWidth / 2 + 0.5;
+  final mask = fill.mask;
+  if (!polylineBounds(eraser).inflate(reach).overlaps(mask.bounds)) {
+    return false;
+  }
+  final reachSquared = reach * reach;
+  for (final (a0, a1) in _segments(eraser)) {
+    final box = polylineBounds([a0, a1]).inflate(reach);
+    final first = (box.top - mask.top).floor().clamp(0, mask.height);
+    final last = (box.bottom - mask.top).ceil().clamp(0, mask.height);
+    for (var r = first; r < last; r++) {
+      final row = mask.rows[r];
+      final y = mask.top + r + 0.5;
+      for (var i = 0; i < row.length; i += 2) {
+        final b0 = SheetPoint(mask.left + row[i] + 0.5, y);
+        final b1 = SheetPoint(mask.left + row[i] + row[i + 1] - 0.5, y);
+        if (segmentsDistanceSquared(a0, a1, b0, b1) <= reachSquared) {
+          return true;
+        }
+      }
     }
   }
   return false;

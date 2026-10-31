@@ -3,6 +3,7 @@ import 'dart:ui';
 import '../document/drawing.dart';
 import '../document/drawing_element.dart';
 import '../document/element_id.dart';
+import '../document/fill_element.dart';
 import '../document/sheet_background.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
@@ -82,15 +83,15 @@ class DeleteElementCommand implements DrawingCommand {
       drawing.withElementInserted(index, element);
 }
 
-/// Attaches an eraser pass to every stroke it touches (ADR 0006).
+/// Attaches an eraser pass to every stroke and fill it touches (ADR 0006).
 ///
-/// The pass is stored on each stroke in that stroke's local coordinates, so
-/// [erasures] holds one [Erasure] per stroke id, all sharing the same id.
+/// The pass is stored on each element in that element's local coordinates,
+/// so [erasures] holds one [Erasure] per element id, all sharing the same id.
 class EraseCommand implements DrawingCommand {
   /// Creates an erase command.
   const EraseCommand(this.sheetErasure, this.erasures);
 
-  /// Creates an erase command for the strokes of [drawing] touched by the
+  /// Creates an erase command for the elements of [drawing] touched by the
   /// eraser path [points] of the given [width], in sheet units.
   ///
   /// Returns `null` when the eraser touches nothing, so that empty passes do
@@ -107,8 +108,7 @@ class EraseCommand implements DrawingCommand {
     );
     final erasures = <String, Erasure>{
       for (final e in drawing.elements)
-        if (e is StrokeElement && eraserTouchesStroke(points, width, e))
-          e.id: _toLocal(sheetErasure, e),
+        if (eraserTouches(points, width, e)) e.id: _toLocal(sheetErasure, e),
     };
     if (erasures.isEmpty) return null;
     return EraseCommand(sheetErasure, erasures);
@@ -138,24 +138,34 @@ class EraseCommand implements DrawingCommand {
   /// The eraser pass in sheet coordinates, as the child drew it.
   final Erasure sheetErasure;
 
-  /// The pass in each touched stroke's coordinates, by stroke id.
+  /// The pass in each touched element's coordinates, by element id.
   final Map<String, Erasure> erasures;
 
-  /// Ids of the strokes the pass is attached to.
-  Set<String> get strokeIds => erasures.keys.toSet();
+  /// Ids of the elements the pass is attached to.
+  Set<String> get elementIds => erasures.keys.toSet();
 
   @override
   Drawing apply(Drawing drawing) => drawing.withElementsMapped(
-    (e) => e is StrokeElement && erasures.containsKey(e.id)
-        ? e.withErasure(erasures[e.id]!)
-        : e,
+    (e) => switch (erasures[e.id]) {
+      null => e,
+      final erasure => switch (e) {
+        StrokeElement() => e.withErasure(erasure),
+        FillElement() => e.withErasure(erasure),
+        _ => e,
+      },
+    },
   );
 
   @override
   Drawing revert(Drawing drawing) => drawing.withElementsMapped(
-    (e) => e is StrokeElement && erasures.containsKey(e.id)
-        ? e.withoutErasure(erasures[e.id]!)
-        : e,
+    (e) => switch (erasures[e.id]) {
+      null => e,
+      final erasure => switch (e) {
+        StrokeElement() => e.withoutErasure(erasure),
+        FillElement() => e.withoutErasure(erasure),
+        _ => e,
+      },
+    },
   );
 }
 

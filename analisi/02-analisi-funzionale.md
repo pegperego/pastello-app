@@ -399,6 +399,10 @@ glitter, neon, stelline, spray e acquerello.
   il colore. Un riempimento nuovo sta sopra quelli vecchi.
 - Toccando una zona aperta si colora tutto lo spazio libero del foglio
   (annullabile).
+- **Tocco su una linea:** la linea prende il colore selezionato (deciso il
+  2026-10-31). L'arcobaleno non cambia colore.
+- Evidenziatore, acquerello, glitter, stelline e spray **non** sono bordi:
+  il colore passa sotto di loro.
 - Il riempimento è un elemento come gli altri (`FillElement`, AD-04): si
   annulla, la gomma lo cancella, il lazo lo sposta.
 

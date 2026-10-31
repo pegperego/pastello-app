@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   glitter, stars, spray and watercolor. The sparkles, stars and dots stay
   exactly where they were when the drawing is opened again. Drawings that
   use them need this version to open.
+- Paint bucket: a tap fills the area closed by lines and shapes with the
+  chosen color, under the lines, and small gaps in the outline are closed
+  so the color does not spill out. A tap on a line changes its color.
+  Fills can be erased, moved with the lasso and undone.
 
 ### Changed
 

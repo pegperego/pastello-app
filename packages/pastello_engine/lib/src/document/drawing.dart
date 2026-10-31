@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'drawing_element.dart';
+import 'fill_element.dart';
 import 'sheet_background.dart';
 
 /// A drawing: a fixed-size sheet and an ordered list of elements.
@@ -23,6 +24,14 @@ class Drawing {
 
   /// Elements from bottom to top.
   final List<DrawingElement> elements;
+
+  /// Elements in the order they are painted: the fills of the paint bucket
+  /// first, under everything else (ADR 0021), then the other elements; each
+  /// group keeps the order of [elements].
+  List<DrawingElement> get paintOrder => [
+    ...elements.whereType<FillElement>(),
+    ...elements.where((e) => e is! FillElement),
+  ];
 
   /// Whether nothing has been drawn yet (empty sheets are not saved, F-01).
   bool get isEmpty => elements.isEmpty;
@@ -84,7 +93,7 @@ class Drawing {
     double slop = 0,
     bool Function(DrawingElement element)? where,
   }) {
-    for (final e in elements.reversed) {
+    for (final e in paintOrder.reversed) {
       if ((where == null || where(e)) && e.contains(point, slop: slop)) {
         return e;
       }

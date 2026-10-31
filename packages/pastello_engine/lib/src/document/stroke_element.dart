@@ -114,6 +114,9 @@ class StrokeElement extends DrawingElement {
     return false;
   }
 
+  /// Returns a copy of this stroke in another [color] (F-18).
+  StrokeElement withColor(Color color) => _copyWith(color: color);
+
   @override
   StrokeElement withTransform(ElementTransform transform) =>
       _copyWith(transform: transform);
@@ -125,10 +128,11 @@ class StrokeElement extends DrawingElement {
     List<Erasure>? erasures,
     ElementTransform? transform,
     String? id,
+    Color? color,
   }) => StrokeElement(
     id: id ?? this.id,
     tool: tool,
-    color: color,
+    color: color ?? this.color,
     width: width,
     points: points,
     seed: seed,

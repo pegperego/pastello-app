@@ -240,7 +240,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       final before = previous.drawing?.elements.length ?? 0;
       final after = next.drawing?.elements.length ?? 0;
       final feedback = ref.read(feedbackProvider);
-      if (after > before && next.drawing!.elements.last is StickerElement) {
+      final last = next.drawing?.elements.lastOrNull;
+      // A new fill may replace the fills it hides: the count can go down.
+      // Undo can bring back an old fill: no sound then.
+      if (last is FillElement &&
+          !next.canRedo &&
+          previous.drawing?.elementById(last.id) == null) {
+        feedback.sound(AppSound.pop);
+      } else if (after > before && last is StickerElement) {
         feedback.sound(AppSound.pop);
       } else if (after < before && next.canUndo) {
         feedback.sound(AppSound.whoosh);
@@ -589,7 +596,9 @@ extension on _EditorPageState {
           onStrokeStart: _onStrokeStart,
           onStrokeEnd: _onStrokeEnd,
           draws: state.tool.draws,
-          onTap: controller.tapSheet,
+          onTap: state.tool == EditorTool.bucket
+              ? controller.pourBucket
+              : controller.tapSheet,
           onDragStart: switch (state.tool) {
             EditorTool.shapes => controller.beginShape,
             EditorTool.select => controller.beginLasso,

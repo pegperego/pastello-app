@@ -16,6 +16,7 @@ String toolLabel(AppLocalizations l10n, EditorTool tool) => switch (tool) {
   EditorTool.stars => l10n.toolStars,
   EditorTool.spray => l10n.toolSpray,
   EditorTool.watercolor => l10n.toolWatercolor,
+  EditorTool.bucket => l10n.toolBucket,
   EditorTool.eraser => l10n.toolEraser,
   EditorTool.text => l10n.toolText,
   EditorTool.stickers => l10n.toolStickers,

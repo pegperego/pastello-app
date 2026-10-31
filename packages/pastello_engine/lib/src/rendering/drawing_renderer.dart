@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../document/drawing.dart';
 import '../document/drawing_element.dart';
+import '../document/fill_element.dart';
 import '../document/sheet_point.dart';
 import '../document/stroke_element.dart';
 import '../document/stroke_tool.dart';
@@ -113,6 +114,12 @@ class DrawingRenderer extends ChangeNotifier {
     _hidden = hidden;
     if (!hiddenChanged && identical(previous, drawing)) {
       notifyListeners();
+    } else if (!hiddenChanged &&
+        previous != null &&
+        _isAppend(previous, drawing) &&
+        drawing.elements.last is FillElement) {
+      // A fill goes under what is already there: only its area is repainted.
+      _update((canvas) => _repaintArea(canvas, drawing.elements.last.bounds));
     } else if (!hiddenChanged &&
         previous != null &&
         _isAppend(previous, drawing) &&
@@ -420,12 +427,32 @@ class DrawingRenderer extends ChangeNotifier {
     );
   }
 
-  void _paintElements(ui.Canvas canvas, Drawing drawing) {
-    for (final element in drawing.elements) {
-      if (!_hidden.contains(element.id)) {
+  void _paintElements(ui.Canvas canvas, Drawing drawing, {ui.Rect? area}) {
+    for (final element in drawing.paintOrder) {
+      if (!_hidden.contains(element.id) &&
+          (area == null || element.bounds.overlaps(area))) {
         paintElement(canvas, element, grain, stickers: _stickers);
       }
     }
+  }
+
+  /// Paints again, from the background up, everything within [area].
+  void _repaintArea(ui.Canvas canvas, ui.Rect area) {
+    final drawing = _drawing!;
+    // Whole pixels, so the edge of the clip blends nothing.
+    final s = _pixelScale;
+    final pixels = ui.Rect.fromLTRB(
+      (area.left * s).floorToDouble() / s,
+      (area.top * s).floorToDouble() / s,
+      (area.right * s).ceilToDouble() / s,
+      (area.bottom * s).ceilToDouble() / s,
+    );
+    canvas
+      ..save()
+      ..clipRect(pixels);
+    _paintBackground(canvas, drawing);
+    _paintElements(canvas, drawing, area: pixels);
+    canvas.restore();
   }
 
   /// Slow path, used to measure the benefit of the cache: everything is

@@ -84,6 +84,10 @@
   "@toolWatercolor": {
     "description": "Soft see-through color, in the magic group (F-17)."
   },
+  "toolBucket": "Paint bucket",
+  "@toolBucket": {
+    "description": "Tool that fills a closed area with the selected color (F-18)."
+  },
   "toolEraser": "Eraser",
   "@toolEraser": {
     "description": "Tool name."

@@ -220,6 +220,63 @@ void main() {
     expect(glitter.points.length, greaterThan(highlight.points.length));
   });
 
+  testWidgets('the paint bucket fills areas and recolors lines (F-18)', (
+    tester,
+  ) async {
+    await openEditor(tester);
+    final c = container(tester);
+    final controller = c.read(editorProvider.notifier);
+
+    // A line to recolor later.
+    await drawStroke(tester);
+    final line = c.read(editorProvider).drawing!.elements.single;
+
+    await tester.tap(find.bySemanticsLabel('Secchiello'));
+    await tester.pump();
+    expect(c.read(editorProvider).tool, EditorTool.bucket);
+    // No widths for the bucket, and dragging does not draw.
+    expect(find.bySemanticsLabel('Medio'), findsNothing);
+    await drawStroke(tester, dy: 80);
+    expect(c.read(editorProvider).drawing!.elements, hasLength(1));
+
+    // A tap on the empty paper fills it, under the line.
+    controller.selectColor(const Color(0xFFFFD60A));
+    await tester.runAsync(() => controller.pourBucket(const Offset(5, 5)));
+    await tester.pump();
+    var drawing = c.read(editorProvider).drawing!;
+    final fill = drawing.elements.last as FillElement;
+    expect(fill.color, const Color(0xFFFFD60A));
+    expect(drawing.paintOrder.first, fill);
+
+    // Filling the same area again replaces the hidden fill.
+    controller.selectColor(const Color(0xFF8BD346));
+    await tester.runAsync(() => controller.pourBucket(const Offset(5, 5)));
+    await tester.pump();
+    drawing = c.read(editorProvider).drawing!;
+    expect(drawing.elements, hasLength(2));
+    expect((drawing.elements.last as FillElement).color, isNot(fill.color));
+
+    // A tap on the line recolors it.
+    final point = (line as StrokeElement).points[line.points.length ~/ 2];
+    await tester.runAsync(() => controller.pourBucket(point.offset));
+    await tester.pump();
+    drawing = c.read(editorProvider).drawing!;
+    expect(
+      (drawing.elementById(line.id)! as StrokeElement).color,
+      const Color(0xFF8BD346),
+    );
+
+    // Each step is undone on its own.
+    controller.undo();
+    expect(
+      (c.read(editorProvider).drawing!.elementById(line.id)! as StrokeElement)
+          .color,
+      line.color,
+    );
+    controller.undo();
+    expect(c.read(editorProvider).drawing!.elements.last, fill);
+  });
+
   testWidgets('a long press opens the flyout; the sheet closes it and draws', (
     tester,
   ) async {
