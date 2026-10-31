@@ -2,11 +2,17 @@ Pastello è un quaderno da disegno per bambini: si tocca il "+" e si disegna, se
 
 <b>Per disegnare</b>
 • Matita, pennarello, pennello, pastello a cera e arcobaleno, con quattro spessori
+• Pennelli magici: evidenziatore, neon, brillantini, stelline, spray e acquerello
+• Secchiello per riempire di colore le aree chiuse con un tocco
 • Gomma che cancella solo il colore e lascia il foglio
 • 12 colori sempre a portata di mano e altri 40 da scegliere
 • Forme pronte: cerchio, quadrato, triangolo, stella, cuore, linea e freccia
 • Fogli colorati, a righe, a quadretti grandi o piccoli, a puntini
 • Annulla e ripeti, anche dopo aver chiuso l'app
+
+<b>Da colorare</b>
+• 24 disegni da colorare: animali, veicoli, natura e feste
+• Il contorno resta sempre sopra i colori e non si cancella per sbaglio
 
 <b>Per scrivere e decorare</b>
 • Testo con caratteri pensati per chi impara a leggere, anche in corsivo
@@ -18,6 +24,7 @@ Pastello è un quaderno da disegno per bambini: si tocca il "+" e si disegna, se
 • Il cestino tiene i disegni eliminati per 30 giorni
 • Salva in galleria e stampa; la condivisione chiede prima un piccolo controllo per adulti
 • Pagina per i genitori, protetta da un'addizione: lingua, mancini, suoni e vibrazione
+• Copia di tutti i disegni in un file, per tenerli al sicuro o portarli su un altro tablet
 
 <b>Privacy</b>
 Pastello non raccoglie alcun dato e non chiede nemmeno l'accesso a internet. Niente pubblicità, niente acquisti, niente account.
