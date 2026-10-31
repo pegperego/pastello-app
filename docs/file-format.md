@@ -103,6 +103,22 @@ reference is kept, so it reappears when the pack is installed.
 | `color`, `strokeWidth` | Outline (and fill) color, outline width in sheet units. |
 | `filled` | Present and `true` for filled figures; lines are never filled. |
 
+### Fill
+
+The area colored by a tap of the paint bucket (ADR 0021). Fills are
+painted under every other element, newer fills above older ones.
+
+```json
+{ "type": "fill", "id": "8c1d…", "color": 4294956554, "left": 102, "top": 64, "rows": [[0, 96], [0, 40, 52, 44]] }
+```
+
+| Field | Meaning |
+|---|---|
+| `color` | ARGB as a 32-bit integer. |
+| `left`, `top` | Sheet column and row of the mask's origin, in whole sheet units. |
+| `rows` | One list per row, from `top` down: `start, length` pairs of colored pixels, `start` relative to `left`, sorted and not touching. One pixel is one sheet unit. |
+| `erasures` | Eraser passes attached to this fill, as for strokes. |
+
 ### Stroke
 
 | Field | Meaning |
@@ -113,7 +129,7 @@ reference is kept, so it reappears when the pack is installed.
 | `width` | Base width in sheet units. |
 | `points` | Flat list of `x, y, pressure, time` quadruples: sheet units, 0–1, milliseconds since the stroke started. Rounded to hundredths. |
 | `seed` | Only for `glitter`, `stars`, `spray` and `watercolor`: places their random pieces, so a reopened drawing looks exactly the same. Their points are stored as drawn, not simplified. Missing means 0. |
-| `erasures` | Eraser passes attached to this stroke, in the stroke's local coordinates. The same pass (same `id`) is attached to every stroke it touched. Texts are never erased. |
+| `erasures` | Eraser passes attached to this stroke, in the stroke's local coordinates. The same pass (same `id`) is attached to every stroke and fill it touched. Texts, stickers and shapes are never erased. |
 
 ## `history.json`
 
@@ -182,7 +198,7 @@ import date; a thumbnail that is not a PNG is dropped.
 | 3 | Stickers. Older files are read as they are. |
 | 4 | Shapes. Older files are read as they are. |
 | 5 | Paper color and pattern. Older files are read as they are (white paper). |
-| 6 | Magic brushes: `highlighter`, `neon`, `glitter`, `stars`, `spray` and `watercolor` strokes, stroke `seed`. Older files are read as they are. |
+| 6 | Magic brushes: `highlighter`, `neon`, `glitter`, `stars`, `spray` and `watercolor` strokes, stroke `seed`. Paint bucket fills. Older files are read as they are. |
 
 ## Changing the format
 

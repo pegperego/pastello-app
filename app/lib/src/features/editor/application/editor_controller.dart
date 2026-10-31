@@ -582,6 +582,64 @@ class EditorController extends Notifier<EditorState> {
   }
 
   // ---------------------------------------------------------------------------
+  // Paint bucket (F-18)
+
+  Future<void> _bucket = Future.value();
+
+  /// A tap of the paint bucket at [point]: recolors the line under the
+  /// finger, otherwise fills the area around it (ADR 0021).
+  ///
+  /// Fills are computed in the background, one tap after the other, with
+  /// the color chosen at the time of the tap. If the drawing changes
+  /// otherwise meanwhile (undo...), the tap is dropped.
+  Future<void> pourBucket(Offset point) {
+    final color = state.color;
+    final next = _bucket.then((_) => _pour(point, color));
+    // A failed tap does not block the next ones.
+    _bucket = next.catchError((Object _) {});
+    return next;
+  }
+
+  Future<void> _pour(Offset point, Color color) async {
+    final drawing = _stack?.drawing;
+    if (drawing == null) return;
+    final border = await bucketBorderAt(drawing, point);
+    if (!identical(_stack?.drawing, drawing)) return;
+    if (border != null) {
+      // The rainbow has no color of its own to change.
+      final recolored = switch (border) {
+        StrokeElement()
+            when border.tool != StrokeTool.rainbow && border.color != color =>
+          border.withColor(color),
+        ShapeElement() when border.color != color => border.copyWith(
+          color: color,
+        ),
+        _ => null,
+      };
+      if (recolored != null) _execute(UpdateElementCommand(border, recolored));
+      return;
+    }
+    final mask = await bucketFill(drawing, point);
+    if (mask == null || !identical(_stack?.drawing, drawing)) return;
+    final fill = FillElement(id: newElementId(), color: color, mask: mask);
+    // Fills hidden under the new one go away, so coloring an area again
+    // and again does not make the drawing grow.
+    final hidden = [
+      for (final e in drawing.elements)
+        if (e is FillElement && e.transform.isIdentity && mask.covers(e.mask))
+          e.id,
+    ];
+    _execute(
+      hidden.isEmpty
+          ? AddElementCommand(fill)
+          : BatchCommand([
+              BatchCommand.deleteAll(drawing, hidden),
+              AddElementCommand(fill),
+            ]),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Texts and selection (F-07)
 
   /// A tap on the sheet with a tool that selects: selects the text or

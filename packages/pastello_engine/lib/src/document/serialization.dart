@@ -1,9 +1,11 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
 import '../commands/commands.dart';
 import 'drawing.dart';
 import 'drawing_element.dart';
 import 'element_transform.dart';
+import 'fill_element.dart';
 import 'sheet_point.dart';
 import 'shape_element.dart';
 import 'sheet_background.dart';
@@ -92,7 +94,8 @@ Map<String, Object?> migrateDrawingJson(Map<String, Object?> json) {
     );
   }
   // Version 2 added texts and element transforms, version 3 stickers,
-  // version 4 shapes, version 5 backgrounds, version 6 the magic brushes:
+  // version 4 shapes, version 5 backgrounds, version 6 the magic brushes and
+  // the fills of the paint bucket:
   // older files are valid newer files, nothing to convert.
   return json;
 }
@@ -103,6 +106,7 @@ Map<String, Object?> elementToJson(DrawingElement element) => switch (element) {
   TextElement() => textToJson(element),
   StickerElement() => stickerToJson(element),
   ShapeElement() => shapeToJson(element),
+  FillElement() => fillToJson(element),
   _ => throw ArgumentError('Cannot serialize ${element.runtimeType}'),
 };
 
@@ -113,6 +117,7 @@ DrawingElement elementFromJson(Map<String, Object?> json) =>
       'text' => textFromJson(json),
       'sticker' => stickerFromJson(json),
       'shape' => shapeFromJson(json),
+      'fill' => fillFromJson(json),
       final type => throw DrawingFormatException('Unknown element type $type'),
     };
 
@@ -186,6 +191,47 @@ ShapeElement shapeFromJson(Map<String, Object?> json) {
     color: Color(_int(json['color'])),
     strokeWidth: _double(json['strokeWidth']),
     filled: json['filled'] == true,
+    transform: _transformFromJson(json['transform']),
+  );
+}
+
+/// Encodes a fill. Each row of the mask is a list of `start, length`
+/// pairs (ADR 0021).
+Map<String, Object?> fillToJson(FillElement fill) => {
+  'type': 'fill',
+  'id': fill.id,
+  'color': fill.color.toARGB32(),
+  'left': fill.mask.left,
+  'top': fill.mask.top,
+  'rows': [for (final row in fill.mask.rows) row.toList()],
+  if (fill.erasures.isNotEmpty)
+    'erasures': [for (final e in fill.erasures) _erasureToJson(e)],
+  ..._transformToJson(fill.transform),
+};
+
+/// Decodes a fill written by [fillToJson].
+FillElement fillFromJson(Map<String, Object?> json) {
+  final rows = [
+    for (final row in _list(json['rows']))
+      Int32List.fromList([for (final v in _list(row)) _int(v)]),
+  ];
+  for (final row in rows) {
+    if (row.length.isOdd) {
+      throw const DrawingFormatException('Runs must come in pairs');
+    }
+  }
+  return FillElement(
+    id: _string(json['id']),
+    color: Color(_int(json['color'])),
+    mask: FillMask(
+      left: _int(json['left']),
+      top: _int(json['top']),
+      rows: rows,
+    ),
+    erasures: [
+      for (final e in _list(json['erasures'] ?? const <Object?>[]))
+        _erasureFromJson(_map(e)),
+    ],
     transform: _transformFromJson(json['transform']),
   );
 }

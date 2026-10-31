@@ -64,7 +64,7 @@ void main() {
 
     test('attaches the erasure only to touched strokes', () {
       final command = EraseCommand.forDrawing(drawing, eraserPath, 6)!;
-      expect(command.strokeIds, {top.id});
+      expect(command.elementIds, {top.id});
 
       final erased = command.apply(drawing);
       expect((erased.elements[0] as StrokeElement).erasures, hasLength(1));

@@ -1,7 +1,8 @@
 import 'package:pastello_engine/pastello_engine.dart';
 
-/// The tools of the editor: the engine's drawing tools, the eraser and the
-/// text tool (F-04, F-07). The order is the order of the toolbar.
+/// The tools of the editor: the engine's drawing tools, the paint bucket,
+/// the eraser and the text tool (F-04, F-07, F-18). The order is the order
+/// of the toolbar.
 enum EditorTool {
   pencil(StrokeTool.pencil, WidthPreset.thin),
   marker(StrokeTool.marker, WidthPreset.medium),
@@ -14,6 +15,7 @@ enum EditorTool {
   stars(StrokeTool.stars, WidthPreset.medium),
   spray(StrokeTool.spray, WidthPreset.thick),
   watercolor(StrokeTool.watercolor, WidthPreset.thick),
+  bucket(null, WidthPreset.medium),
   eraser(null, WidthPreset.thick),
   text(null, WidthPreset.medium),
   stickers(null, WidthPreset.medium),
@@ -25,11 +27,12 @@ enum EditorTool {
   /// The engine tool, for the tools that draw strokes.
   final StrokeTool? strokeTool;
 
-  /// Whether a finger on the sheet draws (or erases) with this tool.
-  bool get draws => !selects;
+  /// Whether a finger on the sheet draws (or erases) with this tool. The
+  /// paint bucket works with taps.
+  bool get draws => !selects && this != bucket;
 
   /// Whether the width presets apply to this tool.
-  bool get usesWidth => !selects || this == shapes;
+  bool get usesWidth => draws || this == shapes;
 
   /// Whether touching texts, stickers and shapes selects them (F-07): with
   /// drawing tools a touch always draws.
@@ -65,6 +68,7 @@ enum ToolCategory {
     EditorTool.spray,
     EditorTool.watercolor,
   ]),
+  bucket([EditorTool.bucket]),
   eraser([EditorTool.eraser]),
   text([EditorTool.text]),
   stickers([EditorTool.stickers]),

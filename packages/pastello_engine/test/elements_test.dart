@@ -180,7 +180,7 @@ void main() {
       // The stroke is drawn at y = 20 + 100 on the sheet.
       final pass = [const SheetPoint(200, 100), const SheetPoint(200, 140)];
       final command = EraseCommand.forDrawing(drawing, pass, 10)!;
-      expect(command.strokeIds, {moved.id});
+      expect(command.elementIds, {moved.id});
       final local = command.erasures[moved.id]!;
       expect(local.points.first.y, closeTo(0, 1e-9));
       expect(local.id, command.sheetErasure.id);

@@ -652,7 +652,7 @@ pastello/
 |---|---|---|---|
 | R-01 | Lag del tratto su tablet economici | Alto | Cache raster (AD-04), test su dispositivo reale fin dal primo prototipo |
 | R-02 | Perdita del disegno (crash, batteria) | Alto | Autosalvataggio + scrittura atomica (AD-09) |
-| R-03 | Secchiello (riempimento) su modello vettoriale | Medio | È un'operazione raster: si salva come maschera PNG (`FillElement`). Valutare se serve davvero (D-06) |
+| R-03 | Secchiello (riempimento) su modello vettoriale | Medio | È un'operazione raster: si salva come maschera (`FillElement`), a righe di tratti anziché PNG (ADR 0021) |
 | R-04 | Gomma a pixel + elementi vettoriali | Medio | Livelli separati: la gomma agisce solo sul livello disegno (AD-05) |
 | R-05 | Licenze di font e adesivi | Medio | Registro degli asset con fonte e licenza in `analisi/risorse/` e poi in `docs/` |
 | R-06 | Formato file che cambia nel tempo | Medio | `schemaVersion` + migrazioni testate |

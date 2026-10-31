@@ -5,6 +5,7 @@ import 'package:flutter/painting.dart'
     show FontWeight, HSVColor, TextDirection, TextPainter, TextSpan, TextStyle;
 
 import '../document/drawing_element.dart';
+import '../document/fill_element.dart';
 import '../document/sheet_point.dart';
 import '../document/shape_element.dart';
 import '../document/sticker_element.dart';
@@ -59,8 +60,22 @@ void paintElement(
       paintSticker(canvas, element, stickers);
     case ShapeElement():
       element.paintLocal(canvas);
+    case FillElement():
+      paintFill(canvas, element);
   }
   if (!t.isIdentity) canvas.restore();
+}
+
+/// Paints [fill] on [canvas], in the fill's local coordinates. With
+/// erasures it is composited in its own layer, like a stroke (ADR 0006).
+void paintFill(Canvas canvas, FillElement fill) {
+  final erased = fill.erasures.isNotEmpty;
+  if (erased) canvas.saveLayer(fill.localBounds, Paint());
+  canvas.drawPath(fill.mask.path, Paint()..color = fill.color);
+  for (final erasure in fill.erasures) {
+    paintEraser(canvas, erasure.points, erasure.width);
+  }
+  if (erased) canvas.restore();
 }
 
 /// Paints [stroke] on [canvas], in the stroke's local coordinates.

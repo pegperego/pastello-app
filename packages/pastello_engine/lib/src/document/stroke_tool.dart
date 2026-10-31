@@ -47,6 +47,13 @@ enum StrokeTool {
   /// saw them (F-17).
   bool get isRandom =>
       this == glitter || this == stars || this == spray || this == watercolor;
+
+  /// Whether the paint bucket stops at strokes of this tool (F-18): solid
+  /// lines do; see-through ones and the ones made of loose pieces do not.
+  bool get isBorder => switch (this) {
+    pencil || marker || brush || crayon || rainbow || neon => true,
+    _ => false,
+  };
 }
 
 /// Size of the stars of [StrokeTool.stars] for a stroke [width]: even the

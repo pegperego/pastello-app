@@ -20,7 +20,7 @@ ui.Picture renderDrawing(
   final recorder = ui.PictureRecorder();
   final canvas = ui.Canvas(recorder)..scale(scale);
   drawing.background.paint(canvas, drawing.sheetSize);
-  for (final element in drawing.elements) {
+  for (final element in drawing.paintOrder) {
     paintElement(canvas, element, grain, stickers: stickers);
   }
   return recorder.endRecording();
