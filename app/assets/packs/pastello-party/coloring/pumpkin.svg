@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+<g stroke="#000" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+<path d="M 382 280 Q 372 205 400 175 Q 432 178 428 195 Q 410 215 420 280 Z" fill="#fff"/>
+<path d="M 420 200 Q 480 160 520 200 Q 470 215 430 210" fill="none"/>
+<ellipse cx="285" cy="490" rx="175" ry="210" fill="#fff"/>
+<ellipse cx="515" cy="490" rx="175" ry="210" fill="#fff"/>
+<ellipse cx="400" cy="490" rx="160" ry="220" fill="#fff"/>
+<polygon points="305,420 365,420 335,370" fill="#fff"/>
+<polygon points="435,420 495,420 465,370" fill="#fff"/>
+<polygon points="385,470 415,470 400,448" fill="none"/>
+<path d="M 280 540 Q 400 630 520 540 Q 400 580 280 540 Z" fill="#fff"/>
+</g>
+</svg>

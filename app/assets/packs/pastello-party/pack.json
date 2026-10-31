@@ -1,0 +1,45 @@
+{
+ "id": "pastello-party",
+ "version": 1,
+ "kind": "coloring",
+ "title": {
+  "it": "Feste",
+  "en": "Parties"
+ },
+ "icon": "cake",
+ "author": "Pastello project",
+ "license": "CC0-1.0",
+ "source": "https://github.com/pegperego/pastello-app",
+ "items": [
+  {
+   "id": "cake",
+   "file": "coloring/cake.svg",
+   "name": "Birthday cake"
+  },
+  {
+   "id": "balloons",
+   "file": "coloring/balloons.svg",
+   "name": "Balloons"
+  },
+  {
+   "id": "gift",
+   "file": "coloring/gift.svg",
+   "name": "Gift"
+  },
+  {
+   "id": "christmas_tree",
+   "file": "coloring/christmas_tree.svg",
+   "name": "Christmas tree"
+  },
+  {
+   "id": "pumpkin",
+   "file": "coloring/pumpkin.svg",
+   "name": "Pumpkin"
+  },
+  {
+   "id": "star",
+   "file": "coloring/star.svg",
+   "name": "Star"
+  }
+ ]
+}

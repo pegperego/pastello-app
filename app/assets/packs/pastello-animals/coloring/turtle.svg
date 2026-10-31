@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+<defs><clipPath id="shell"><path d="M 150 560 C 160 290 640 290 650 560 Z"/></clipPath></defs>
+<g stroke="#000" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+<polygon points="160,545 80,585 165,590" fill="#fff"/>
+<ellipse cx="712" cy="495" rx="72" ry="58" fill="#fff"/>
+<circle cx="735" cy="480" r="11" fill="#000"/>
+<path d="M 696 515 Q 722 529 748 515" fill="none"/>
+<rect x="190" y="560" width="80" height="140" rx="34" fill="#fff"/>
+<rect x="530" y="560" width="80" height="140" rx="34" fill="#fff"/>
+<path d="M 150 560 C 160 290 640 290 650 560 Z" fill="#fff"/>
+<polygon points="472,455 436,517.4 364,517.4 328,455 364,392.6 436,392.6" fill="#fff"/>
+<path d="M 472 455 L 732 455" fill="none" clip-path="url(#shell)"/>
+<path d="M 328 455 L 68 455" fill="none" clip-path="url(#shell)"/>
+<path d="M 436 517.4 L 356 757.4" fill="none" clip-path="url(#shell)"/>
+<path d="M 364 517.4 L 444 757.4" fill="none" clip-path="url(#shell)"/>
+<path d="M 364 392.6 L 224 132.6" fill="none" clip-path="url(#shell)"/>
+<path d="M 436 392.6 L 576 132.6" fill="none" clip-path="url(#shell)"/>
+<path d="M 150 560 C 160 290 640 290 650 560 Z" fill="none"/>
+<path d="M 130 560 L 670 560 Q 670 602 630 602 L 170 602 Q 130 602 130 560 Z" fill="#fff"/>
+</g>
+</svg>

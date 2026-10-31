@@ -15,24 +15,41 @@ abstract interface class ColoringArtwork {
   ColoringPage? pageFor(ColoringOutline outline);
 }
 
+/// Turns how dark a pixel is into its opacity, and its color into black.
+const _darkness = ColorFilter.matrix([
+  0, 0, 0, 0, 0, //
+  0, 0, 0, 0, 0, //
+  0, 0, 0, 0, 0, //
+  -0.2126, -0.7152, -0.0722, 1, 0, //
+]);
+
 /// Paints the outline of [drawing], if it has one (F-19, ADR 0022).
 ///
-/// The page is fitted in the sheet with [ColoringOutline.placement]. When
-/// [artwork] is available but does not have the page, a "?" placeholder is
-/// drawn in the middle of the sheet; without [artwork] (still loading)
-/// nothing is drawn.
-void paintOutline(Canvas canvas, Drawing drawing, ColoringArtwork? artwork) {
+/// The page is fitted in the sheet with [ColoringOutline.placement]. Only
+/// its dark lines are painted, in black: white areas of the artwork, used
+/// to hide the lines behind a shape, are see-through, so they never cover
+/// the colors under the outline.
+///
+/// When [artwork] is available but does not have the page, a "?"
+/// [placeholder] is drawn in the middle of the sheet; without [artwork]
+/// (still loading) nothing is drawn.
+void paintOutline(
+  Canvas canvas,
+  Drawing drawing,
+  ColoringArtwork? artwork, {
+  bool placeholder = true,
+}) {
   final outline = drawing.outline;
   if (outline == null || artwork == null) return;
   final page = artwork.pageFor(outline);
   if (page == null) {
-    _paintPlaceholder(canvas, drawing.sheetSize);
+    if (placeholder) _paintPlaceholder(canvas, drawing.sheetSize);
     return;
   }
   final place = ColoringOutline.placement(page.size, drawing.sheetSize);
   if (place.isEmpty) return;
   canvas
-    ..save()
+    ..saveLayer(place, Paint()..colorFilter = _darkness)
     ..translate(place.left, place.top)
     ..scale(place.width / page.size.width)
     ..drawPicture(page.picture)

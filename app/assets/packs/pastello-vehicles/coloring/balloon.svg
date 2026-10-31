@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+<defs><clipPath id="balloon"><path d="M 400 100 C 600 100 660 300 560 450 L 480 540 L 320 540 L 240 450 C 140 300 200 100 400 100 Z"/></clipPath></defs>
+<g stroke="#000" stroke-width="16" stroke-linejoin="round" stroke-linecap="round">
+<path d="M 202 220 A 22.5 22.5 0 0 1 174.9 248.1 A 35.3 35.3 0 0 1 114 255.1 A 30.2 30.2 0 0 1 65.1 235.6 A 18 18 0 0 1 65.1 204.4 A 30.2 30.2 0 0 1 114 184.9 A 35.3 35.3 0 0 1 174.9 191.9 A 22.5 22.5 0 0 1 202 220 Z" fill="#fff"/>
+<path d="M 761 400 A 25.3 25.3 0 0 1 730.5 431.7 A 39.7 39.7 0 0 1 662 439.5 A 34 34 0 0 1 607 417.6 A 20.2 20.2 0 0 1 607 382.4 A 34 34 0 0 1 662 360.5 A 39.7 39.7 0 0 1 730.5 368.3 A 25.3 25.3 0 0 1 761 400 Z" fill="#fff"/>
+<path d="M 400 100 C 600 100 660 300 560 450 L 480 540 L 320 540 L 240 450 C 140 300 200 100 400 100 Z" fill="#fff"/>
+<path d="M 400 100 C 300 200 290 380 360 540" fill="none" clip-path="url(#balloon)"/>
+<path d="M 400 100 L 400 540" fill="none" clip-path="url(#balloon)"/>
+<path d="M 400 100 C 500 200 510 380 440 540" fill="none" clip-path="url(#balloon)"/>
+<path d="M 150 400 Q 400 450 650 400" fill="none" clip-path="url(#balloon)"/>
+<path d="M 400 100 C 600 100 660 300 560 450 L 480 540 L 320 540 L 240 450 C 140 300 200 100 400 100 Z" fill="none"/>
+<path d="M 330 540 L 348 625" fill="none"/>
+<path d="M 470 540 L 452 625" fill="none"/>
+<path d="M 330 625 L 470 625 L 455 725 L 345 725 Z" fill="#fff"/>
+<path d="M 336 668 L 464 668" fill="none"/>
+</g>
+</svg>

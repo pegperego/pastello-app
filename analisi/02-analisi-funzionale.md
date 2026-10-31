@@ -420,6 +420,15 @@ glitter, neon, stelline, spray e acquerello.
   AD-17). Prima dotazione: **circa 20 disegni** (animali, veicoli, natura,
   feste), **disegnati da noi** in SVG con contorni semplici e spessi, rilasciati
   CC0 (D-12).
+- Prima dotazione (decisa 2026-10-31), **24 disegni** in 4 pacchetti:
+
+| Categoria | Disegni |
+|---|---|
+| 🐾 Animali | Gatto, cagnolino, coniglietto, pesce, farfalla, tartaruga, unicorno |
+| 🚗 Veicoli | Macchinina, treno, barca a vela, aereo, razzo, mongolfiera |
+| 🌳 Natura | Casetta, margherita, albero di mele, arcobaleno, fungo |
+| 🎉 Feste | Torta di compleanno, palloncini, regalo, albero di Natale, zucca, stella |
+
 - Se il pacchetto di un disegno non c'è più, al posto del contorno compare un
   "?" e il foglio si può colorare lo stesso. Un foglio da colorare lasciato
   intatto non viene salvato, come un foglio vuoto (F-01).
