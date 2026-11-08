@@ -38,6 +38,7 @@ small community. Every dependency is code we do not control.
 | Links in the parents' page | `url_launcher` (added 2026-10-25) | 6.3.3 | BSD-3-Clause |
 | Backup `.zip` files | `archive` (added 2026-10-30, already a transitive dependency, ADR 0020) | 4.5.2 | MIT |
 | Lints (dev only) | `flutter_lints` | 6.0.0 | BSD-3-Clause |
+| Google Play uploads (release tooling, Ruby, not shipped, ADR 0023, added 2026-11-08) | `fastlane` | 2.241.2 | MIT |
 
 ### Deliberately not used
 

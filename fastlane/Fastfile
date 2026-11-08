@@ -1,0 +1,58 @@
+# Google Play publishing (ADR 0023). See docs/releasing.md.
+#
+# The store listing (texts, images, screenshots) and the release notes come
+# from fastlane/metadata/android/<locale>/.
+
+# No usage statistics sent to fastlane.
+opt_out_usage
+
+default_platform(:android)
+
+# Uploads only what the lane names; the listing upload replaces the texts and
+# skips images that did not change.
+SKIP_ALL = {
+  skip_upload_aab: true,
+  skip_upload_apk: true,
+  skip_upload_metadata: true,
+  skip_upload_changelogs: true,
+  skip_upload_images: true,
+  skip_upload_screenshots: true,
+}.freeze
+
+platform :android do
+  desc "Upload an AAB to internal testing, with its notes and the store listing"
+  lane :internal do |options|
+    upload_to_play_store(
+      track: "internal",
+      aab: options.fetch(:aab),
+      release_status: "completed",
+      sync_image_upload: true,
+    )
+  end
+
+  desc "Promote a version from internal testing to production"
+  lane :production do |options|
+    upload_to_play_store(
+      **SKIP_ALL,
+      track: "internal",
+      track_promote_to: "production",
+      version_code: Integer(options.fetch(:version_code)),
+    )
+  end
+
+  desc "Upload only the store listing"
+  lane :listing do
+    upload_to_play_store(
+      **SKIP_ALL,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false,
+      sync_image_upload: true,
+    )
+  end
+
+  desc "Check the service account key, changing nothing"
+  lane :check do
+    validate_play_store_json_key
+  end
+end

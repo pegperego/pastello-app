@@ -79,6 +79,32 @@ Play's forms change.
 6. **Internal testing:** an email list with the family's accounts. Closed
    testing is not required: the developer account is not a new personal one.
 
+### Publishing with fastlane
+
+fastlane uploads the builds and the store listing (ADR 0023).
+
+1. **Service account:** in Google Cloud Console, in a project of the
+   developer account, enable the **Google Play Android Developer API**, then
+   create a service account (for example `pastello-publisher`) with no
+   roles, and create a **JSON key** for it. Download it once and keep it with
+   the keystore backups, never in the repository.
+2. **Play Console:** Users and permissions → Invite new users → the service
+   account's email. Give access to **Pastello only**, with: release to
+   production, exclude devices and use Play App Signing; release apps to
+   testing tracks; edit store listing, pricing and distribution. Nothing
+   else.
+3. **GitHub:** Settings → Environments → New environment `google-play`.
+   Under "Deployment branches and tags" choose "Selected branches and tags"
+   and add the branch `main` and the tag rule `v*.*.*`. Add the secret
+   `PASTELLO_PLAY_SERVICE_ACCOUNT` with the whole content of the JSON key.
+4. **Check:** run the **Google Play** workflow with the task `listing`, or
+   locally:
+
+   ```sh
+   bundle install
+   PASTELLO_PLAY_KEY=/path/to/key.json bundle exec fastlane android check
+   ```
+
 ## Every release
 
 1. Update `version:` in `app/pubspec.yaml`: `X.Y.Z+N`, where `N` grows by one
@@ -96,10 +122,19 @@ Play's forms change.
 
 5. The **Release** workflow checks that the tag matches the version, builds
    and signs the APK and the AAB, checks the permissions and the signature,
-   and publishes a GitHub Release with the APK and its SHA-256.
-6. Download the AAB from the workflow run's artifacts and upload it to Google
-   Play: **internal testing** first, then, once checked on a real device,
-   promote it to **production**.
+   and publishes a GitHub Release with the APK and its SHA-256. Then it
+   uploads the AAB to Google Play **internal testing**, with the release
+   notes and the store listing from `fastlane/metadata/android/`.
+6. Install the internal testing build on a real device and go through the
+   checks below.
+7. Actions → **Google Play** → Run workflow, task `production`, version
+   `X.Y.Z`: the version is promoted from internal testing to **production**,
+   where Google reviews it before it reaches the families.
+
+The store listing is taken from the repository at every upload: change
+texts and screenshots in `fastlane/metadata/android/`, not in Play Console.
+To publish a listing change without a new version, run the **Google Play**
+workflow with the task `listing`.
 
 ## Checks on a real device before production
 

@@ -100,3 +100,38 @@ jobs:
       - name: Remove the keystore
         if: always()
         run: rm -f "$RUNNER_TEMP/release.jks"
+
+  google-play:
+    name: Upload to Google Play internal testing
+    needs: release
+    runs-on: ubuntu-latest
+    # The Google Play key lives in its own environment, away from the
+    # signing key (ADR 0023).
+    environment: google-play
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: pastello-${{ env.VERSION }}-aab
+          path: dist
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Upload the AAB, its notes and the store listing
+        env:
+          PLAY_KEY: ${{ secrets.PASTELLO_PLAY_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$PLAY_KEY" > "$RUNNER_TEMP/play.json"
+          PASTELLO_PLAY_KEY="$RUNNER_TEMP/play.json" \
+            bundle exec fastlane android internal aab:"dist/pastello-$VERSION.aab"
+
+      - name: Remove the key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/play.json"
