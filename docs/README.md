@@ -41,3 +41,4 @@ The original analysis notes are kept, in Italian, in
 | [0020](adr/0020-backup-export-import.md) | Exporting and importing all drawings |
 | [0021](adr/0021-paint-bucket-fills.md) | Paint bucket fills |
 | [0022](adr/0022-coloring-pages.md) | Coloring pages |
+| [0023](adr/0023-google-play-publishing-fastlane.md) | Publishing to Google Play with fastlane |

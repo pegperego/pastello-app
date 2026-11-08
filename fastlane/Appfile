@@ -1,0 +1,4 @@
+# Google Play publishing (ADR 0023). The service account key is never
+# committed: its path comes from the environment.
+json_key_file(ENV["PASTELLO_PLAY_KEY"])
+package_name("io.github.pegperego.pastello")

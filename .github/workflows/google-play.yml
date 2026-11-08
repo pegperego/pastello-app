@@ -1,0 +1,62 @@
+# Google Play tasks started by hand (ADR 0023): promoting a version tested
+# in internal testing to production, or updating only the store listing.
+# Uploading a new version happens in the Release workflow.
+name: Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: What to do
+        type: choice
+        options:
+          - production
+          - listing
+      version:
+        description: Version to promote to production, for example 1.2.0
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  play:
+    name: ${{ inputs.task }}
+    runs-on: ubuntu-latest
+    environment: google-play
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The version code is read from the version's tag.
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Restore the key
+        env:
+          PLAY_KEY: ${{ secrets.PASTELLO_PLAY_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$PLAY_KEY" > "$RUNNER_TEMP/play.json"
+          echo "PASTELLO_PLAY_KEY=$RUNNER_TEMP/play.json" >> "$GITHUB_ENV"
+
+      - name: Promote to production
+        if: inputs.task == 'production'
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Not a version: $VERSION"; exit 1; }
+          code=$(git show "v$VERSION:app/pubspec.yaml" | sed -n 's/^version: [^+]*+\(.*\)/\1/p')
+          test -n "$code"
+          echo "Version $VERSION, version code $code"
+          bundle exec fastlane android production version_code:"$code"
+
+      - name: Update the store listing
+        if: inputs.task == 'listing'
+        run: bundle exec fastlane android listing
+
+      - name: Remove the key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/play.json"

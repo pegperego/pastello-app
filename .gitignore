@@ -53,3 +53,11 @@ app.*.map.json
 
 # Playwright MCP output
 .playwright-mcp/
+
+# fastlane (ADR 0023): generated files, installed gems and the Google Play
+# service account key, which must never be committed
+fastlane/README.md
+fastlane/report.xml
+.bundle/
+vendor/bundle/
+*service-account*.json
